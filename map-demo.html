@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa — Demo</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { padding: 20px; }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+      padding: 10px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+    }
+    .toolbar h2 { font-family: var(--font-title); color: var(--text-gold); font-size: 1rem; }
+    #boardHost {
+      display: inline-block;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: auto;
+      max-width: 100%;
+    }
+    .hint { color: var(--text-muted); font-size: 0.8rem; margin-left: auto; }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <h2>🗺️ Mapa Interativo — Demo</h2>
+    <span class="hint">Arraste tokens · Clique+arrasto = revela fog · Shift = esconde</span>
+  </div>
+  <div id="boardHost"></div>
+
+  <script type="module">
+    import { createBoard } from './map/konva-board.js';
+
+    const map = {
+      image_url: null,
+      grid_px: 48,
+      width_px: 960,
+      height_px: 600,
+      fog_mask_json: { revealed: [] },
+    };
+    const tokens = [
+      { id: 't1', x: 48, y: 48, color: '#c89b3c', label: 'Mago', size_cells: 1 },
+      { id: 't2', x: 96, y: 48, color: '#5a9a4e', label: 'Guerreiro', size_cells: 1 },
+      { id: 't3', x: 480, y: 288, color: '#c0392b', label: 'Dragão', size_cells: 2 },
+    ];
+
+    const board = createBoard({
+      container: 'boardHost',
+      map,
+      tokens,
+      isDM: true,
+      callbacks: {
+        onTokenMove: (id, x, y) => console.log('move', id, x, y),
+        onFogChange: (list) => console.log('fog revealed cells:', list.length),
+      },
+    });
+    window.__board = board;
+  </script>
+</body>
+</html>
