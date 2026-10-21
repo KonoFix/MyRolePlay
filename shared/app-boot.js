@@ -90,6 +90,7 @@ async function joinCampaign() {
   }
 
   const row = Array.isArray(data) ? data[0] : data;
+  const title = row?.out_title || row?.title || 'campanha';
   document.getElementById('joinCampaignModal').classList.remove('open');
-  alert(`Entrou em "${row?.title || 'campanha'}"! O mestre já pode ver sua ficha.`);
+  alert(`Entrou em "${title}"! O mestre já pode ver sua ficha.`);
 }
