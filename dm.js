@@ -89,21 +89,38 @@ async function createCampaign({ title, description }) {
 // Jogadores da campanha
 // =============================================================================
 async function loadPlayers(campaignId) {
-  const { data, error } = await supabase
+  // Query 1: membros da campanha (sem embed porque a FK é indireta via auth.users)
+  const { data: members, error: mErr } = await supabase
     .from('campaign_members')
-    .select(`
-      user_id,
-      character_id,
-      profiles:profiles!campaign_members_user_id_fkey (display_name, avatar_url),
-      characters:characters!campaign_members_character_id_fkey (id, name, sheet_json, portrait_url)
-    `)
+    .select('user_id, character_id, joined_at')
     .eq('campaign_id', campaignId);
-  if (error) { console.warn(error); state.players = []; renderPlayers(); return; }
+  if (mErr) { console.warn('[dm] loadPlayers members', mErr); state.players = []; renderPlayers(); return; }
 
-  state.players = (data || []).map(row => ({
-    user_id: row.user_id,
-    display_name: row.profiles?.display_name || '—',
-    character: row.characters || null,
+  if (!members || members.length === 0) {
+    state.players = [];
+    renderPlayers();
+    return;
+  }
+
+  const userIds = members.map(m => m.user_id);
+  const charIds = members.map(m => m.character_id).filter(Boolean);
+
+  // Query 2 e 3 em paralelo: profiles + characters
+  const [profilesRes, charactersRes] = await Promise.all([
+    supabase.from('profiles').select('user_id, display_name, avatar_url').in('user_id', userIds),
+    charIds.length
+      ? supabase.from('characters').select('id, name, sheet_json, portrait_url, user_id').in('id', charIds)
+      : Promise.resolve({ data: [] }),
+  ]);
+
+  const profilesByUid = Object.fromEntries((profilesRes.data || []).map(p => [p.user_id, p]));
+  const charsById     = Object.fromEntries((charactersRes.data || []).map(c => [c.id, c]));
+
+  state.players = members.map(m => ({
+    user_id: m.user_id,
+    display_name: profilesByUid[m.user_id]?.display_name || '—',
+    avatar_url:   profilesByUid[m.user_id]?.avatar_url || null,
+    character:    m.character_id ? charsById[m.character_id] : null,
   }));
   renderPlayers();
 }
@@ -258,12 +275,22 @@ async function deleteActiveArc() {
 async function loadRolls(campaignId) {
   const { data, error } = await supabase
     .from('dice_rolls')
-    .select('*, profiles:profiles!dice_rolls_user_id_fkey(display_name)')
+    .select('*')
     .eq('campaign_id', campaignId)
     .order('created_at', { ascending: false })
     .limit(50);
-  if (error) { console.warn(error); state.rolls = []; }
-  else state.rolls = data || [];
+  if (error) { console.warn('[dm] loadRolls', error); state.rolls = []; renderRolls(); return; }
+
+  const rolls = data || [];
+  const userIds = [...new Set(rolls.map(r => r.user_id))];
+  if (userIds.length > 0) {
+    const { data: profs } = await supabase.from('profiles')
+      .select('user_id, display_name')
+      .in('user_id', userIds);
+    const byUid = Object.fromEntries((profs || []).map(p => [p.user_id, p]));
+    for (const r of rolls) r.display_name = byUid[r.user_id]?.display_name || '—';
+  }
+  state.rolls = rolls;
   renderRolls();
 }
 
@@ -275,7 +302,7 @@ function renderRolls() {
   }
   ol.innerHTML = state.rolls.map(r => {
     const nat = r.result_detail?.nat20 ? 'nat20' : r.result_detail?.nat1 ? 'nat1' : '';
-    const who = r.profiles?.display_name || '?';
+    const who = r.display_name || '?';
     const hidden = r.is_hidden ? 'hidden' : '';
     return `<li class="${nat} ${hidden}">
       <span><strong>${escapeHtml(who)}</strong> rolou <em>${escapeHtml(r.label)}</em> (${escapeHtml(r.formula)})</span>
