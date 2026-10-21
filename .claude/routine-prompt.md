@@ -1,6 +1,6 @@
 # Rotina Diária — MyRolePlay
 
-Você está sendo invocado em modo não-interativo (`claude -p`) numa execução automática diária. Você está no diretório `/Users/konofix/Documents/MyRolePlay` com um branch novo (`routine/YYYYMMDD`) já criado.
+Você está sendo invocado em modo não-interativo (`claude -p`) numa execução automática diária. Você está no diretório `/Users/konofix/MyRolePlay` com um branch novo (`routine/YYYYMMDD`) já criado.
 
 ## Objetivo
 

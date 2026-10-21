@@ -1,9 +1,17 @@
-# Backlog da Rotina Diária
+# Backlog da Rotina
+
+**Modo atual: sob demanda** — não há agendamento automático. Quando quiser evoluir o repo, abra uma sessão do Claude Code aqui no diretório e diga:
+
+> "Pega um item do backlog e implementa"
+
+Eu leio este arquivo, escolho o primeiro `[next]` (ou primeiro `[ ]` da seção A), implemento e commit.
+
+Para reativar automação no futuro, veja `scripts/README.md`.
+
+---
 
 Formato: `- [status] (prioridade) título` — status: `[ ]` pendente · `[next]` próximo · `[wip]` em andamento · `[x]` feito · `[?]` precisa clarificação.
 Prioridade: **A** = alta, **B** = média, **C** = baixa.
-
-A rotina diária pega **1 item marcado `[next]`** ou, se não houver, o primeiro `[ ]` da seção A.
 
 ---
 

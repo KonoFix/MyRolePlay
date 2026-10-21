@@ -7,7 +7,7 @@
 # =============================================================================
 set -euo pipefail
 
-REPO_DIR="${REPO_DIR:-/Users/konofix/Documents/MyRolePlay}"
+REPO_DIR="${REPO_DIR:-/Users/konofix/MyRolePlay}"
 LOG_FILE="$REPO_DIR/.claude/routine.log"
 PROMPT_FILE="$REPO_DIR/.claude/routine-prompt.md"
 TODAY=$(date -u +%Y%m%d)
