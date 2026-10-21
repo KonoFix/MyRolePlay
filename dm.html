@@ -12,6 +12,11 @@
     <!-- Barra superior -->
     <header class="dm-header">
       <div class="brand-wrapper">
+        <label class="dm-avatar" id="dmAvatar" title="Clique para enviar sua foto">
+          <input type="file" id="dmAvatarInput" accept="image/*" hidden>
+          <span id="dmAvatarPlaceholder" class="dm-avatar-placeholder">🧙</span>
+          <img id="dmAvatarImg" class="dm-avatar-img" alt="" hidden>
+        </label>
         <span class="brand-badge">D&amp;D 5E</span>
         <div class="brand-text">
           <h1 id="dmCampaignTitle">Mesa do Mestre</h1>
@@ -22,6 +27,8 @@
         <select id="dmCampaignSelect" class="field-select" title="Campanha ativa"></select>
         <button id="btnNewCampaign" class="btn">➕ Nova Campanha</button>
         <button id="btnCopyJoinCode" class="btn" title="Copiar código de convite">🔗 Convite</button>
+        <button id="btnExportCampaign" class="btn" title="Exportar campanha em JSON">💾 Exportar</button>
+        <label class="btn" title="Importar campanha JSON" style="margin:0;">📂 Importar<input type="file" id="importCampaignInput" accept=".json" hidden></label>
         <button id="btnDmToggleTheme" class="btn" title="Alternar tema"><span id="dmThemeIcon">📜</span> <span id="dmThemeLabel">Pergaminho</span></button>
         <button id="btnSwitchToPlayer" class="btn" title="Voltar para a visão de Jogador">🛡️ Virar Jogador</button>
         <button id="btnDmSignOut" class="btn btn-accent">↩ Sair</button>
@@ -166,6 +173,19 @@
         <ol id="dmRollLog" class="dm-roll-log"></ol>
       </div>
     </section>
+  </div>
+
+  <!-- Palette de busca (Cmd/Ctrl+K) -->
+  <div id="dmPalette" class="dm-palette" hidden>
+    <div class="dm-palette-card">
+      <input type="text" id="dmPaletteInput" placeholder="Buscar campanhas, arcos, NPCs, mapas, jogadores..." autofocus>
+      <ul id="dmPaletteResults" class="dm-palette-results"></ul>
+      <div class="dm-palette-footer">
+        <span><kbd>↑↓</kbd> Navegar</span>
+        <span><kbd>Enter</kbd> Selecionar</span>
+        <span><kbd>Esc</kbd> Fechar</span>
+      </div>
+    </div>
   </div>
 
   <!-- Modal: Nova Campanha -->

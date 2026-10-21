@@ -35,8 +35,31 @@ const state = {
 };
 
 // ---------- Boot ----------
+renderDmAvatar();
 await loadCampaigns();
 setupUI();
+
+function renderDmAvatar() {
+  const img = document.getElementById('dmAvatarImg');
+  const ph = document.getElementById('dmAvatarPlaceholder');
+  if (!img || !ph) return;
+  const src = dmProfile?.avatar_url;
+  if (src) { img.src = src; img.hidden = false; ph.style.display = 'none'; }
+  else { img.hidden = true; ph.style.display = ''; }
+}
+
+async function handleDmAvatarUpload(file) {
+  if (!file || !file.type.startsWith('image/')) return alert('Selecione uma imagem.');
+  if (file.size > 1.5 * 1024 * 1024) return alert('Imagem muito grande (máx 1.5 MB).');
+  const path = `${dmUserId}/${Date.now()}-${file.name}`;
+  const { error: upErr } = await supabase.storage.from('avatars').upload(path, file, { upsert: true });
+  if (upErr) return alert('Falha no upload: ' + upErr.message);
+  const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
+  const { error: pErr } = await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('user_id', dmUserId);
+  if (pErr) return alert('Falha ao salvar: ' + pErr.message);
+  dmProfile.avatar_url = publicUrl;
+  renderDmAvatar();
+}
 
 // =============================================================================
 // Campanhas
@@ -459,6 +482,164 @@ async function addNpcToken() {
 }
 
 // =============================================================================
+// Palette Cmd+K
+// =============================================================================
+function setupPalette() {
+  const palette = document.getElementById('dmPalette');
+  const input = document.getElementById('dmPaletteInput');
+  const ul = document.getElementById('dmPaletteResults');
+  if (!palette || !input || !ul) return;
+
+  let activeIdx = 0;
+
+  const close = () => { palette.hidden = true; };
+  const open  = () => { palette.hidden = false; input.value = ''; render(); setTimeout(() => input.focus(), 10); };
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      palette.hidden ? open() : close();
+    } else if (e.key === 'Escape' && !palette.hidden) {
+      close();
+    }
+  });
+
+  palette.addEventListener('click', (e) => { if (e.target === palette) close(); });
+
+  input.addEventListener('input', render);
+  input.addEventListener('keydown', (e) => {
+    const items = ul.querySelectorAll('li');
+    if (e.key === 'ArrowDown') { e.preventDefault(); activeIdx = Math.min(items.length - 1, activeIdx + 1); highlight(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); activeIdx = Math.max(0, activeIdx - 1); highlight(); }
+    else if (e.key === 'Enter') { e.preventDefault(); items[activeIdx]?.click(); }
+  });
+
+  function highlight() {
+    ul.querySelectorAll('li').forEach((li, i) => li.classList.toggle('active', i === activeIdx));
+    ul.querySelector('li.active')?.scrollIntoView({ block: 'nearest' });
+  }
+
+  function render() {
+    const q = input.value.toLowerCase().trim();
+    const items = [];
+    state.campaigns.forEach(c => items.push({ kind: 'Campanha', label: c.title, action: () => setActiveCampaign(c.id) }));
+    state.arcs.forEach(a => items.push({ kind: 'Arco', label: a.title, action: () => { switchTab('dm-tab-narrative'); selectArc(a.id); } }));
+    state.players.forEach(p => items.push({ kind: 'Jogador', label: p.display_name + (p.character ? ` (${p.character.name})` : ''), action: () => switchTab('dm-tab-live') }));
+    state.maps.forEach(m => items.push({ kind: 'Mapa', label: m.title, action: () => { switchTab('dm-tab-map'); selectMap(m.id); } }));
+
+    const filtered = q ? items.filter(it => it.label.toLowerCase().includes(q) || it.kind.toLowerCase().includes(q)) : items.slice(0, 20);
+    activeIdx = 0;
+    ul.innerHTML = filtered.length === 0
+      ? '<li style="cursor:default;color:var(--text-muted);">Nenhum resultado</li>'
+      : filtered.map((it, i) => `<li class="${i===0?'active':''}" data-i="${i}">${escapeHtml(it.label)}<span class="kind">${it.kind}</span></li>`).join('');
+    ul.querySelectorAll('li[data-i]').forEach(li => {
+      li.addEventListener('mouseenter', () => { activeIdx = +li.dataset.i; highlight(); });
+      li.addEventListener('click', () => { filtered[+li.dataset.i].action(); close(); });
+    });
+  }
+}
+
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelector(`.tab-btn[data-tab="${tabId}"]`)?.classList.add('active');
+  document.getElementById(tabId)?.classList.add('active');
+}
+
+// =============================================================================
+// Export / Import de campanha
+// =============================================================================
+async function exportActiveCampaign() {
+  const camp = state.campaigns.find(c => c.id === state.activeCampaignId);
+  if (!camp) return alert('Selecione uma campanha primeiro.');
+
+  const [arcs, npcs, maps, members, tokens] = await Promise.all([
+    supabase.from('arcs').select('*').eq('campaign_id', camp.id),
+    supabase.from('npcs').select('*').eq('campaign_id', camp.id),
+    supabase.from('maps').select('*').eq('campaign_id', camp.id),
+    supabase.from('campaign_members').select('*').eq('campaign_id', camp.id),
+    (async () => {
+      const { data: ms } = await supabase.from('maps').select('id').eq('campaign_id', camp.id);
+      const ids = (ms || []).map(m => m.id);
+      if (!ids.length) return { data: [] };
+      return supabase.from('tokens').select('*').in('map_id', ids);
+    })(),
+  ]);
+
+  const bundle = {
+    version: 1,
+    exported_at: new Date().toISOString(),
+    campaign: { title: camp.title, description: camp.description || '' },
+    arcs: (arcs.data || []).map(a => ({ title: a.title, body_md: a.body_md, order_idx: a.order_idx, visible_to_players: a.visible_to_players })),
+    npcs: (npcs.data || []).map(n => ({ name: n.name, stat_block_json: n.stat_block_json, is_hostile: n.is_hostile })),
+    maps: (maps.data || []).map(m => ({ title: m.title, grid_px: m.grid_px, width_px: m.width_px, height_px: m.height_px, fog_mask_json: m.fog_mask_json, is_active: m.is_active, image_url: m.image_url })),
+    tokens: (tokens.data || []).map(t => ({ map_title: (maps.data || []).find(m => m.id === t.map_id)?.title, label: t.label, x: t.x, y: t.y, color: t.color, size_cells: t.size_cells, hp_current: t.hp_current, hp_max: t.hp_max, conditions: t.conditions })),
+    members_count: (members.data || []).length,
+  };
+
+  const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `campanha-${camp.title.replace(/\W+/g, '-').toLowerCase()}-${Date.now()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+}
+
+async function importCampaignJson(file) {
+  let bundle;
+  try { bundle = JSON.parse(await file.text()); }
+  catch { return alert('Arquivo JSON inválido.'); }
+  if (!bundle.campaign) return alert('Formato não reconhecido.');
+
+  if (!confirm(`Importar "${bundle.campaign.title}" como nova campanha?`)) return;
+
+  // 1. Cria a campanha
+  const { data: camp, error: cErr } = await supabase.from('campaigns').insert({
+    dm_id: dmUserId,
+    title: bundle.campaign.title + ' (importada)',
+    description: bundle.campaign.description || '',
+  }).select().single();
+  if (cErr) return alert('Erro ao criar campanha: ' + cErr.message);
+
+  // 2. Arcos
+  if (bundle.arcs?.length) {
+    await supabase.from('arcs').insert(bundle.arcs.map(a => ({ ...a, campaign_id: camp.id })));
+  }
+
+  // 3. NPCs
+  if (bundle.npcs?.length) {
+    await supabase.from('npcs').insert(bundle.npcs.map(n => ({ ...n, campaign_id: camp.id })));
+  }
+
+  // 4. Mapas (sem tokens primeiro, pra obter os novos IDs)
+  const mapIdByTitle = {};
+  if (bundle.maps?.length) {
+    const rows = bundle.maps.map(m => ({ ...m, campaign_id: camp.id }));
+    const { data: newMaps } = await supabase.from('maps').insert(rows).select();
+    (newMaps || []).forEach(nm => { mapIdByTitle[nm.title] = nm.id; });
+  }
+
+  // 5. Tokens
+  if (bundle.tokens?.length) {
+    const tokenRows = bundle.tokens
+      .filter(t => mapIdByTitle[t.map_title])
+      .map(t => ({
+        map_id: mapIdByTitle[t.map_title],
+        label: t.label, x: t.x, y: t.y, color: t.color,
+        size_cells: t.size_cells, hp_current: t.hp_current, hp_max: t.hp_max,
+        conditions: t.conditions,
+      }));
+    if (tokenRows.length) await supabase.from('tokens').insert(tokenRows);
+  }
+
+  alert(`Importada! Nova campanha "${camp.title}" com ${bundle.arcs?.length || 0} arcos, ${bundle.npcs?.length || 0} NPCs, ${bundle.maps?.length || 0} mapas.`);
+  await loadCampaigns();
+  await setActiveCampaign(camp.id);
+}
+
+// =============================================================================
 // Realtime
 // =============================================================================
 function subscribeRealtime(campaignId) {
@@ -575,6 +756,24 @@ function setupUI() {
     const next = (localStorage.getItem('dnd5e_theme') === 'parchment') ? 'dark' : 'parchment';
     localStorage.setItem('dnd5e_theme', next);
     applyTheme(next);
+  });
+
+  // Palette Cmd/Ctrl+K
+  setupPalette();
+
+  // Avatar do mestre
+  document.getElementById('dmAvatarInput')?.addEventListener('change', (e) => {
+    const file = e.target.files?.[0];
+    if (file) handleDmAvatarUpload(file);
+    e.target.value = '';
+  });
+
+  // Export / Import de campanha em JSON
+  document.getElementById('btnExportCampaign')?.addEventListener('click', exportActiveCampaign);
+  document.getElementById('importCampaignInput')?.addEventListener('change', (e) => {
+    const file = e.target.files?.[0];
+    if (file) importCampaignJson(file);
+    e.target.value = '';
   });
 
   document.getElementById('btnSwitchToPlayer')?.addEventListener('click', async () => {

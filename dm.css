@@ -9,6 +9,25 @@
   padding: 16px 24px 90px;
 }
 
+.dm-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid var(--border-accent);
+  background: var(--bg-secondary);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: var(--transition);
+  box-shadow: 0 0 0 2px rgba(200,155,60,0.12);
+}
+.dm-avatar:hover { box-shadow: 0 0 0 3px rgba(200,155,60,0.3), var(--shadow-gold); }
+.dm-avatar-placeholder { font-size: 1.5rem; }
+.dm-avatar-img { width: 100%; height: 100%; object-fit: cover; }
+
 .dm-header {
   display: flex;
   justify-content: space-between;
@@ -401,6 +420,85 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* Palette Cmd+K */
+.dm-palette {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 10vh;
+  z-index: 2000;
+}
+.dm-palette[hidden] { display: none; }
+.dm-palette-card {
+  width: 100%;
+  max-width: 640px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg), var(--shadow-gold);
+  overflow: hidden;
+}
+.dm-palette input {
+  width: 100%;
+  padding: 16px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-family: var(--font-title);
+  font-size: 1rem;
+  outline: none;
+}
+.dm-palette-results {
+  list-style: none;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+.dm-palette-results li {
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  border-left: 3px solid transparent;
+  transition: var(--transition);
+}
+.dm-palette-results li:hover,
+.dm-palette-results li.active {
+  background: rgba(200,155,60,0.1);
+  border-left-color: var(--accent-gold);
+}
+.dm-palette-results .kind {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-left: auto;
+}
+.dm-palette-footer {
+  display: flex;
+  gap: 14px;
+  padding: 8px 20px;
+  background: rgba(0,0,0,0.3);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-color);
+}
+.dm-palette-footer kbd {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 0.7rem;
+  color: var(--text-primary);
+  margin-right: 4px;
 }
 
 .dm-empty-state {
