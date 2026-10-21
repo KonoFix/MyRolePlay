@@ -2,7 +2,7 @@
 // dm.js — Página do Mestre
 // =============================================================================
 import { supabase } from './shared/supabase-client.js';
-import { requireAuth } from './shared/auth.js';
+import { requireAuth, updateRole } from './shared/auth.js';
 import { createBoard } from './map/konva-board.js';
 
 const authed = await requireAuth({ requireRole: 'dm' });
@@ -482,9 +482,21 @@ function setupUI() {
     try { await navigator.clipboard.writeText(camp.join_code); alert(`Código "${camp.join_code}" copiado!`); }
     catch { prompt('Código de convite:', camp.join_code); }
   });
-  document.getElementById('btnDmSignOut').addEventListener('click', async () => {
-    await supabase.auth.signOut();
-    window.location.href = 'login.html';
+  document.getElementById('btnDmSignOut').addEventListener('click', async (e) => {
+    e.preventDefault();
+    if (!confirm('Deseja sair?')) return;
+    try {
+      await supabase.auth.signOut();
+      window.location.href = 'login.html';
+    } catch (err) { alert('Falha ao sair: ' + (err?.message || err)); }
+  });
+
+  document.getElementById('btnSwitchToPlayer')?.addEventListener('click', async () => {
+    if (!confirm('Alternar sua conta para Jogador?')) return;
+    try {
+      await updateRole('player');
+      window.location.href = 'index.html';
+    } catch (err) { alert('Falha: ' + err.message); }
   });
   document.getElementById('btnSaveArc').addEventListener('click', saveArc);
   document.getElementById('btnDeleteArc').addEventListener('click', deleteActiveArc);

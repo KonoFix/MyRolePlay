@@ -4,7 +4,7 @@
 // pluga o save-remoto via janela global que app.js lê.
 // =============================================================================
 import { supabase } from './supabase-client.js';
-import { requireAuth, signOut, getProfile } from './auth.js';
+import { requireAuth, signOut, getProfile, updateRole } from './auth.js';
 import { loadCharacters, scheduleSave, flushAllSaves, deleteCharacter } from './character-store.js';
 
 const authed = await requireAuth();
@@ -24,11 +24,13 @@ if (!authed) {
   // Flush ao sair da aba
   window.addEventListener('beforeunload', () => flushAllSaves());
 
-  // Depois do DOM pronto, instala listeners dos botões do header
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('btnPlayerSignOut')?.addEventListener('click', async () => {
+  // DOM-ready-safe: módulo ES pode carregar depois do DOMContentLoaded
+  const setupButtons = () => {
+    document.getElementById('btnPlayerSignOut')?.addEventListener('click', async (e) => {
+      e.preventDefault();
       if (!confirm('Deseja sair?')) return;
-      await window.__signOut();
+      try { await window.__signOut(); }
+      catch (err) { alert('Falha ao sair: ' + (err?.message || err)); }
     });
 
     document.getElementById('btnJoinCampaign')?.addEventListener('click', () => {
@@ -43,7 +45,25 @@ if (!authed) {
     document.getElementById('joinCodeInput')?.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') joinCampaign();
     });
-  });
+
+    // Botão de alternar para visão do mestre (visível se o profile.role !== 'dm')
+    const btnSwitchDM = document.getElementById('btnSwitchToDM');
+    if (btnSwitchDM) {
+      btnSwitchDM.addEventListener('click', async () => {
+        if (!confirm('Alternar sua conta para Mestre? Você poderá voltar depois.')) return;
+        try {
+          await updateRole('dm');
+          window.location.href = 'dm.html';
+        } catch (err) { alert('Falha: ' + err.message); }
+      });
+    }
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupButtons);
+  } else {
+    setupButtons();
+  }
 }
 
 async function joinCampaign() {

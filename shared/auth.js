@@ -45,8 +45,42 @@ export async function getProfile() {
     .from('profiles')
     .select('*')
     .eq('user_id', session.user.id)
-    .single();
-  if (error && error.code !== 'PGRST116') throw error;
+    .maybeSingle();
+  if (error) {
+    console.warn('[auth] falha getProfile:', error.message);
+    return null;
+  }
+  // Fallback: trigger pode ter falhado — cria profile sob demanda
+  if (!data) {
+    const meta = session.user.user_metadata || {};
+    const role = meta.role === 'dm' ? 'dm' : 'player';
+    const display_name = meta.display_name || (session.user.email || 'Jogador').split('@')[0];
+    const { data: created, error: insErr } = await supabase
+      .from('profiles')
+      .insert({ user_id: session.user.id, display_name, role })
+      .select()
+      .maybeSingle();
+    if (insErr) {
+      console.warn('[auth] falha ao criar profile fallback:', insErr.message);
+      return { user_id: session.user.id, display_name, role };
+    }
+    return created;
+  }
+  return data;
+}
+
+/** Atualiza o role do usuário logado (usado pelo botão "Alternar visão"). */
+export async function updateRole(nextRole) {
+  const session = await getSession();
+  if (!session) return null;
+  if (!['player', 'dm'].includes(nextRole)) throw new Error('role inválido');
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({ role: nextRole })
+    .eq('user_id', session.user.id)
+    .select()
+    .maybeSingle();
+  if (error) throw error;
   return data;
 }
 
