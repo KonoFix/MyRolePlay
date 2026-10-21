@@ -105,28 +105,31 @@ document.addEventListener('DOMContentLoaded', () => {
   renderFullSheet();
 });
 
-// Carrega personagens do localStorage
+// Carrega personagens — preferindo o pré-carregamento feito por app-boot.js
+// (Supabase), com localStorage como fallback offline.
 function loadStoredCharacters() {
-  const stored = localStorage.getItem('dnd5e_characters');
-  if (stored) {
-    try {
-      savedCharacters = JSON.parse(stored);
-    } catch (e) {
-      console.error('Erro ao ler personagens salvos:', e);
-      savedCharacters = {};
-    }
-  }
-
-  const activeId = localStorage.getItem('dnd5e_active_character_id');
-  if (activeId && savedCharacters[activeId]) {
-    currentCharacter = savedCharacters[activeId];
-  } else if (Object.keys(savedCharacters).length > 0) {
-    currentCharacter = Object.values(savedCharacters)[0];
+  const preload = window.__PRELOADED_CHARACTERS__;
+  if (preload && preload.characters && Object.keys(preload.characters).length > 0) {
+    savedCharacters = preload.characters;
+    currentCharacter = savedCharacters[preload.activeId] || Object.values(savedCharacters)[0];
   } else {
-    const defaultChar = createDefaultCharacter();
-    savedCharacters[defaultChar.id] = defaultChar;
-    currentCharacter = defaultChar;
-    saveToLocalStorage();
+    // Fallback: localStorage puro (modo offline ou sem app-boot)
+    const stored = localStorage.getItem('dnd5e_characters');
+    if (stored) {
+      try { savedCharacters = JSON.parse(stored); }
+      catch (e) { console.error('Erro ao ler personagens salvos:', e); savedCharacters = {}; }
+    }
+    const activeId = localStorage.getItem('dnd5e_active_character_id');
+    if (activeId && savedCharacters[activeId]) {
+      currentCharacter = savedCharacters[activeId];
+    } else if (Object.keys(savedCharacters).length > 0) {
+      currentCharacter = Object.values(savedCharacters)[0];
+    } else {
+      const defaultChar = createDefaultCharacter();
+      savedCharacters[defaultChar.id] = defaultChar;
+      currentCharacter = defaultChar;
+      saveToLocalStorage();
+    }
   }
 
   const themeSaved = localStorage.getItem('dnd5e_theme');
@@ -141,6 +144,8 @@ function saveToLocalStorage() {
     savedCharacters[currentCharacter.id] = currentCharacter;
     localStorage.setItem('dnd5e_characters', JSON.stringify(savedCharacters));
     localStorage.setItem('dnd5e_active_character_id', currentCharacter.id);
+    // Dispara persistência remota (Supabase) com debounce, se disponível
+    window.__persistCharacter?.(currentCharacter);
   }
 }
 
