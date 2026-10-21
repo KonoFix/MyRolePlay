@@ -74,27 +74,22 @@ async function joinCampaign() {
 
   if (!code || code.length < 4) return showErr('Digite o código recebido do mestre.');
 
-  // 1. busca campanha pelo código
-  const { data: campaign, error: cErr } = await supabase
-    .from('campaigns')
-    .select('id, title')
-    .eq('join_code', code)
-    .maybeSingle();
-  if (cErr || !campaign) return showErr('Código não encontrado ou inválido.');
+  const activeChar = window.__PRELOADED_CHARACTERS__?.activeId || null;
 
-  // 2. pega a sessão + ficha ativa
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) return showErr('Faça login novamente.');
-  const activeChar = window.__PRELOADED_CHARACTERS__?.activeId;
-
-  // 3. upsert em campaign_members
-  const { error: mErr } = await supabase.from('campaign_members').upsert({
-    campaign_id: campaign.id,
-    user_id: session.user.id,
-    character_id: activeChar || null,
+  // Chama a RPC security-definer que resolve code → campaign + insert em members
+  const { data, error } = await supabase.rpc('join_campaign_by_code', {
+    _code: code,
+    _character_id: activeChar,
   });
-  if (mErr) return showErr('Falha ao entrar: ' + mErr.message);
 
+  if (error) {
+    const msg = /invalid join code/i.test(error.message)
+      ? 'Código não encontrado ou inválido.'
+      : 'Falha ao entrar: ' + error.message;
+    return showErr(msg);
+  }
+
+  const row = Array.isArray(data) ? data[0] : data;
   document.getElementById('joinCampaignModal').classList.remove('open');
-  alert(`Entrou em "${campaign.title}"! O mestre já pode ver sua ficha.`);
+  alert(`Entrou em "${row?.title || 'campanha'}"! O mestre já pode ver sua ficha.`);
 }
