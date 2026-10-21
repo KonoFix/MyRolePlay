@@ -16,6 +16,9 @@ yarn-error.log*
 .env.local
 .env.*.local
 
+# Config com anon key do Supabase (seguro em tese, mas mantemos fora do repo)
+config.js
+
 # Build output
 dist/
 build/

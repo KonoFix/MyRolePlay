@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entrar — MyRolePlay</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .auth-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-top: 3px solid var(--border-accent);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      box-shadow: var(--shadow-md);
+      width: 100%;
+      max-width: 420px;
+    }
+    .auth-card h1 {
+      font-family: var(--font-title);
+      color: var(--text-gold);
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+    .auth-card .subtitle {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .auth-tabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 18px;
+    }
+    .auth-tab {
+      flex: 1;
+      padding: 10px 12px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-family: var(--font-title);
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: var(--transition);
+    }
+    .auth-tab.active {
+      color: var(--accent-gold-light);
+      border-bottom-color: var(--accent-gold);
+    }
+    .auth-form { display: flex; flex-direction: column; gap: 12px; }
+    .auth-form .field-group { gap: 6px; }
+    .role-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .role-selector label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+    .role-selector input[type="radio"] { display: none; }
+    .role-selector input[type="radio"]:checked + span,
+    .role-selector label:has(input:checked) {
+      border-color: var(--accent-gold-light);
+      background: linear-gradient(135deg, rgba(200,155,60,0.2), rgba(200,155,60,0.05));
+      color: var(--accent-gold-light);
+    }
+    .auth-error {
+      padding: 10px 12px;
+      background: rgba(220,38,38,0.12);
+      border: 1px solid var(--accent-red);
+      border-radius: var(--radius-sm);
+      color: #fca5a5;
+      font-size: 0.82rem;
+      display: none;
+    }
+    .auth-error.show { display: block; }
+    .auth-submit {
+      margin-top: 6px;
+      padding: 12px;
+      font-size: 0.95rem;
+    }
+    .brand-mini {
+      text-align: center;
+      font-family: var(--font-title);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+      margin-bottom: 14px;
+    }
+    .brand-mini .brand-badge {
+      display: inline-block;
+      font-family: var(--font-title);
+      font-size: 1rem;
+      color: var(--accent-gold-light);
+      background: linear-gradient(135deg, rgba(200,155,60,0.2), rgba(200,155,60,0.05));
+      border: 1px solid var(--border-accent);
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-card">
+    <div class="brand-mini"><span class="brand-badge">D&D 5E</span></div>
+    <h1>MyRolePlay</h1>
+    <p class="subtitle">Ficha interativa + mesa ao vivo</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="login">Entrar</button>
+      <button class="auth-tab" data-tab="signup">Criar conta</button>
+    </div>
+
+    <div class="auth-error" id="authError"></div>
+
+    <!-- Form Login -->
+    <form class="auth-form" id="formLogin">
+      <div class="field-group">
+        <label class="field-label" for="loginEmail">Email</label>
+        <input id="loginEmail" class="field-input" type="email" required autocomplete="email">
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="loginPassword">Senha</label>
+        <input id="loginPassword" class="field-input" type="password" required minlength="6" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary auth-submit" type="submit">Entrar</button>
+    </form>
+
+    <!-- Form Signup -->
+    <form class="auth-form" id="formSignup" style="display:none;">
+      <div class="field-group">
+        <label class="field-label" for="signupName">Nome de exibição</label>
+        <input id="signupName" class="field-input" type="text" required minlength="2" maxlength="60">
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="signupEmail">Email</label>
+        <input id="signupEmail" class="field-input" type="email" required autocomplete="email">
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="signupPassword">Senha (mín. 6 caracteres)</label>
+        <input id="signupPassword" class="field-input" type="password" required minlength="6" autocomplete="new-password">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Vou jogar como</label>
+        <div class="role-selector">
+          <label><input type="radio" name="role" value="player" checked><span>🛡️ Jogador</span></label>
+          <label><input type="radio" name="role" value="dm"><span>🎲 Mestre</span></label>
+        </div>
+      </div>
+      <button class="btn btn-primary auth-submit" type="submit">Criar conta</button>
+    </form>
+  </div>
+
+  <script src="config.js"></script>
+  <script type="module">
+    import { signIn, signUp, getSession, redirectToRoleHome } from './shared/auth.js';
+
+    // Já logado? Redireciona.
+    const session = await getSession();
+    if (session) await redirectToRoleHome();
+
+    const errBox = document.getElementById('authError');
+    const showError = (msg) => { errBox.textContent = msg; errBox.classList.add('show'); };
+    const clearError = () => errBox.classList.remove('show');
+
+    // Alternar tabs
+    document.querySelectorAll('.auth-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const which = tab.dataset.tab;
+        document.getElementById('formLogin').style.display  = (which === 'login')  ? '' : 'none';
+        document.getElementById('formSignup').style.display = (which === 'signup') ? '' : 'none';
+        clearError();
+      });
+    });
+
+    // Login
+    document.getElementById('formLogin').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearError();
+      try {
+        await signIn({
+          email:    document.getElementById('loginEmail').value.trim(),
+          password: document.getElementById('loginPassword').value,
+        });
+        await redirectToRoleHome();
+      } catch (err) {
+        showError(err.message || 'Falha ao entrar.');
+      }
+    });
+
+    // Signup
+    document.getElementById('formSignup').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearError();
+      try {
+        const role = document.querySelector('input[name="role"]:checked').value;
+        await signUp({
+          email:       document.getElementById('signupEmail').value.trim(),
+          password:    document.getElementById('signupPassword').value,
+          displayName: document.getElementById('signupName').value.trim(),
+          role,
+        });
+        showError('Conta criada! Confirme o email (se exigido) e entre.');
+        // Alterna automaticamente para a aba de login
+        document.querySelector('.auth-tab[data-tab="login"]').click();
+        document.getElementById('loginEmail').value = document.getElementById('signupEmail').value;
+      } catch (err) {
+        showError(err.message || 'Falha ao criar conta.');
+      }
+    });
+  </script>
+</body>
+</html>
