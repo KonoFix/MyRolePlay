@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mesa do Mestre — MyRolePlay</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="dm.css">
+</head>
+<body>
+  <div class="dm-app">
+    <!-- Barra superior -->
+    <header class="dm-header">
+      <div class="brand-wrapper">
+        <span class="brand-badge">D&amp;D 5E</span>
+        <div class="brand-text">
+          <h1 id="dmCampaignTitle">Mesa do Mestre</h1>
+          <p id="dmCampaignSubtitle">Selecione ou crie uma campanha</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <select id="dmCampaignSelect" class="field-select" title="Campanha ativa"></select>
+        <button id="btnNewCampaign" class="btn">➕ Nova Campanha</button>
+        <button id="btnCopyJoinCode" class="btn" title="Copiar código de convite">🔗 Convite</button>
+        <button id="btnDmSignOut" class="btn btn-accent">↩ Sair</button>
+      </div>
+    </header>
+
+    <!-- Abas -->
+    <nav class="sheet-tabs-nav">
+      <button class="tab-btn active" data-tab="dm-tab-live">👥 Painel Ao Vivo</button>
+      <button class="tab-btn" data-tab="dm-tab-narrative">📜 Narrativa</button>
+      <button class="tab-btn" data-tab="dm-tab-map">🗺️ Mapa</button>
+      <button class="tab-btn" data-tab="dm-tab-npcs">🐉 NPCs</button>
+      <button class="tab-btn" data-tab="dm-tab-rolls">🎲 Log de Rolagens</button>
+    </nav>
+
+    <!-- ABA: Painel Ao Vivo -->
+    <main id="dm-tab-live" class="tab-content active">
+      <div class="dm-live-head">
+        <h2>Jogadores conectados</h2>
+        <small id="dmPresenceSummary">— Aguardando campanha —</small>
+      </div>
+      <div id="dmPlayersGrid" class="dm-players-grid">
+        <div class="dm-empty-state">
+          <p>Nenhum jogador na campanha ainda. Compartilhe o <strong>código de convite</strong> acima.</p>
+        </div>
+      </div>
+    </main>
+
+    <!-- ABA: Narrativa -->
+    <section id="dm-tab-narrative" class="tab-content">
+      <div class="dm-narrative-layout">
+        <aside class="dm-arcs-sidebar">
+          <div class="card-header-title">
+            <span>Arcos & Capítulos</span>
+            <button class="btn" id="btnNewArc" style="padding:4px 10px; font-size:0.75rem;">+ Arco</button>
+          </div>
+          <ul id="dmArcsList" class="dm-arcs-list"></ul>
+        </aside>
+        <section class="dm-arc-editor">
+          <div class="field-group">
+            <label class="field-label" for="dmArcTitle">Título</label>
+            <input id="dmArcTitle" class="field-input" placeholder="Ex: A Cripta de Durgen">
+          </div>
+          <div class="field-group" style="margin-top:12px;">
+            <label class="field-label">
+              <input type="checkbox" id="dmArcVisible"> Visível para jogadores
+            </label>
+          </div>
+          <div class="field-group" style="margin-top:12px;">
+            <label class="field-label" for="dmArcBody">Narrativa (Markdown)</label>
+            <textarea id="dmArcBody" class="rp-textarea" style="min-height:280px;"
+              placeholder="# Capítulo 1&#10;&#10;Os aventureiros chegam à..."></textarea>
+          </div>
+          <div style="display:flex; gap:8px; margin-top:12px;">
+            <button class="btn btn-primary" id="btnSaveArc">💾 Salvar</button>
+            <button class="btn btn-accent" id="btnDeleteArc">🗑 Excluir</button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- ABA: Mapa (placeholder — Fase 3) -->
+    <section id="dm-tab-map" class="tab-content">
+      <div class="side-panel-card">
+        <h2>Mapa interativo</h2>
+        <p style="color:var(--text-secondary);">Será implementado na Fase 3 (Konva + fog-of-war + tokens).</p>
+      </div>
+    </section>
+
+    <!-- ABA: NPCs (placeholder — Fase 4) -->
+    <section id="dm-tab-npcs" class="tab-content">
+      <div class="side-panel-card">
+        <h2>NPCs & Monstros</h2>
+        <p style="color:var(--text-secondary);">Será implementado na Fase 4 (compêndio do Guia do Mestre).</p>
+      </div>
+    </section>
+
+    <!-- ABA: Rolagens -->
+    <section id="dm-tab-rolls" class="tab-content">
+      <div class="side-panel-card">
+        <div class="card-header-title">
+          <span>Log de Rolagens da Mesa</span>
+          <small style="color:var(--text-muted);">Realtime — últimas 50</small>
+        </div>
+        <ol id="dmRollLog" class="dm-roll-log"></ol>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal: Nova Campanha -->
+  <div id="newCampaignModal" class="modal-overlay">
+    <div class="modal-content" style="max-width:460px;">
+      <div class="modal-header">
+        <h2 class="modal-title">Nova Campanha</h2>
+        <button class="close-modal-btn" onclick="document.getElementById('newCampaignModal').classList.remove('open')">&times;</button>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="newCampaignTitle">Título</label>
+        <input id="newCampaignTitle" class="field-input" placeholder="Ex: A Maldição de Strahd">
+      </div>
+      <div class="field-group" style="margin-top:12px;">
+        <label class="field-label" for="newCampaignDesc">Resumo</label>
+        <textarea id="newCampaignDesc" class="rp-textarea" style="min-height:90px;" placeholder="Breve pitch da campanha..."></textarea>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:14px;">
+        <button class="btn" onclick="document.getElementById('newCampaignModal').classList.remove('open')">Cancelar</button>
+        <button class="btn btn-primary" id="btnCreateCampaignConfirm">Criar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script type="module" src="dm.js"></script>
+</body>
+</html>

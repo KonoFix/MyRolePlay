@@ -1,0 +1,273 @@
+/* =============================================================================
+   dm.css — estilos específicos da página do Mestre
+   (reaproveita variáveis de tema e primitives de styles.css)
+   ========================================================================== */
+
+.dm-app {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 16px 24px 90px;
+}
+
+.dm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 18px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  margin-bottom: 20px;
+  position: sticky;
+  top: 12px;
+  z-index: 100;
+}
+
+.dm-header .header-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.dm-header .field-select {
+  min-width: 200px;
+  max-width: 280px;
+}
+
+/* ------------------- Painel Ao Vivo ------------------- */
+.dm-live-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 14px;
+}
+
+.dm-live-head h2 {
+  font-family: var(--font-title);
+  color: var(--text-gold);
+  font-size: 1.2rem;
+}
+
+.dm-players-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.dm-player-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--accent-gold);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.dm-player-card:hover {
+  border-color: var(--border-accent);
+  box-shadow: var(--shadow-gold);
+}
+
+.dm-player-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.dm-player-portrait {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-accent);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+.dm-player-name {
+  font-family: var(--font-title);
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.dm-player-class {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.dm-player-hp {
+  margin: 6px 0 10px;
+}
+
+.dm-player-hp-bar {
+  height: 10px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.dm-player-hp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-green), #65d47a);
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.dm-player-hp.warn .dm-player-hp-fill { background: linear-gradient(90deg, var(--accent-gold), #e2b354); }
+.dm-player-hp.danger .dm-player-hp-fill { background: linear-gradient(90deg, var(--accent-red), #ef6161); }
+
+.dm-player-hp-text {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.dm-player-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 0.75rem;
+}
+
+.dm-player-stat {
+  text-align: center;
+  padding: 4px 2px;
+  background: rgba(0,0,0,0.2);
+  border-radius: var(--radius-sm);
+}
+.dm-player-stat .lbl { color: var(--text-muted); font-size: 0.65rem; text-transform: uppercase; display: block; }
+.dm-player-stat .val { font-family: var(--font-title); font-weight: 700; color: var(--text-gold); font-size: 0.9rem; }
+
+.dm-player-conditions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.dm-condition-pill {
+  font-size: 0.68rem;
+  padding: 2px 6px;
+  background: rgba(220,38,38,0.15);
+  border: 1px solid var(--accent-red);
+  color: #fca5a5;
+  border-radius: 4px;
+}
+
+/* ------------------- Narrativa ------------------- */
+.dm-narrative-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 16px;
+}
+
+.dm-arcs-sidebar {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  box-shadow: var(--shadow-sm);
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.dm-arcs-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.dm-arcs-list li {
+  padding: 8px 10px;
+  background: rgba(0,0,0,0.2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.88rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: var(--transition);
+}
+.dm-arcs-list li:hover { background: rgba(255,255,255,0.05); }
+.dm-arcs-list li.active {
+  background: linear-gradient(90deg, rgba(200,155,60,0.18), transparent);
+  border-left: 3px solid var(--accent-gold);
+}
+.dm-arcs-list li .arc-hidden-icon { color: var(--text-muted); font-size: 0.75rem; }
+
+.dm-arc-editor {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ------------------- Log de Rolagens ------------------- */
+.dm-roll-log {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.dm-roll-log li {
+  padding: 10px 12px;
+  background: rgba(0,0,0,0.25);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.85rem;
+}
+.dm-roll-log li.nat20 { border-left-color: var(--accent-green); }
+.dm-roll-log li.nat1  { border-left-color: var(--accent-red); }
+.dm-roll-log li.hidden { opacity: 0.6; font-style: italic; }
+
+.dm-roll-log .roll-total {
+  font-family: var(--font-title);
+  font-weight: 800;
+  color: var(--text-gold);
+}
+
+.dm-empty-state {
+  padding: 32px;
+  text-align: center;
+  color: var(--text-muted);
+  background: rgba(0,0,0,0.15);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border-color);
+}
+
+/* ------------------- Modal reused ------------------- */
+.modal-overlay.open { display: flex !important; }
+
+/* ------------------- Responsivo ------------------- */
+@media (max-width: 900px) {
+  .dm-header { position: relative; top: 0; flex-direction: column; align-items: stretch; }
+  .dm-narrative-layout { grid-template-columns: 1fr; }
+  .dm-arcs-sidebar { max-height: none; }
+}
+
+@media (max-width: 500px) {
+  .dm-app { padding: 10px 10px 90px; }
+  .dm-players-grid { grid-template-columns: 1fr; }
+}
