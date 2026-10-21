@@ -3,9 +3,10 @@
 // =============================================================================
 import { supabase } from './supabase-client.js';
 
-const PLAYER_HOME = '/index.html';
-const DM_HOME     = '/dm.html';
-const LOGIN_PAGE  = '/login.html';
+// Paths relativos à raiz do app — funcionam em file://, dev server e Vercel.
+const PLAYER_HOME = 'index.html';
+const DM_HOME     = 'dm.html';
+const LOGIN_PAGE  = 'login.html';
 
 export async function signUp({ email, password, displayName, role }) {
   const { data, error } = await supabase.auth.signUp({
