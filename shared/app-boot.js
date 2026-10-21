@@ -24,6 +24,33 @@ if (!authed) {
   // Flush ao sair da aba
   window.addEventListener('beforeunload', () => flushAllSaves());
 
+  // Presença: para cada campanha em que o jogador é membro, anuncia online
+  // via canal realtime da campanha. O DM vê o indicador atualizar.
+  try {
+    const session = await (async () => {
+      const r = await supabase.auth.getSession();
+      return r.data?.session;
+    })();
+    if (session) {
+      const { data: memberships } = await supabase
+        .from('campaign_members')
+        .select('campaign_id')
+        .eq('user_id', session.user.id);
+      (memberships || []).forEach(({ campaign_id }) => {
+        const chan = supabase.channel(`campaign:${campaign_id}`, {
+          config: { presence: { key: session.user.id } },
+        });
+        chan.subscribe(async (status) => {
+          if (status === 'SUBSCRIBED') {
+            await chan.track({ since: Date.now(), role: 'player' });
+          }
+        });
+      });
+    }
+  } catch (err) {
+    console.warn('[presence] falhou:', err);
+  }
+
   // DOM-ready-safe: módulo ES pode carregar depois do DOMContentLoaded
   const setupButtons = () => {
     document.getElementById('btnPlayerSignOut')?.addEventListener('click', async (e) => {

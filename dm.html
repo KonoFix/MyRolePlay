@@ -22,6 +22,7 @@
         <select id="dmCampaignSelect" class="field-select" title="Campanha ativa"></select>
         <button id="btnNewCampaign" class="btn">➕ Nova Campanha</button>
         <button id="btnCopyJoinCode" class="btn" title="Copiar código de convite">🔗 Convite</button>
+        <button id="btnDmToggleTheme" class="btn" title="Alternar tema"><span id="dmThemeIcon">📜</span> <span id="dmThemeLabel">Pergaminho</span></button>
         <button id="btnSwitchToPlayer" class="btn" title="Voltar para a visão de Jogador">🛡️ Virar Jogador</button>
         <button id="btnDmSignOut" class="btn btn-accent">↩ Sair</button>
       </div>
@@ -70,9 +71,19 @@
             </label>
           </div>
           <div class="field-group" style="margin-top:12px;">
-            <label class="field-label" for="dmArcBody">Narrativa (Markdown)</label>
-            <textarea id="dmArcBody" class="rp-textarea" style="min-height:280px;"
-              placeholder="# Capítulo 1&#10;&#10;Os aventureiros chegam à..."></textarea>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <label class="field-label" for="dmArcBody" style="margin:0;">Narrativa (Markdown)</label>
+              <div class="dm-md-tabs">
+                <button class="dm-md-tab active" data-mode="edit" type="button">✏️ Editar</button>
+                <button class="dm-md-tab" data-mode="split" type="button">⟷ Dividir</button>
+                <button class="dm-md-tab" data-mode="preview" type="button">👁 Preview</button>
+              </div>
+            </div>
+            <div class="dm-md-container" data-mode="edit">
+              <textarea id="dmArcBody" class="rp-textarea dm-md-input" style="min-height:320px;"
+                placeholder="# Capítulo 1&#10;&#10;Os aventureiros chegam à..."></textarea>
+              <div id="dmArcPreview" class="dm-md-preview markdown-body"></div>
+            </div>
           </div>
           <div style="display:flex; gap:8px; margin-top:12px;">
             <button class="btn btn-primary" id="btnSaveArc">💾 Salvar</button>
@@ -104,11 +115,44 @@
       <div id="dmBoardHost" style="display:inline-block; background:var(--bg-primary); border:1px solid var(--border-color); border-radius:var(--radius-md); overflow:auto; max-width:100%;"></div>
     </section>
 
-    <!-- ABA: NPCs (placeholder — Fase 4) -->
+    <!-- ABA: NPCs / Compêndio do GdM -->
     <section id="dm-tab-npcs" class="tab-content">
-      <div class="side-panel-card">
-        <h2>NPCs & Monstros</h2>
-        <p style="color:var(--text-secondary);">Será implementado na Fase 4 (compêndio do Guia do Mestre).</p>
+      <div class="dm-compendium-grid">
+        <!-- Gerador de Tesouro Individual -->
+        <div class="side-panel-card">
+          <div class="card-header-title">
+            <span>Tesouro Individual (GdM cap 7)</span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="treasureCR">Faixa de CR do inimigo</label>
+            <select id="treasureCR" class="field-select">
+              <option value="0-4">0 — 4</option>
+              <option value="5-10">5 — 10</option>
+              <option value="11-16">11 — 16</option>
+              <option value="17+">17+</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="btnRollTreasure" style="margin-top:10px;">🎲 Rolar Tesouro</button>
+          <div id="treasureResult" style="margin-top:12px;"></div>
+        </div>
+
+        <!-- Calculadora de Dificuldade de Encontro -->
+        <div class="side-panel-card">
+          <div class="card-header-title">
+            <span>Dificuldade de Encontro (XP budget)</span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="partyLevels">Níveis do grupo (vírgula)</label>
+            <input id="partyLevels" class="field-input" placeholder="Ex: 3,3,4,5" value="3,3,3,3">
+          </div>
+          <div class="field-group" style="margin-top:10px;">
+            <label class="field-label">Monstros no encontro</label>
+            <div id="encounterMonsters" style="display:flex; flex-direction:column; gap:6px;"></div>
+            <button class="btn" id="btnAddMonster" style="margin-top:6px; padding:4px 10px; font-size:0.75rem;">+ Adicionar monstro</button>
+          </div>
+          <button class="btn btn-primary" id="btnEvaluateEncounter" style="margin-top:10px;">⚖ Avaliar</button>
+          <div id="encounterResult" style="margin-top:12px;"></div>
+        </div>
       </div>
     </section>
 
@@ -147,6 +191,7 @@
   </div>
 
   <script src="config.js"></script>
+  <script src="dm-data.js"></script>
   <script type="module" src="dm.js"></script>
 </body>
 </html>

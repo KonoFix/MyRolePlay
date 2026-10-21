@@ -4,6 +4,13 @@
 import { supabase } from './shared/supabase-client.js';
 import { requireAuth, updateRole } from './shared/auth.js';
 import { createBoard } from './map/konva-board.js';
+import { marked } from 'https://esm.sh/marked@12.0.2';
+import DOMPurify from 'https://esm.sh/dompurify@3.1.6';
+
+marked.setOptions({ gfm: true, breaks: true });
+function renderMarkdown(md) {
+  return DOMPurify.sanitize(marked.parse(md || ''));
+}
 
 const authed = await requireAuth({ requireRole: 'dm' });
 if (!authed) throw new Error('redirecting');
@@ -24,6 +31,7 @@ const state = {
   activeMapId: null,
   tokens: [],
   board: null,
+  onlineUserIds: new Set(),
 };
 
 // ---------- Boot ----------
@@ -137,17 +145,21 @@ function renderPlayers() {
   }
 
   grid.innerHTML = state.players.map(p => renderPlayerCard(p)).join('');
-  document.getElementById('dmPresenceSummary').textContent = `${state.players.length} jogador(es)`;
+  const onlineCount = state.players.filter(p => state.onlineUserIds.has(p.user_id)).length;
+  document.getElementById('dmPresenceSummary').textContent =
+    `${onlineCount} / ${state.players.length} online`;
 }
 
 function renderPlayerCard(p) {
+  const online = state.onlineUserIds.has(p.user_id);
+  const dot = `<span class="dm-presence-dot ${online ? 'on' : 'off'}" title="${online ? 'Online' : 'Offline'}"></span>`;
   const char = p.character;
   if (!char) {
-    return `<div class="dm-player-card">
+    return `<div class="dm-player-card ${online ? 'is-online' : ''}">
       <div class="dm-player-head">
         <div class="dm-player-portrait" style="display:flex;align-items:center;justify-content:center;color:var(--text-muted);">?</div>
         <div>
-          <div class="dm-player-name">${escapeHtml(p.display_name)}</div>
+          <div class="dm-player-name">${dot}${escapeHtml(p.display_name)}</div>
           <div class="dm-player-class">(sem personagem vinculado)</div>
         </div>
       </div>
@@ -162,13 +174,13 @@ function renderPlayerCard(p) {
   const classInfo = `${sheet.class || '—'} ${sheet.level ? '• Nv ' + sheet.level : ''}`;
 
   return `
-    <div class="dm-player-card">
+    <div class="dm-player-card ${online ? 'is-online' : ''}">
       <div class="dm-player-head">
         ${portrait
           ? `<img class="dm-player-portrait" src="${escapeAttr(portrait)}" alt="">`
           : `<div class="dm-player-portrait" style="display:flex;align-items:center;justify-content:center;color:var(--text-muted);">🎭</div>`}
         <div>
-          <div class="dm-player-name">${escapeHtml(sheet.name || char.name)}</div>
+          <div class="dm-player-name">${dot}${escapeHtml(sheet.name || char.name)}</div>
           <div class="dm-player-class">${escapeHtml(classInfo)}</div>
           <div class="dm-player-class" style="color:var(--text-secondary);">
             ${escapeHtml(p.display_name)}
@@ -231,13 +243,24 @@ function selectArc(id) {
   document.getElementById('dmArcTitle').value = a.title;
   document.getElementById('dmArcBody').value = a.body_md || '';
   document.getElementById('dmArcVisible').checked = !!a.visible_to_players;
+  refreshArcPreview();
   renderArcs();
 }
 
 function clearArcEditor() {
-  document.getElementById('dmArcTitle').value = '';
-  document.getElementById('dmArcBody').value = '';
-  document.getElementById('dmArcVisible').checked = false;
+  const t = document.getElementById('dmArcTitle');
+  const b = document.getElementById('dmArcBody');
+  const v = document.getElementById('dmArcVisible');
+  if (t) t.value = '';
+  if (b) b.value = '';
+  if (v) v.checked = false;
+  refreshArcPreview();
+}
+
+function refreshArcPreview() {
+  const body = document.getElementById('dmArcBody');
+  const preview = document.getElementById('dmArcPreview');
+  if (body && preview) preview.innerHTML = renderMarkdown(body.value);
 }
 
 async function saveArc() {
@@ -358,7 +381,9 @@ async function createMap() {
 
 async function uploadMapImage(file) {
   if (!state.activeMapId) return alert('Selecione um mapa primeiro.');
-  const path = `maps/${state.activeMapId}/${Date.now()}-${file.name}`;
+  // Path dentro do bucket "maps": <mapId>/<timestamp>-<filename>
+  // (sem "maps/" redundante — bucket já é "maps")
+  const path = `${state.activeMapId}/${Date.now()}-${file.name}`;
   const { error: upErr } = await supabase.storage.from('maps').upload(path, file, { upsert: true });
   if (upErr) {
     // Bucket "maps" talvez não exista — avisa com instrução
@@ -440,7 +465,22 @@ function subscribeRealtime(campaignId) {
   if (state.liveChannel) supabase.removeChannel(state.liveChannel);
 
   state.liveChannel = supabase
-    .channel(`campaign:${campaignId}`)
+    .channel(`campaign:${campaignId}`, { config: { presence: { key: dmUserId } } })
+    .on('presence', { event: 'sync' }, () => {
+      const presenceState = state.liveChannel.presenceState();
+      state.onlineUserIds = new Set(Object.keys(presenceState));
+      renderPlayers();
+    })
+    .on('presence', { event: 'join' }, () => {
+      const presenceState = state.liveChannel.presenceState();
+      state.onlineUserIds = new Set(Object.keys(presenceState));
+      renderPlayers();
+    })
+    .on('presence', { event: 'leave' }, () => {
+      const presenceState = state.liveChannel.presenceState();
+      state.onlineUserIds = new Set(Object.keys(presenceState));
+      renderPlayers();
+    })
     .on('postgres_changes',
         { event: '*', schema: 'public', table: 'characters' },
         () => loadPlayers(campaignId))
@@ -462,12 +502,16 @@ function subscribeRealtime(campaignId) {
           if (!state.activeMapId) return;
           const t = payload.new;
           if (t.map_id !== state.activeMapId) return;
-          // Atualiza em memória + anima no board
           const idx = state.tokens.findIndex(x => x.id === t.id);
           if (idx >= 0) state.tokens[idx] = t;
           state.board?.updateToken(t.id, { x: t.x, y: t.y });
         })
-    .subscribe();
+    .subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        // Anuncia a presença do mestre (ele também fica "online")
+        await state.liveChannel.track({ since: Date.now(), role: 'dm' });
+      }
+    });
 }
 
 // =============================================================================
@@ -518,6 +562,21 @@ function setupUI() {
     } catch (err) { alert('Falha ao sair: ' + (err?.message || err)); }
   });
 
+  // Tema (compartilha a mesma preferência do jogador via dnd5e_theme)
+  const applyTheme = (t) => {
+    document.documentElement.setAttribute('data-theme', t === 'parchment' ? 'parchment' : 'dark');
+    const icon = document.getElementById('dmThemeIcon');
+    const label = document.getElementById('dmThemeLabel');
+    if (icon)  icon.textContent  = t === 'parchment' ? '🌙' : '📜';
+    if (label) label.textContent = t === 'parchment' ? 'Escuro' : 'Pergaminho';
+  };
+  applyTheme(localStorage.getItem('dnd5e_theme') || 'dark');
+  document.getElementById('btnDmToggleTheme')?.addEventListener('click', () => {
+    const next = (localStorage.getItem('dnd5e_theme') === 'parchment') ? 'dark' : 'parchment';
+    localStorage.setItem('dnd5e_theme', next);
+    applyTheme(next);
+  });
+
   document.getElementById('btnSwitchToPlayer')?.addEventListener('click', async () => {
     if (!confirm('Alternar sua conta para Jogador?')) return;
     try {
@@ -531,6 +590,82 @@ function setupUI() {
     state.activeArcId = null;
     clearArcEditor();
     document.getElementById('dmArcTitle').focus();
+  });
+
+  // Preview Markdown — tabs + update ao vivo
+  const mdInput = document.getElementById('dmArcBody');
+  const mdPreview = document.getElementById('dmArcPreview');
+  const mdContainer = mdPreview?.closest('.dm-md-container');
+  if (mdInput && mdPreview && mdContainer) {
+    const updatePreview = () => { mdPreview.innerHTML = renderMarkdown(mdInput.value); };
+    mdInput.addEventListener('input', updatePreview);
+    updatePreview();
+    document.querySelectorAll('.dm-md-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.dm-md-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        mdContainer.dataset.mode = btn.dataset.mode;
+      });
+    });
+  }
+
+  // Compêndio GdM: Tesouros + Encontros
+  document.getElementById('btnRollTreasure')?.addEventListener('click', () => {
+    const cr = document.getElementById('treasureCR').value;
+    const r = window.rollTreasureIndividual(cr);
+    const totals = r.resolved;
+    const coinRows = Object.entries(totals)
+      .filter(([, v]) => v > 0)
+      .map(([k, v]) => `<li><strong>${v}</strong> ${k.toUpperCase()}</li>`).join('');
+    document.getElementById('treasureResult').innerHTML = `
+      <div style="padding:10px 12px; background:rgba(0,0,0,0.25); border-radius:6px;">
+        <div style="color:var(--text-muted); font-size:0.78rem;">d100 = ${r.roll} → ${escapeHtml(r.label)}</div>
+        <ul style="margin:8px 0 0 16px;">${coinRows || '<li>Sem moedas</li>'}</ul>
+      </div>`;
+  });
+
+  const addMonsterRow = (cr = '1', count = 1) => {
+    const container = document.getElementById('encounterMonsters');
+    const row = document.createElement('div');
+    row.className = 'dm-monster-row';
+    row.innerHTML = `
+      <select class="field-select monster-cr" style="padding:4px 8px; font-size:0.85rem;">
+        ${Object.keys(window.DM_DATA.xpByCR).map(c => `<option ${c===cr?'selected':''}>${c}</option>`).join('')}
+      </select>
+      <input class="field-input monster-count" type="number" min="1" value="${count}" style="width:70px; padding:4px 8px;">
+      <button class="btn btn-accent monster-remove" type="button" style="padding:2px 10px; font-size:0.9rem;">×</button>`;
+    row.querySelector('.monster-remove').addEventListener('click', () => row.remove());
+    container.appendChild(row);
+  };
+  addMonsterRow('2', 2);  // seed inicial
+  document.getElementById('btnAddMonster')?.addEventListener('click', () => addMonsterRow());
+
+  document.getElementById('btnEvaluateEncounter')?.addEventListener('click', () => {
+    const levels = document.getElementById('partyLevels').value
+      .split(',').map(s => parseInt(s.trim(), 10)).filter(n => n >= 1 && n <= 20);
+    if (levels.length === 0) return alert('Informe pelo menos 1 nível válido (1–20).');
+    const monsters = Array.from(document.querySelectorAll('#encounterMonsters .dm-monster-row'))
+      .map(r => ({
+        cr: r.querySelector('.monster-cr').value,
+        count: parseInt(r.querySelector('.monster-count').value, 10) || 1,
+      }));
+    if (monsters.length === 0) return alert('Adicione pelo menos 1 monstro.');
+    const r = window.evaluateEncounter(levels, monsters);
+    const colorByDiff = { trivial: 'var(--text-muted)', 'fácil': '#5a9a4e', moderado: '#c89b3c', 'difícil': '#e07845', mortal: '#c0392b' };
+    document.getElementById('encounterResult').innerHTML = `
+      <div style="padding:12px 14px; background:rgba(0,0,0,0.25); border-radius:6px;">
+        <div style="font-family:var(--font-title); font-size:1.1rem; color:${colorByDiff[r.difficulty]}; text-transform:uppercase; font-weight:800;">
+          Encontro ${r.difficulty}
+        </div>
+        <div style="margin-top:8px; font-size:0.85rem;">
+          XP base: <strong>${r.baseXP}</strong> × ${r.mult} multiplicador
+          (${r.totalCount} monstros) = <strong>${r.adjustedXP} XP ajustado</strong>
+        </div>
+        <div style="margin-top:6px; font-size:0.78rem; color:var(--text-muted);">
+          Limiares do grupo — fácil: ${r.thresholds.easy} · moderado: ${r.thresholds.medium} ·
+          difícil: ${r.thresholds.hard} · mortal: ${r.thresholds.deadly}
+        </div>
+      </div>`;
   });
 
   // Mapa
