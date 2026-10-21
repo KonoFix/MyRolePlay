@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  launchd agent para a rotina diária do MyRolePlay.
+
+  Como instalar:
+    cp scripts/com.myroleplay.routine.plist ~/Library/LaunchAgents/
+    launchctl load  ~/Library/LaunchAgents/com.myroleplay.routine.plist
+    launchctl kickstart gui/$UID/com.myroleplay.routine   # dispara AGORA (teste)
+
+  Como ver logs:
+    tail -f .claude/routine.log
+    tail -f /tmp/myroleplay-routine-stdout.log
+    tail -f /tmp/myroleplay-routine-stderr.log
+
+  Como desinstalar:
+    launchctl unload ~/Library/LaunchAgents/com.myroleplay.routine.plist
+    rm ~/Library/LaunchAgents/com.myroleplay.routine.plist
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.myroleplay.routine</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>-lc</string>
+    <string>/Users/konofix/Documents/MyRolePlay/scripts/daily-routine.sh</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/konofix/Documents/MyRolePlay</string>
+
+  <!-- Agendamento: todos os dias às 03:00 (horário local do Mac) -->
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>3</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+
+  <!-- Se perdeu o horário (Mac dormindo), roda ao acordar -->
+  <key>RunAtLoad</key>
+  <false/>
+
+  <!-- Garante só 1 instância simultânea -->
+  <key>ThrottleInterval</key>
+  <integer>3600</integer>
+
+  <key>StandardOutPath</key>
+  <string>/tmp/myroleplay-routine-stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>/tmp/myroleplay-routine-stderr.log</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/Users/konofix/.nvm/versions/node/v20.20.2/bin:/Users/konofix/.local/bin</string>
+    <key>HOME</key>
+    <string>/Users/konofix</string>
+  </dict>
+</dict>
+</plist>
