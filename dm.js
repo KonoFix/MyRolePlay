@@ -3,6 +3,7 @@
 // =============================================================================
 import { supabase } from './shared/supabase-client.js';
 import { requireAuth } from './shared/auth.js';
+import { createBoard } from './map/konva-board.js';
 
 const authed = await requireAuth({ requireRole: 'dm' });
 if (!authed) throw new Error('redirecting');
@@ -19,6 +20,10 @@ const state = {
   players: [],       // [{ user_id, display_name, character }]
   rolls: [],
   liveChannel: null,
+  maps: [],
+  activeMapId: null,
+  tokens: [],
+  board: null,
 };
 
 // ---------- Boot ----------
@@ -63,6 +68,7 @@ async function setActiveCampaign(id) {
     loadPlayers(id),
     loadArcs(id),
     loadRolls(id),
+    loadMaps(id),
   ]);
 
   subscribeRealtime(id);
@@ -279,6 +285,128 @@ function renderRolls() {
 }
 
 // =============================================================================
+// Mapas & tokens
+// =============================================================================
+async function loadMaps(campaignId) {
+  const { data, error } = await supabase
+    .from('maps').select('*')
+    .eq('campaign_id', campaignId)
+    .order('created_at');
+  if (error) { console.warn(error); state.maps = []; }
+  else state.maps = data || [];
+  renderMapSelect();
+  const activeMap = state.maps.find(m => m.is_active) || state.maps[0];
+  if (activeMap) await selectMap(activeMap.id);
+  else destroyBoard();
+}
+
+function renderMapSelect() {
+  const sel = document.getElementById('dmMapSelect');
+  if (!sel) return;
+  sel.innerHTML = state.maps.length === 0
+    ? '<option value="">(sem mapas)</option>'
+    : state.maps.map(m => `<option value="${m.id}" ${m.id===state.activeMapId?'selected':''}>${escapeHtml(m.title)}</option>`).join('');
+}
+
+async function selectMap(mapId) {
+  state.activeMapId = mapId;
+  renderMapSelect();
+  await loadTokens(mapId);
+  renderBoard();
+}
+
+async function createMap() {
+  if (!state.activeCampaignId) return alert('Selecione uma campanha.');
+  const title = prompt('Nome do mapa:', 'Novo Mapa');
+  if (!title) return;
+  const { data, error } = await supabase.from('maps').insert({
+    campaign_id: state.activeCampaignId,
+    title,
+    is_active: state.maps.length === 0,
+  }).select().single();
+  if (error) return alert('Erro: ' + error.message);
+  await loadMaps(state.activeCampaignId);
+  await selectMap(data.id);
+}
+
+async function uploadMapImage(file) {
+  if (!state.activeMapId) return alert('Selecione um mapa primeiro.');
+  const path = `maps/${state.activeMapId}/${Date.now()}-${file.name}`;
+  const { error: upErr } = await supabase.storage.from('maps').upload(path, file, { upsert: true });
+  if (upErr) {
+    // Bucket "maps" talvez não exista — avisa com instrução
+    return alert('Falha no upload: ' + upErr.message + '\n\nCrie o bucket "maps" (público) em Supabase Dashboard → Storage.');
+  }
+  const { data: { publicUrl } } = supabase.storage.from('maps').getPublicUrl(path);
+  const img = new Image();
+  img.onload = async () => {
+    await supabase.from('maps').update({
+      image_url: publicUrl,
+      width_px: img.naturalWidth,
+      height_px: img.naturalHeight,
+    }).eq('id', state.activeMapId);
+    await loadMaps(state.activeCampaignId);
+  };
+  img.src = publicUrl;
+}
+
+async function loadTokens(mapId) {
+  const { data, error } = await supabase.from('tokens').select('*').eq('map_id', mapId);
+  if (error) { console.warn(error); state.tokens = []; }
+  else state.tokens = data || [];
+}
+
+function destroyBoard() {
+  if (state.board) { state.board.destroy(); state.board = null; }
+  document.getElementById('dmBoardHost').innerHTML = '';
+}
+
+function renderBoard() {
+  const map = state.maps.find(m => m.id === state.activeMapId);
+  if (!map) return destroyBoard();
+  destroyBoard();
+
+  state.board = createBoard({
+    container: 'dmBoardHost',
+    map,
+    tokens: state.tokens.map(t => ({
+      id: t.id,
+      x: t.x,
+      y: t.y,
+      color: t.color || '#c89b3c',
+      label: t.label || '',
+      size_cells: t.size_cells || 1,
+    })),
+    isDM: true,
+    callbacks: {
+      onTokenMove: async (id, x, y) => {
+        await supabase.from('tokens').update({ x, y, updated_at: new Date().toISOString() }).eq('id', id);
+      },
+      onFogChange: async (revealedCells) => {
+        await supabase.from('maps')
+          .update({ fog_mask_json: { revealed: revealedCells } })
+          .eq('id', map.id);
+      },
+    },
+  });
+}
+
+async function addNpcToken() {
+  if (!state.activeMapId) return alert('Selecione um mapa.');
+  const label = prompt('Rótulo do token:', 'NPC');
+  if (!label) return;
+  const { data, error } = await supabase.from('tokens').insert({
+    map_id: state.activeMapId,
+    label,
+    x: 0, y: 0,
+    color: '#c0392b',
+  }).select().single();
+  if (error) return alert('Erro: ' + error.message);
+  state.tokens.push(data);
+  state.board?.addToken({ id: data.id, x: 0, y: 0, color: '#c0392b', label, size_cells: 1 });
+}
+
+// =============================================================================
 // Realtime
 // =============================================================================
 function subscribeRealtime(campaignId) {
@@ -298,6 +426,20 @@ function subscribeRealtime(campaignId) {
     .on('postgres_changes',
         { event: '*', schema: 'public', table: 'arcs', filter: `campaign_id=eq.${campaignId}` },
         () => loadArcs(campaignId))
+    .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'maps', filter: `campaign_id=eq.${campaignId}` },
+        () => loadMaps(campaignId))
+    .on('postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'tokens' },
+        async (payload) => {
+          if (!state.activeMapId) return;
+          const t = payload.new;
+          if (t.map_id !== state.activeMapId) return;
+          // Atualiza em memória + anima no board
+          const idx = state.tokens.findIndex(x => x.id === t.id);
+          if (idx >= 0) state.tokens[idx] = t;
+          state.board?.updateToken(t.id, { x: t.x, y: t.y });
+        })
     .subscribe();
 }
 
@@ -350,5 +492,15 @@ function setupUI() {
     state.activeArcId = null;
     clearArcEditor();
     document.getElementById('dmArcTitle').focus();
+  });
+
+  // Mapa
+  document.getElementById('dmMapSelect')?.addEventListener('change', e => selectMap(e.target.value));
+  document.getElementById('btnNewMap')?.addEventListener('click', createMap);
+  document.getElementById('btnAddTokenNPC')?.addEventListener('click', addNpcToken);
+  document.getElementById('dmMapImageInput')?.addEventListener('change', e => {
+    const file = e.target.files?.[0];
+    if (file) uploadMapImage(file);
+    e.target.value = '';
   });
 }
