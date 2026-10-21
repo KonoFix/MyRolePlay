@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D&D 5e - Ficha de Jogador Interativa Oficial</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- CABEÇALHO DO APP / BARRA DE FERRAMENTAS DE MESA -->
+    <header class="app-header">
+      <div class="brand-wrapper">
+        <span class="brand-badge">D&amp;D 5E</span>
+        <div class="brand-text">
+          <h1>Ficha Interativa do Jogador</h1>
+          <p>Compêndio Oficial de Regras • Livro do Jogador</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- SELETOR DE FICHAS & CRIAÇÃO -->
+        <div class="header-action-group">
+          <select id="characterSelector" class="field-select header-char-select" title="Alternar entre fichas salvas">
+            <!-- Opções dinâmicas -->
+          </select>
+          <button id="btnNewCharacter" class="btn" title="Criar nova ficha do zero">
+            <span>➕</span> Novo
+          </button>
+          <button id="btnOpenWizard" class="btn btn-primary" title="Abrir assistente guiado de criação">
+            <span>🧙‍♂️</span> Criar com Assistente
+          </button>
+        </div>
+        
+        <!-- DESCANSOS -->
+        <div class="header-action-group">
+          <button id="btnShortRest" class="btn" title="Descanso Curto (1 hora - gastar dados de vida)">
+            <span>☕</span> Descanso Curto
+          </button>
+          <button id="btnLongRest" class="btn" title="Descanso Longo (8 horas - recupera PVs e metade dos DVs)">
+            <span>⛺</span> Descanso Longo
+          </button>
+        </div>
+
+        <!-- FERRAMENTAS / TEMA / SALVAR -->
+        <div class="header-action-group">
+          <button id="btnToggleTheme" class="btn" title="Alternar entre Tema Escuro e Pergaminho / Fundo Branco">
+            <span id="themeIcon">📜</span> <span id="themeLabel">Pergaminho</span>
+          </button>
+          <button id="btnExportJson" class="btn" title="Exportar ficha em arquivo JSON">
+            <span>💾</span> Exportar
+          </button>
+          <label class="btn" title="Importar arquivo JSON de ficha" style="margin:0;">
+            <span>📂</span> Importar
+            <input type="file" id="importJsonInput" accept=".json" style="display:none;">
+          </label>
+          <button id="btnPrintSheet" class="btn" title="Imprimir ficha ou gerar PDF limpo">
+            <span>🖨️</span> Imprimir
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- IDENTIDADE DO PERSONAGEM (HERO CARD) -->
+    <section class="character-hero-card">
+      <div class="hero-portrait-wrapper">
+        <label class="hero-portrait" id="heroPortrait" title="Clique para enviar uma foto do personagem">
+          <input type="file" id="portraitFileInput" accept="image/*" hidden>
+          <div class="hero-portrait-placeholder" id="heroPortraitPlaceholder">
+            <span class="hero-portrait-icon">📷</span>
+            <span class="hero-portrait-hint">Enviar foto</span>
+          </div>
+          <img id="heroPortraitImg" class="hero-portrait-img" alt="Retrato do personagem" hidden>
+        </label>
+        <button type="button" id="btnRemovePortrait" class="hero-portrait-remove" title="Remover foto" hidden>✕</button>
+      </div>
+
+      <div class="hero-body">
+      <div class="hero-grid-main">
+        <div class="field-group">
+          <label class="field-label" for="charName">Nome do Personagem</label>
+          <input type="text" id="charName" class="field-input field-input-name" placeholder="Ex: Bruenor Martelo de Batalha">
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="charClass">Classe &amp; Nível</label>
+          <div class="field-flex-row">
+            <select id="charClass" class="field-select">
+              <!-- Preenchido via JS com as 12 classes -->
+            </select>
+            <input type="number" id="charLevel" class="field-input input-narrow" min="1" max="20" value="1" title="Nível do personagem (1-20)">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="charSubclass">Subclasse / Arquétipo</label>
+          <select id="charSubclass" class="field-select">
+            <option value="">(Selecione Subclasse)</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="charRace">Raça &amp; Sub-raça</label>
+          <div class="field-flex-row">
+            <select id="charRace" class="field-select">
+              <!-- Preenchido via JS com as 9 raças -->
+            </select>
+            <select id="charSubrace" class="field-select">
+              <option value="">Padrão</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="charBackground">Antecedente</label>
+          <select id="charBackground" class="field-select">
+            <!-- Preenchido via JS -->
+          </select>
+        </div>
+      </div>
+
+      <div class="hero-grid-sub">
+        <div class="field-group">
+          <label class="field-label" for="charAlignment">Tendência Moral</label>
+          <select id="charAlignment" class="field-select">
+            <option value="Leal e Bom">Leal e Bom (LB)</option>
+            <option value="Neutro e Bom">Neutro e Bom (NB)</option>
+            <option value="Caótico e Bom">Caótico e Bom (CB)</option>
+            <option value="Leal e Neutro">Leal e Neutro (LN)</option>
+            <option value="Neutro">Neutro (N)</option>
+            <option value="Caótico e Neutro">Caótico e Neutro (CN)</option>
+            <option value="Leal e Mau">Leal e Mau (LM)</option>
+            <option value="Neutro e Mau">Neutro e Mau (NM)</option>
+            <option value="Caótico e Mau">Caótico e Mau (CM)</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="charXP">Pontos de Experiência (XP)</label>
+          <input type="number" id="charXP" class="field-input" min="0" step="50" value="0">
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="playerName">Nome do Jogador</label>
+          <input type="text" id="playerName" class="field-input" placeholder="Seu nome">
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Estágio de Jogo</label>
+          <div id="gameTierDisplay" class="field-input field-static-text" style="font-weight:700; color:var(--text-gold);">
+            Estágio 1 (Níveis 1–4)
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Próximo Nível em</label>
+          <div id="xpNextLevelDisplay" class="field-input field-static-text" style="color:var(--text-secondary);">
+            300 XP
+          </div>
+        </div>
+      </div>
+      </div><!-- /.hero-body -->
+    </section>
+
+    <!-- ABAS DE NAVEGAÇÃO -->
+    <nav class="sheet-tabs-nav">
+      <button class="tab-btn active" data-tab="tab-combat">⚔️ Combate &amp; Atributos</button>
+      <button class="tab-btn" data-tab="tab-spells">✨ Magias &amp; Conjurador</button>
+      <button class="tab-btn" data-tab="tab-inventory">🎒 Inventário &amp; Equipamento</button>
+      <button class="tab-btn" data-tab="tab-bio">📜 Biografia &amp; Interpretação</button>
+      <button class="tab-btn" data-tab="tab-rules">📖 Consulta Rápida de Regras</button>
+    </nav>
+
+    <!-- ====================================================================
+         CONTEÚDO ABA 1: COMBATE & ESTATÍSTICAS
+         ==================================================================== -->
+    <main id="tab-combat" class="tab-content active">
+      <div class="combat-main-layout">
+
+        <!-- COLUNA 1: ATRIBUTOS, SALVAGUARDAS E PERÍCIAS -->
+        <div class="left-stats-column">
+          <div class="badge-stats-row">
+            <div id="inspirationBox" class="stat-badge-box clickable" title="Clique para ativar/desativar Inspiração de Mestre">
+              <span class="field-label">Inspiração</span>
+              <span id="inspirationDisplay" class="badge-val"><span class="stat-badge-icon">⚪</span> Inativa</span>
+              <span class="stat-badge-sub">Clique p/ alternar</span>
+            </div>
+            <div class="stat-badge-box" title="Bônus de Proficiência de acordo com seu nível">
+              <span class="field-label">Proficiência</span>
+              <span id="profBonusDisplay" class="badge-val">+2</span>
+              <span class="stat-badge-sub">Bônus de Nível</span>
+            </div>
+          </div>
+
+          <!-- OS 6 ATRIBUTOS -->
+          <div class="abilities-container" id="abilitiesListContainer">
+            <!-- Injetado dinamicamente via JS (FOR, DES, CON, INT, SAB, CAR) -->
+          </div>
+
+        </div>
+
+        <!-- COLUNA 2: DEFESAS, COMBATE, PONTOS DE VIDA E ARMAS -->
+        <div class="center-combat-column">
+          
+          <!-- CA, INICIATIVA, DESLOCAMENTO E PERCEPÇÃO -->
+          <div class="vitals-grid">
+            <div class="vital-box" title="Calculada pela Armadura Equipada + Destreza + Escudo">
+              <span class="vital-title">Classe de Armadura</span>
+              <span id="armorClassDisplay" class="vital-value">10</span>
+              <span id="armorDetailsDisplay" class="vital-sub">Sem Armadura</span>
+            </div>
+            <div class="vital-box clickable" id="rollInitiativeBtn" title="Clique para rolar Iniciativa no d20!">
+              <span class="vital-title">Iniciativa</span>
+              <span id="initiativeDisplay" class="vital-value">+0</span>
+              <span class="vital-sub">Mod. Destreza 🎲</span>
+            </div>
+            <div class="vital-box">
+              <span class="vital-title">Deslocamento</span>
+              <span id="speedDisplay" class="vital-value">9m</span>
+              <span id="speedSquaresDisplay" class="vital-sub">6 quadrados</span>
+            </div>
+            <div class="vital-box">
+              <span class="vital-title">Dado de Vida</span>
+              <span id="hitDieDisplay" class="vital-value">1d8</span>
+              <span class="vital-sub">Classe</span>
+            </div>
+          </div>
+
+          <!-- BLOCO DE PONTOS DE VIDA (HP) -->
+          <div class="hp-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span class="card-header-title" style="margin:0; border:none; padding:0;">Pontos de Vida (PV)</span>
+              <span id="hpPercentageDisplay" style="font-size:0.85rem; font-weight:700; color:var(--accent-green);">100%</span>
+            </div>
+
+            <div class="hp-bar-container">
+              <div id="hpProgressBar" class="hp-bar-fill" style="width: 100%;"></div>
+            </div>
+
+            <div class="hp-controls-grid">
+              <div class="field-group">
+                <label class="field-label" for="hpCurrent">PV Atual</label>
+                <input type="number" id="hpCurrent" class="hp-input" value="10" min="0">
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="hpMax">PV Máximo</label>
+                <input type="number" id="hpMax" class="hp-input" value="10" min="1">
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="hpTemp">PV Temporário</label>
+                <input type="number" id="hpTemp" class="hp-input" value="0" min="0">
+              </div>
+            </div>
+
+            <div class="hp-quick-buttons">
+              <button class="btn-hp-mod" onclick="adjustHP(-5)">-5 PV</button>
+              <button class="btn-hp-mod" onclick="adjustHP(-1)">-1 PV</button>
+              <button class="btn-hp-mod" onclick="adjustHP(1)">+1 PV</button>
+              <button class="btn-hp-mod" onclick="adjustHP(5)">+5 PV</button>
+              <button class="btn-hp-mod" onclick="resetHPToMax()">Restaurar Máx</button>
+            </div>
+          </div>
+
+          <!-- DADOS DE VIDA GASTOS & TESTES CONTRA MORTE -->
+          <div class="recovery-death-grid">
+            <div class="recovery-box">
+              <span class="field-label">Dados de Vida Restantes</span>
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-top:8px;">
+                <span id="hitDiceLeftDisplay" style="font-family:var(--font-title); font-size:1.3rem; font-weight:800; color:var(--text-gold);">1 / 1</span>
+                <div style="display:flex; gap:6px;">
+                  <button id="btnSpendHitDie" class="btn" style="padding:4px 8px; font-size:0.75rem;" title="Gastar 1 Dado de Vida para recuperar PVs em Descanso Curto">Gastar 🎲</button>
+                  <button id="btnResetHitDice" class="btn" style="padding:4px 8px; font-size:0.75rem;" title="Recuperar dados">Reset</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="death-box">
+              <span class="field-label">Testes Contra a Morte</span>
+              <div class="death-rows">
+                <div class="death-row-item">
+                  <span>Sucessos</span>
+                  <div class="death-circles">
+                    <input type="checkbox" id="deathSuccess1" class="death-chk">
+                    <input type="checkbox" id="deathSuccess2" class="death-chk">
+                    <input type="checkbox" id="deathSuccess3" class="death-chk">
+                  </div>
+                </div>
+                <div class="death-row-item">
+                  <span>Fracassos</span>
+                  <div class="death-circles">
+                    <input type="checkbox" id="deathFail1" class="death-chk">
+                    <input type="checkbox" id="deathFail2" class="death-chk">
+                    <input type="checkbox" id="deathFail3" class="death-chk">
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex; justify-content:flex-end; gap:6px; margin-top:8px;">
+                <button class="btn" style="padding:2px 8px; font-size:0.7rem;" onclick="resetDeathSaves()">Limpar</button>
+                <button class="btn btn-primary" style="padding:2px 8px; font-size:0.7rem;" onclick="rollDeathSave()">Rolar 🎲</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ATAQUES & CONJURAÇÃO DE ARMAS -->
+          <div class="attacks-card">
+            <div class="card-header-title">
+              <span>Ataques &amp; Armas Empunhadas</span>
+              <button id="btnAddWeaponModalBtn" class="btn" style="padding:4px 10px; font-size:0.75rem;">+ Adicionar Arma</button>
+            </div>
+
+            <div style="overflow-x:auto;">
+              <table class="weapons-table">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Ataque</th>
+                    <th>Dano / Tipo</th>
+                    <th>Propriedades</th>
+                    <th style="text-align:right;">Rolar</th>
+                  </tr>
+                </thead>
+                <tbody id="weaponsTableBody">
+                  <!-- Injetado dinamicamente via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- COLUNA 3: CONDIÇÕES, RECURSOS E TRAÇOS ESPECIAIS -->
+        <div class="right-features-column">
+          <!-- CONDIÇÕES ATIVAS & EXAUSTÃO -->
+          <div class="side-panel-card">
+            <div class="card-header-title">
+              <span>Condições Ativas</span>
+              <button class="btn" style="padding:2px 6px; font-size:0.7rem;" onclick="clearAllConditions()">Limpar</button>
+            </div>
+            <div class="conditions-chips" id="conditionsContainer">
+              <!-- Injetado via JS -->
+            </div>
+            
+            <div style="margin-top:14px; padding-top:10px; border-top:1px dashed var(--border-color);">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="field-label" style="margin:0;">Nível de Exaustão (0–6)</span>
+                <select id="exhaustionSelect" class="field-select" style="width:70px; padding:2px 6px;">
+                  <option value="0">0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                </select>
+              </div>
+              <div id="exhaustionEffectText" style="font-size:0.75rem; color:var(--accent-red); margin-top:4px;">
+                Normal (Sem penalidades)
+              </div>
+            </div>
+          </div>
+
+          <!-- RECURSOS DA CLASSE & USOS (EX: FÚRIA, CHI, SURTO) -->
+          <div class="side-panel-card">
+            <div class="card-header-title">
+              <span>Recursos &amp; Usos Especiais</span>
+              <button class="btn" style="padding:2px 6px; font-size:0.7rem;" onclick="addNewCustomResource()">+ Recurso</button>
+            </div>
+            <div id="classResourcesContainer" style="display:flex; flex-direction:column; gap:8px;">
+              <!-- Injetado via JS com base na classe/nível -->
+            </div>
+          </div>
+
+          <!-- HABILIDADES RACIAIS & DE CLASSE -->
+          <div class="side-panel-card">
+            <div class="card-header-title">
+              <span>Traços &amp; Características</span>
+            </div>
+            <div class="traits-scroll-area" id="traitsScrollArea">
+              <!-- Injetado via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- FAIXA FULL-WIDTH: SALVAGUARDAS + PERÍCIAS (2 subcolunas) -->
+        <div class="saves-skills-wide saves-and-skills-card">
+          <div class="saves-wide-col">
+            <div class="card-header-title">
+              <span>Testes de Resistência</span>
+              <small style="font-size:0.7rem; color:var(--text-muted);">Clique no mod para rolar</small>
+            </div>
+            <div class="saves-grid" id="savingThrowsGrid">
+              <!-- Injetado via JS -->
+            </div>
+
+            <div style="margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+              <span class="field-label" style="margin:0;">Sabedoria Passiva (Percepção)</span>
+              <span id="passivePerceptionDisplay" class="badge-val" style="font-size:1.1rem;">10</span>
+            </div>
+          </div>
+
+          <div class="skills-wide-col">
+            <div class="card-header-title">
+              <span>Perícias (18 Oficiais)</span>
+              <div style="font-size:0.7rem; display:flex; gap:6px;">
+                <span title="Bolinha vazia = normal">⚪ Normal</span>
+                <span title="Dourado = proficiente">🟡 Prof</span>
+                <span title="Vermelho = especialização">🔴 Dobro</span>
+              </div>
+            </div>
+            <div class="skills-list" id="skillsListContainer">
+              <!-- Injetado via JS -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- ====================================================================
+         CONTEÚDO ABA 2: MAGIAS & CONJURAÇÃO (PARTE 3 DO LIVRO)
+         ==================================================================== -->
+    <section id="tab-spells" class="tab-content">
+      <!-- CABEÇALHO DO CONJURADOR -->
+      <div class="spells-header-grid">
+        <div>
+          <span class="field-label">Habilidade Chave de Conjuração</span>
+          <div id="spellcastingAbilityDisplay" style="font-family:var(--font-title); font-size:1.3rem; font-weight:700; color:var(--text-gold); margin-top:4px;">
+            Inteligência (INT)
+          </div>
+        </div>
+        <div>
+          <span class="field-label">CD do Teste de Resistência</span>
+          <div id="spellSaveDcDisplay" style="font-family:var(--font-title); font-size:1.5rem; font-weight:900; color:var(--accent-gold-light); margin-top:4px;">
+            13
+          </div>
+          <small style="font-size:0.72rem; color:var(--text-muted);">8 + Proficiência + Modificador</small>
+        </div>
+        <div>
+          <span class="field-label">Bônus de Ataque de Magia</span>
+          <div id="spellAttackBonusDisplay" style="font-family:var(--font-title); font-size:1.5rem; font-weight:900; color:var(--accent-gold-light); margin-top:4px;">
+            +5
+          </div>
+          <small style="font-size:0.72rem; color:var(--text-muted);">Proficiência + Modificador</small>
+        </div>
+      </div>
+
+      <!-- BOTÃO DE ADICIONAR MAGIA -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h2 style="font-family:var(--font-title); font-size:1.15rem; color:var(--text-gold);">Grimório &amp; Espaços de Magia</h2>
+        <div style="display:flex; gap:10px;">
+          <button id="btnOpenSpellCompendiumBtn" class="btn btn-primary">
+            <span>✨</span> Compêndio de Magias do Livro
+          </button>
+          <button id="btnAddCustomSpellBtn" class="btn">
+            <span>➕</span> Criar Magia
+          </button>
+        </div>
+      </div>
+
+      <!-- QUADRICULA DE CÍRCULOS DE MAGIA (TRUQUES ATÉ 9º NÍVEL) -->
+      <div class="spell-slots-grid" id="spellSlotsGridContainer">
+        <!-- Injetado dinamicamente via JS -->
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         CONTEÚDO ABA 3: INVENTÁRIO & EQUIPAMENTO
+         ==================================================================== -->
+    <section id="tab-inventory" class="tab-content">
+      <!-- BARRA DE MOEDAS -->
+      <div class="currency-bar">
+        <div class="coin-box">
+          <span class="coin-label">Cobre (PC)</span>
+          <input type="number" id="coinPC" class="coin-input" value="0" min="0">
+        </div>
+        <div class="coin-box">
+          <span class="coin-label">Prata (PP)</span>
+          <input type="number" id="coinPP" class="coin-input" value="0" min="0">
+        </div>
+        <div class="coin-box">
+          <span class="coin-label">Electro (PE)</span>
+          <input type="number" id="coinPE" class="coin-input" value="0" min="0">
+        </div>
+        <div class="coin-box">
+          <span class="coin-label">Ouro (PO)</span>
+          <input type="number" id="coinPO" class="coin-input" value="15" min="0">
+        </div>
+        <div class="coin-box">
+          <span class="coin-label">Platina (PL)</span>
+          <input type="number" id="coinPL" class="coin-input" value="0" min="0">
+        </div>
+      </div>
+
+      <div class="inventory-layout">
+        <!-- LISTA GERAL DE ITENS -->
+        <div class="side-panel-card" style="margin:0;">
+          <div class="card-header-title">
+            <span>Mochila &amp; Bens Carregados</span>
+            <div style="display:flex; gap:8px;">
+              <button class="btn" style="padding:4px 10px; font-size:0.75rem;" onclick="openItemAddModal()">+ Adicionar Item</button>
+              <button class="btn" style="padding:4px 10px; font-size:0.75rem;" onclick="rollTrinket()">🎲 Rolar Bugiganga</button>
+            </div>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table class="inventory-table">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th style="width:70px; text-align:center;">Qtd</th>
+                  <th style="width:90px; text-align:center;">Peso (kg)</th>
+                  <th style="width:90px; text-align:right;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="inventoryTableBody">
+                <!-- Injetado via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- PAINEL DE DEFESAS E CAPACIDADE DE CARGA -->
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <div class="side-panel-card" style="margin:0;">
+            <div class="card-header-title">
+              <span>Equipamento de Proteção</span>
+            </div>
+            
+            <div class="field-group" style="margin-bottom:12px;">
+              <label class="field-label" for="equippedArmorSelect">Armadura Vestida</label>
+              <select id="equippedArmorSelect" class="field-select">
+                <!-- Preenchido via JS com as armaduras do livro -->
+              </select>
+            </div>
+
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:rgba(0,0,0,0.2); border-radius:var(--radius-sm);">
+              <label for="equippedShieldChk" style="font-size:0.88rem; font-weight:600; cursor:pointer;">Empunhando Escudo (+2 CA)</label>
+              <input type="checkbox" id="equippedShieldChk" style="width:18px; height:18px; cursor:pointer; accent-color:var(--accent-gold);">
+            </div>
+          </div>
+
+          <div class="side-panel-card" style="margin:0;">
+            <div class="card-header-title">
+              <span>Capacidade de Carga (Força)</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div style="display:flex; justify-content:space-between; font-size:0.88rem;">
+                <span style="color:var(--text-secondary);">Peso Total Transportado:</span>
+                <strong id="currentWeightDisplay" style="color:var(--text-gold);">0.0 kg</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:0.88rem;">
+                <span style="color:var(--text-secondary);">Carga Máxima (Força × 7,5):</span>
+                <strong id="maxWeightDisplay">75.0 kg</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:0.88rem;">
+                <span style="color:var(--text-secondary);">Erguer / Arrastar (Força × 15):</span>
+                <strong id="pushWeightDisplay">150.0 kg</strong>
+              </div>
+              <div id="encumbranceAlert" style="margin-top:6px; font-size:0.78rem; color:var(--accent-green); font-weight:600;">
+                ✓ Sem sobrecarga de peso
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         CONTEÚDO ABA 4: BIOGRAFIA & ROLEPLAY
+         ==================================================================== -->
+    <section id="tab-bio" class="tab-content">
+      <div class="bio-grid">
+        <div class="rp-box">
+          <span class="field-label">Traços de Personalidade</span>
+          <textarea id="bioTraits" class="rp-textarea" placeholder="Descreva os maneirismos, hábitos e traços únicos do seu aventureiro..."></textarea>
+        </div>
+
+        <div class="rp-box">
+          <span class="field-label">Ideais</span>
+          <textarea id="bioIdeals" class="rp-textarea" placeholder="Quais princípios éticos e convicções morais guiam suas escolhas?"></textarea>
+        </div>
+
+        <div class="rp-box">
+          <span class="field-label">Vínculos</span>
+          <textarea id="bioBonds" class="rp-textarea" placeholder="Pessoas, lugares ou relíquias preciosas pelas quais daria a vida..."></textarea>
+        </div>
+
+        <div class="rp-box">
+          <span class="field-label">Defeitos</span>
+          <textarea id="bioFlaws" class="rp-textarea" placeholder="Fraquezas, compulsões ou segredos que podem colocá-lo em perigo..."></textarea>
+        </div>
+      </div>
+
+      <div class="bio-grid" style="margin-top:20px;">
+        <div class="rp-box">
+          <span class="field-label">História do Personagem</span>
+          <textarea id="bioBackstory" class="rp-textarea" style="min-height:160px;" placeholder="De onde você veio? O que o impulsionou a abandonar a vida comum e se tornar um aventureiro?"></textarea>
+        </div>
+
+        <div class="rp-box">
+          <span class="field-label">Aparência Física &amp; Aliados</span>
+          <textarea id="bioAppearance" class="rp-textarea" style="min-height:160px;" placeholder="Idade, altura, peso, marcas, cicatrizes, guildas e companheiros de confiança..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         CONTEÚDO ABA 5: CONSULTA RÁPIDA DE REGRAS
+         ==================================================================== -->
+    <section id="tab-rules" class="tab-content">
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:20px;">
+        <div class="side-panel-card" style="margin:0;">
+          <h3 class="card-header-title">Ações em Combate (Capítulo 9)</h3>
+          <ul style="list-style:none; display:flex; flex-direction:column; gap:8px; font-size:0.85rem;">
+            <li><strong>Atacar:</strong> Realiza ataque corpo-a-corpo ou à distância.</li>
+            <li><strong>Conjurar uma Magia:</strong> Lança feitiço com tempo de 1 ação.</li>
+            <li><strong>Disparada:</strong> Dobra o deslocamento no turno.</li>
+            <li><strong>Desengajar:</strong> Movimento não provoca ataques de oportunidade.</li>
+            <li><strong>Esquivar:</strong> Ataques contra sofrem desvantagem; salvaguardas de Destreza ganham vantagem.</li>
+            <li><strong>Ajudar:</strong> Concede vantagem ao aliado em teste ou ataque.</li>
+            <li><strong>Esconder:</strong> Teste de Furtividade para ficar oculto.</li>
+            <li><strong>Preparar:</strong> Guarda ação com gatilho para usar como reação.</li>
+            <li><strong>Procurar:</strong> Teste de Percepção ou Investigação.</li>
+            <li><strong>Usar Objeto:</strong> Interage com segundo objeto ou mecanismo.</li>
+          </ul>
+        </div>
+
+        <div class="side-panel-card" style="margin:0;">
+          <h3 class="card-header-title">Regras de Descanso (Capítulo 8)</h3>
+          <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:10px;">
+            <strong>Descanso Curto (1 hora):</strong> Permite rolar Dados de Vida (adicionando mod. de Constituição a cada dado) para recuperar pontos de vida.
+          </p>
+          <p style="font-size:0.85rem; color:var(--text-secondary);">
+            <strong>Descanso Longo (8 horas):</strong> Recupera todos os PVs perdidos e recupera metade do total máximo de Dados de Vida do personagem. Limite de 1 descanso longo a cada 24 horas.
+          </p>
+        </div>
+
+        <div class="side-panel-card" style="margin:0;">
+          <h3 class="card-header-title">Graus de Cobertura</h3>
+          <ul style="list-style:none; display:flex; flex-direction:column; gap:8px; font-size:0.85rem;">
+            <li><strong>Meia-Cobertura:</strong> +2 na CA e em salvaguardas de Destreza.</li>
+            <li><strong>Três-Quartos:</strong> +5 na CA e em salvaguardas de Destreza.</li>
+            <li><strong>Cobertura Total:</strong> Não pode ser alvejado diretamente por ataques ou magias.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </div> <!-- /app-container -->
+
+  <!-- ====================================================================
+       ROLADOR DE DADOS FLUTUANTE (DICE ROLLER)
+       ==================================================================== -->
+  <div class="dice-roller-fab">
+    <div id="diceDrawer" class="dice-drawer">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span class="field-label" style="margin:0;">Rolador de Dados D&amp;D</span>
+        <button class="btn" style="padding:2px 6px; font-size:0.7rem;" onclick="clearDiceLog()">Limpar</button>
+      </div>
+
+      <div class="dice-mode-toggle">
+        <button class="mode-btn active" id="modeNormal" onclick="setRollMode('normal')">Normal</button>
+        <button class="mode-btn" id="modeAdv" onclick="setRollMode('advantage')">Vantagem</button>
+        <button class="mode-btn" id="modeDis" onclick="setRollMode('disadvantage')">Desvantagem</button>
+      </div>
+
+      <div class="dice-tray-buttons">
+        <button class="die-btn" onclick="rollDie(4)">d4</button>
+        <button class="die-btn" onclick="rollDie(6)">d6</button>
+        <button class="die-btn" onclick="rollDie(8)">d8</button>
+        <button class="die-btn" onclick="rollDie(10)">d10</button>
+        <button class="die-btn" onclick="rollDie(12)">d12</button>
+        <button class="die-btn" style="background:var(--border-accent); color:#000;" onclick="rollDie(20)">d20</button>
+        <button class="die-btn" onclick="rollDie(100)">d100</button>
+        <button class="die-btn" onclick="rollCustomDicePrompt()">XdY</button>
+      </div>
+
+      <div class="dice-log" id="diceLogContainer">
+        <!-- Histórico dinâmico de rolagens -->
+      </div>
+    </div>
+
+    <button id="toggleDiceDrawerBtn" class="dice-fab-btn" title="Abrir rolador de dados">
+      🎲
+    </button>
+  </div>
+
+  <!-- ====================================================================
+       MODAL 1: ASSISTENTE (WIZARD) DE CRIAÇÃO PASSO A PASSO
+       ==================================================================== -->
+  <div id="wizardModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Assistente de Criação de Personagem D&amp;D 5e</h2>
+        <button class="close-modal-btn" onclick="closeWizardModal()">&times;</button>
+      </div>
+
+      <div class="wizard-steps-indicator">
+        <div class="wizard-step-node active" id="wizNode1">
+          <div class="wizard-node-circle">1</div>
+          <span class="wizard-node-label">Raça</span>
+        </div>
+        <div class="wizard-step-node" id="wizNode2">
+          <div class="wizard-node-circle">2</div>
+          <span class="wizard-node-label">Classe</span>
+        </div>
+        <div class="wizard-step-node" id="wizNode3">
+          <div class="wizard-node-circle">3</div>
+          <span class="wizard-node-label">Atributos</span>
+        </div>
+        <div class="wizard-step-node" id="wizNode4">
+          <div class="wizard-node-circle">4</div>
+          <span class="wizard-node-label">Antecedente</span>
+        </div>
+        <div class="wizard-step-node" id="wizNode5">
+          <div class="wizard-node-circle">5</div>
+          <span class="wizard-node-label">Finalizar</span>
+        </div>
+      </div>
+
+      <div id="wizardStepBody">
+        <!-- Renderizado dinamicamente via JS de acordo com a etapa -->
+      </div>
+
+      <div style="display:flex; justify-content:space-between; margin-top:16px;">
+        <button id="btnWizPrev" class="btn" onclick="prevWizardStep()">Voltar</button>
+        <button id="btnWizNext" class="btn btn-primary" onclick="nextWizardStep()">Próximo Passo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL 2: COMPÊNDIO DE MAGIAS DO LIVRO (BUSCA & ADIÇÃO)
+       ==================================================================== -->
+  <div id="spellsModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Compêndio de Magias Oficiais</h2>
+        <button class="close-modal-btn" onclick="closeSpellsModal()">&times;</button>
+      </div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <input type="text" id="spellSearchInput" class="field-input" placeholder="Buscar magia pelo nome ou descrição..." style="flex:2;">
+        <select id="spellFilterLevel" class="field-select" style="flex:1;">
+          <option value="all">Todos os Círculos</option>
+          <option value="0">Truques (Nível 0)</option>
+          <option value="1">1º Nível</option>
+          <option value="2">2º Nível</option>
+          <option value="3">3º Nível</option>
+        </select>
+        <select id="spellFilterSchool" class="field-select" style="flex:1;">
+          <option value="all">Todas as Escolas</option>
+          <option value="Abjuração">Abjuração</option>
+          <option value="Adivinhação">Adivinhação</option>
+          <option value="Conjuração">Conjuração</option>
+          <option value="Encantamento">Encantamento</option>
+          <option value="Evocação">Evocação</option>
+          <option value="Ilusão">Ilusão</option>
+          <option value="Necromancia">Necromancia</option>
+          <option value="Transmutação">Transmutação</option>
+        </select>
+      </div>
+
+      <div id="spellCompendiumResults" style="max-height:450px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+        <!-- Lista de magias filtrada -->
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
