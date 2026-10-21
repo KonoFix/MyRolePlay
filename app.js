@@ -24,10 +24,22 @@ const POINT_BUY_COSTS = {
   8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9
 };
 
+// Gera UUID v4 — compatível com o schema Supabase (characters.id uuid)
+// Fallback para browsers antigos sem crypto.randomUUID.
+function genCharId() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+
 // Modelo Padrão de Personagem Inicial (Bruenor Martelo de Batalha como exemplo do livro)
 function createDefaultCharacter() {
   return {
-    id: 'char_' + Date.now(),
+    id: genCharId(),
     name: 'Bruenor Martelo de Batalha',
     player: 'Bob',
     class: 'guerreiro',
@@ -2084,7 +2096,7 @@ function finishWizardCreation() {
   const hpMax = classData.hitDie + conMod;
 
   const newChar = {
-    id: 'char_' + Date.now(),
+    id: genCharId(),
     name: wizardState.name || 'Novo Aventureiro',
     player: currentCharacter.player || 'Jogador',
     class: wizardState.class,
@@ -2153,7 +2165,7 @@ function createNewCharacterAction() {
   const name = prompt('Nome do novo personagem:', 'Novo Herói');
   if (!name) return;
   const newChar = createDefaultCharacter();
-  newChar.id = 'char_' + Date.now();
+  newChar.id = genCharId();
   newChar.name = name;
   savedCharacters[newChar.id] = newChar;
   currentCharacter = newChar;
@@ -2182,7 +2194,7 @@ function importCharacterJson(e) {
   reader.onload = (event) => {
     try {
       const imported = JSON.parse(event.target.result);
-      if (!imported.id) imported.id = 'char_' + Date.now();
+      if (!imported.id) imported.id = genCharId();
       savedCharacters[imported.id] = imported;
       currentCharacter = imported;
       saveToLocalStorage();

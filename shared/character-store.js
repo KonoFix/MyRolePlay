@@ -17,6 +17,37 @@ function writeLocal(all, activeId) {
   if (activeId) localStorage.setItem(LS_ACTIVE, activeId);
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function genUUID() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+
+// Migra IDs antigos (ex: "char_1234") para UUID antes de qualquer upsert remoto
+function migrateLocalIds() {
+  const all = readLocal();
+  const activeOld = localStorage.getItem(LS_ACTIVE);
+  let migrated = false;
+  const next = {};
+  let newActive = activeOld;
+  for (const [oldId, char] of Object.entries(all)) {
+    if (UUID_RE.test(oldId)) {
+      next[oldId] = char;
+    } else {
+      const newId = genUUID();
+      char.id = newId;
+      next[newId] = char;
+      if (activeOld === oldId) newActive = newId;
+      migrated = true;
+    }
+  }
+  if (migrated) writeLocal(next, newActive);
+  return migrated;
+}
+
 // --- API pública -------------------------------------------------------------
 
 /**
@@ -25,6 +56,9 @@ function writeLocal(all, activeId) {
  * Se não logado ou offline, cai no localStorage.
  */
 export async function loadCharacters() {
+  // Normaliza IDs antigos (char_NNN) para UUID antes de qualquer sync remota
+  migrateLocalIds();
+
   const session = await getSession();
   if (!session) {
     const all = readLocal();
@@ -42,8 +76,6 @@ export async function loadCharacters() {
 
     const map = {};
     for (const row of data) {
-      // sheet_json guarda o shape antigo (createDefaultCharacter)
-      // Preservamos o id da linha para o UPSERT futuro.
       const sheet = row.sheet_json || {};
       sheet.id = row.id;
       sheet.name = sheet.name || row.name;
@@ -51,8 +83,33 @@ export async function loadCharacters() {
       map[row.id] = sheet;
     }
 
-    // Guarda no localStorage como cache offline
-    const activeId = Object.keys(map)[0] || null;
+    // Se o banco está vazio mas o localStorage tem personagens (recém migrado
+    // ou primeiro login), sobe-os para o Supabase mantendo os UUIDs já locais.
+    if (Object.keys(map).length === 0) {
+      const local = readLocal();
+      const localIds = Object.keys(local);
+      if (localIds.length > 0) {
+        const rows = localIds.map(id => ({
+          id,
+          user_id: session.user.id,
+          name: local[id].name || 'Sem nome',
+          sheet_json: local[id],
+          portrait_url: local[id].portrait || null,
+        }));
+        const { error: upErr } = await supabase.from('characters').upsert(rows);
+        if (upErr) console.warn('[character-store] falha ao subir chars locais:', upErr);
+        else {
+          for (const r of rows) {
+            const sheet = r.sheet_json;
+            sheet.id = r.id;
+            map[r.id] = sheet;
+          }
+        }
+      }
+    }
+
+    const activeOld = localStorage.getItem(LS_ACTIVE);
+    const activeId = (activeOld && map[activeOld]) ? activeOld : (Object.keys(map)[0] || null);
     if (activeId) writeLocal(map, activeId);
     return { characters: map, activeId, offline: false };
   } catch (err) {
