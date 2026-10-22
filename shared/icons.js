@@ -28,6 +28,11 @@
 
     // --- Dados / combate ---
     dice: '<path d="M12 2 20 7v10l-8 5-8-5V7l8-5Z"/><path d="M12 2v10M20 7l-8 5M4 7l8 5"/><circle cx="12" cy="9" r="1" fill="currentColor" stroke="none"/>',
+    'die-d4': '<path d="M12 3 21 20 3 20 Z"/><path d="M12 3 12 13 M21 20 12 13 M3 20 12 13"/>',
+    'die-d6': '<path d="M12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 Z"/><path d="M12 3 12 12 20 16.5 M12 12 4 16.5"/>',
+    'die-d8': '<path d="M12 2 21 12 12 22 3 12 Z"/><path d="M3 12 21 12 M12 2 12 22"/>',
+    'die-d10': '<path d="M12 1 18 9 12 23 6 9 Z"/><path d="M12 1 12 23"/>',
+    'die-d12': '<path d="M12 1.5 22 8.75 18.2 20.5 5.8 20.5 2 8.75 Z"/><path d="M12 1.5 12 12 M22 8.75 12 12 M18.2 20.5 12 12 M5.8 20.5 12 12 M2 8.75 12 12"/>',
     flame: '<path d="M12 3c2 3-3 4-2 8 .4 1.6 2 2 2 2s1.6-.4 2-2c1-4-4-5-2-8Z"/><path d="M8 13c-1 2-1 4 0 5.5A4.5 4.5 0 0 0 12 21a4.5 4.5 0 0 0 4-2.5c1-1.5 1-3.5 0-5.5-1 2-2 3-4 3s-3-1-4-3Z"/>',
     swords: '<path d="M3 3l8 8M3 3l1.5 5L3 10M3 3l5 1.5L7 3"/><path d="M21 3l-8 8M21 3l-1.5 5L21 10M21 3l-5 1.5L17 3"/><path d="M6 14l-3 3 3 3M18 14l3 3-3 3M9 15l3-3 3 3-3 3-3-3Z"/>',
     target: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/>',
