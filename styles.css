@@ -197,17 +197,23 @@ body {
 }
 
 .brand-badge {
-  font-family: var(--font-title);
-  font-size: 1.1rem;
-  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
   color: var(--accent-gold-light);
-  background: linear-gradient(135deg, rgba(200, 155, 60, 0.2), rgba(200, 155, 60, 0.05));
-  border: 1px solid var(--border-accent);
-  padding: 5px 12px;
-  border-radius: var(--radius-sm);
-  letter-spacing: 2px;
-  text-shadow: 0 0 10px rgba(200, 155, 60, 0.5);
-  white-space: nowrap;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, currentColor 55%, transparent));
+  transition: var(--transition);
+}
+
+.brand-badge:hover {
+  filter: drop-shadow(0 0 10px color-mix(in srgb, currentColor 70%, transparent));
+  transform: rotate(8deg);
+}
+
+.brand-badge svg {
+  width: 30px;
+  height: 30px;
 }
 
 .brand-text h1 {
@@ -1978,10 +1984,9 @@ input[type="number"]::-webkit-outer-spin-button {
     justify-content: flex-start;
     width: 100%;
   }
-  .brand-badge {
-    font-size: 0.85rem;
-    padding: 3px 8px;
-    letter-spacing: 1.2px;
+  .brand-badge svg {
+    width: 24px;
+    height: 24px;
   }
   .brand-text h1 {
     font-size: 0.95rem;
