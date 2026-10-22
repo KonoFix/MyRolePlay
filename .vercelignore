@@ -1,0 +1,11 @@
+# Não precisa ir para o deploy em produção
+.git
+.github
+.claude
+scripts
+supabase
+.env
+*.pdf
+*.png
+map-demo.html
+README.md
