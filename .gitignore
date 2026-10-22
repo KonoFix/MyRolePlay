@@ -16,8 +16,10 @@ yarn-error.log*
 .env.local
 .env.*.local
 
-# Config com anon key do Supabase (seguro em tese, mas mantemos fora do repo)
-config.js
+# config.js é commitado de propósito (ver abaixo) — a anon key do Supabase
+# é segura para exposição pública, o RLS protege os dados reais. Precisa
+# estar no repo para os deploys automáticos via GitHub funcionarem, já que
+# o build da Vercel usa o conteúdo do git, não a pasta local.
 
 # Build output
 dist/
