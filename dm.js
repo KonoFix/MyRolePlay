@@ -233,6 +233,156 @@ function renderPlayerCard(p) {
 }
 
 // =============================================================================
+// Modal: detalhes completos de um jogador
+// =============================================================================
+const ABILITY_LABELS = { str: 'FOR', dex: 'DES', con: 'CON', int: 'INT', wis: 'SAB', cha: 'CAR' };
+
+function pdmProfBonus(level) {
+  if (level >= 17) return 6;
+  if (level >= 13) return 5;
+  if (level >= 9) return 4;
+  if (level >= 5) return 3;
+  return 2;
+}
+
+function pdmRacialBonus(sheet, attrKey) {
+  let bonus = 0;
+  const raceData = window.DND_DATA?.races?.[sheet.race];
+  if (raceData?.abilityBonus?.[attrKey]) bonus += raceData.abilityBonus[attrKey];
+  if (raceData?.subraces && sheet.subrace) {
+    const sub = raceData.subraces[sheet.subrace];
+    if (sub?.abilityBonus?.[attrKey]) bonus += sub.abilityBonus[attrKey];
+  }
+  if (sheet.customScoreBonus?.[attrKey]) bonus += sheet.customScoreBonus[attrKey];
+  return bonus;
+}
+
+function pdmTotalScore(sheet, attrKey) {
+  const base = sheet.baseScores?.[attrKey] ?? 10;
+  return base + pdmRacialBonus(sheet, attrKey);
+}
+
+function pdmMod(score) { return Math.floor((score - 10) / 2); }
+function pdmFmtMod(n) { return n >= 0 ? `+${n}` : `${n}`; }
+
+function openPlayerDetail(userId) {
+  const p = state.players.find(x => x.user_id === userId);
+  if (!p) return;
+  const modal = document.getElementById('playerDetailModal');
+  const title = document.getElementById('pdmTitle');
+  const body = document.getElementById('pdmBody');
+  const sheet = p.character?.sheet_json;
+
+  if (!sheet) {
+    title.textContent = p.display_name;
+    body.innerHTML = `<p style="color:var(--text-secondary);">Este jogador ainda não vinculou uma ficha a esta campanha.</p>`;
+    modal.classList.add('open');
+    return;
+  }
+
+  const level = parseInt(sheet.level, 10) || 1;
+  const prof = pdmProfBonus(level);
+  const className = window.DND_DATA?.classes?.[sheet.class]?.name || sheet.class || '—';
+  const raceName = window.DND_DATA?.races?.[sheet.race]?.name || sheet.race || '—';
+  const bgName = window.DND_DATA?.backgrounds?.[sheet.background]?.name || sheet.background || '—';
+
+  title.textContent = `${sheet.name || p.character.name} — ${raceName} ${className} (Nv ${level})`;
+
+  const abilitiesHtml = Object.keys(ABILITY_LABELS).map(key => {
+    const score = pdmTotalScore(sheet, key);
+    const mod = pdmMod(score);
+    return `<div class="pdm-ability">
+      <span class="lbl">${ABILITY_LABELS[key]}</span>
+      <span class="val">${score}</span>
+      <span class="mod">${pdmFmtMod(mod)}</span>
+    </div>`;
+  }).join('');
+
+  const savesHtml = Object.keys(ABILITY_LABELS).map(key => {
+    const isProf = (sheet.savingThrowProficiencies || []).includes(key);
+    const mod = pdmMod(pdmTotalScore(sheet, key)) + (isProf ? prof : 0);
+    return `<div class="pdm-save ${isProf ? 'prof' : ''}">
+      <span class="lbl">${ABILITY_LABELS[key]}</span>
+      <span class="mod">${pdmFmtMod(mod)}</span>
+    </div>`;
+  }).join('');
+
+  const skillsList = window.DND_DATA?.skills || [];
+  const skillsHtml = skillsList.map(sk => {
+    const profLevel = sheet.skillProficiencies?.[sk.id] || 0; // 0,1,2
+    const abilMod = pdmMod(pdmTotalScore(sheet, sk.ability));
+    const bonus = abilMod + (profLevel === 2 ? prof * 2 : profLevel === 1 ? prof : 0);
+    const cls = profLevel === 2 ? 'exp' : profLevel === 1 ? 'prof' : '';
+    return `<li class="${cls}"><span>${escapeHtml(sk.name)}</span><span class="mod">${pdmFmtMod(bonus)}</span></li>`;
+  }).join('');
+
+  const hp = sheet.hp || { current: 0, max: 1, temp: 0 };
+  const conds = Array.isArray(sheet.activeConditions) ? sheet.activeConditions : [];
+
+  const spellSlots = Array.isArray(sheet.spellSlots) ? sheet.spellSlots.filter(s => s.max > 0) : [];
+  const slotsHtml = spellSlots.length
+    ? `<div class="pdm-slots">${spellSlots.map(s => `<div class="pdm-slot-level"><strong>Círculo ${s.level}</strong>${s.max - s.spent}/${s.max}</div>`).join('')}</div>`
+    : '<p style="color:var(--text-muted); font-size:0.82rem;">Sem conjuração ou nenhum slot configurado.</p>';
+
+  // sheet.currency usa chaves em inglês (cp/sp/ep/gp/pp); o rótulo em PT-BR
+  // segue o mesmo mapeamento do jogador em app.js (coinPC=cp, coinPP=sp,
+  // coinPE=ep, coinPO=gp, coinPL=pp) — note que "pp" (platinum) ≠ "PP" (Prata).
+  const currency = sheet.currency || {};
+  const COIN_MAP = [['cp', 'PC'], ['sp', 'PP'], ['ep', 'PE'], ['gp', 'PO'], ['pp', 'PL']];
+  const coinsHtml = COIN_MAP
+    .map(([key, label]) => `<span style="margin-right:10px;"><strong>${currency[key] || 0}</strong> ${label}</span>`)
+    .join('');
+
+  body.innerHTML = `
+    <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:center;">
+      <div style="font-size:0.85rem; color:var(--text-secondary);">
+        <strong style="color:var(--text-gold);">Jogador:</strong> ${escapeHtml(p.display_name)} ·
+        <strong style="color:var(--text-gold);">Antecedente:</strong> ${escapeHtml(bgName)}
+      </div>
+    </div>
+
+    <div class="pdm-section">
+      <div class="pdm-section-title">Vitais</div>
+      <div style="display:flex; gap:18px; flex-wrap:wrap; font-size:0.88rem;">
+        <span>❤️ PV: <strong>${hp.current}/${hp.max}</strong>${hp.temp ? ` (+${hp.temp})` : ''}</span>
+        <span>🛡️ CA: <strong>${sheet.armorClass ?? '—'}</strong></span>
+        <span>🎯 Iniciativa: <strong>${pdmFmtMod(sheet.initiativeBonus ?? 0)}</strong></span>
+        <span>👟 Velocidade: <strong>${sheet.speed ?? '—'}m</strong></span>
+        <span>🏅 Bônus Prof.: <strong>${pdmFmtMod(prof)}</strong></span>
+      </div>
+      ${conds.length ? `<div class="dm-player-conditions" style="margin-top:8px;">${conds.map(c => `<span class="dm-condition-pill">${escapeHtml(c)}</span>`).join('')}</div>` : ''}
+    </div>
+
+    <div class="pdm-section">
+      <div class="pdm-section-title">Atributos</div>
+      <div class="pdm-abilities">${abilitiesHtml}</div>
+    </div>
+
+    <div class="pdm-section">
+      <div class="pdm-section-title">Testes de Resistência</div>
+      <div class="pdm-saves">${savesHtml}</div>
+    </div>
+
+    <div class="pdm-section">
+      <div class="pdm-section-title">Perícias</div>
+      <ul class="pdm-skills">${skillsHtml}</ul>
+    </div>
+
+    <div class="pdm-section">
+      <div class="pdm-section-title">Espaços de Magia</div>
+      ${slotsHtml}
+    </div>
+
+    <div class="pdm-section">
+      <div class="pdm-section-title">Moedas</div>
+      <div style="font-size:0.88rem;">${coinsHtml}</div>
+    </div>
+  `;
+
+  modal.classList.add('open');
+}
+
+// =============================================================================
 // Arcos narrativos
 // =============================================================================
 async function loadArcs(campaignId) {

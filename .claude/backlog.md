@@ -21,7 +21,8 @@ Prioridade: **A** = alta, **B** = média, **C** = baixa.
 - [x] (A) ~~Preview Markdown no editor de narrativa~~ — feito (marked@12 + DOMPurify@3, abas Editar/Dividir/Preview)
 - [x] (A) ~~Rate limit no insert de `dice_rolls`~~ — feito em `supabase/migrations/20261021190000_dice_rolls_rate_limit.sql`
 - [x] (A) ~~Realtime presence~~ — feito (presence channel + dot verde nos cards + contador "X/Y online")
-- [next] (A) **Modal "Ver detalhes" expandido do jogador no DM** — clicar no card abre modal com atributos completos, salvaguardas, perícias, slots de magia, condições. Reutiliza `sheet_json` já carregado.
+- [x] (A) ~~Modal "Ver detalhes" expandido do jogador no DM~~ — feito: clicar no card abre modal com atributos (c/ bônus racial), salvaguardas, perícias, slots de magia, moedas, condições.
+- [next] (A) **Chat de campanha** — canal broadcast realtime no `dm.html` + `index.html`. Mensagens efêmeras (não precisa persistir) com nickname + timestamp.
 - [ ] (A) **Chat de campanha** — canal broadcast realtime no `dm.html` + `index.html`. Mensagens efêmeras (não precisa persistir) com nickname + timestamp.
 - [ ] (A) **Mestre pode marcar condição em jogador remotamente** — chip clicável no card do jogador, update em `characters.sheet_json.activeConditions`.
 - [ ] (A) **Tracker de iniciativa compartilhado** — DM adiciona combatentes (jogadores + NPCs), rola iniciativa, marca turno atual, todos veem.

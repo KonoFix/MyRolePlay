@@ -1275,3 +1275,7 @@ const DND_DATA = {
     { id: 'revivificar', name: 'Revivificar', level: 3, school: 'Necromancia', time: '1 ação', range: 'Toque', comp: 'V, S, M (300 po)', duration: 'Instantânea', classes: ['clerigo', 'paladino'], desc: 'Traz criatura morta no último minuto de volta à vida com 1 ponto de vida.' }
   ]
 };
+
+// Expõe em window para consumo por scripts ES module (ex: dm.js), que não
+// enxergam top-level const de scripts clássicos por escopo léxico direto.
+window.DND_DATA = DND_DATA;
