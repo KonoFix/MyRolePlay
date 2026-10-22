@@ -52,3 +52,5 @@ supabase/.branches/
 # PDF do Guia do Mestre (fica em ~/Downloads, não vai pro repo)
 dd-5e-livro-do-jogador-fundo-branco-biblioteca-c3a9lfica.pdf
 dd-5e-guia-do-mestre-biblioteca-elfica.pdf
+.vercel
+.env*
