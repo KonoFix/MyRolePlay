@@ -171,6 +171,11 @@ function renderPlayers() {
   const onlineCount = state.players.filter(p => state.onlineUserIds.has(p.user_id)).length;
   document.getElementById('dmPresenceSummary').textContent =
     `${onlineCount} / ${state.players.length} online`;
+
+  // Clique no card abre modal de detalhes
+  grid.querySelectorAll('.dm-player-card[data-uid]').forEach(card => {
+    card.addEventListener('click', () => openPlayerDetail(card.dataset.uid));
+  });
 }
 
 function renderPlayerCard(p) {
@@ -178,7 +183,7 @@ function renderPlayerCard(p) {
   const dot = `<span class="dm-presence-dot ${online ? 'on' : 'off'}" title="${online ? 'Online' : 'Offline'}"></span>`;
   const char = p.character;
   if (!char) {
-    return `<div class="dm-player-card ${online ? 'is-online' : ''}">
+    return `<div class="dm-player-card ${online ? 'is-online' : ''}" data-uid="${escapeAttr(p.user_id)}">
       <div class="dm-player-head">
         <div class="dm-player-portrait" style="display:flex;align-items:center;justify-content:center;color:var(--text-muted);">?</div>
         <div>
@@ -197,7 +202,7 @@ function renderPlayerCard(p) {
   const classInfo = `${sheet.class || '—'} ${sheet.level ? '• Nv ' + sheet.level : ''}`;
 
   return `
-    <div class="dm-player-card ${online ? 'is-online' : ''}">
+    <div class="dm-player-card ${online ? 'is-online' : ''}" data-uid="${escapeAttr(p.user_id)}">
       <div class="dm-player-head">
         ${portrait
           ? `<img class="dm-player-portrait" src="${escapeAttr(portrait)}" alt="">`

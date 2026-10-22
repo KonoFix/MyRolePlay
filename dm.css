@@ -95,7 +95,81 @@
 .dm-player-card:hover {
   border-color: var(--border-accent);
   box-shadow: var(--shadow-gold);
+  cursor: pointer;
 }
+
+/* Modal de detalhes do jogador */
+.pdm-section {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+.pdm-section-title {
+  font-family: var(--font-title);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent-gold-light);
+  margin-bottom: 8px;
+}
+.pdm-abilities {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+.pdm-ability {
+  text-align: center;
+  padding: 10px 4px;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+.pdm-ability .lbl { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.pdm-ability .val { font-family: var(--font-title); font-size: 1.3rem; font-weight: 800; color: var(--text-gold); display: block; margin-top: 2px; }
+.pdm-ability .mod { font-size: 0.85rem; color: var(--text-primary); display: block; }
+.pdm-skills {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 4px 10px;
+  font-size: 0.82rem;
+}
+.pdm-skills li {
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 4px;
+}
+.pdm-skills li.prof { color: var(--text-primary); }
+.pdm-skills li.exp  { color: var(--accent-red); font-weight: 700; }
+.pdm-skills li .mod { font-family: var(--font-title); font-weight: 700; }
+.pdm-saves {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  font-size: 0.78rem;
+}
+.pdm-save {
+  text-align: center;
+  padding: 6px 2px;
+  background: rgba(0,0,0,0.2);
+  border-radius: var(--radius-sm);
+}
+.pdm-save.prof { background: rgba(200,155,60,0.15); border: 1px solid var(--border-accent); }
+.pdm-save .lbl { color: var(--text-muted); display: block; font-size: 0.68rem; }
+.pdm-save .mod { color: var(--text-gold); font-family: var(--font-title); font-weight: 700; }
+.pdm-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pdm-slot-level {
+  background: rgba(0,0,0,0.25);
+  border: 1px solid var(--border-color);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+}
+.pdm-slot-level strong { color: var(--text-gold); margin-right: 4px; }
 
 .dm-presence-dot {
   display: inline-block;

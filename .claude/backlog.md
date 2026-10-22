@@ -17,29 +17,42 @@ Prioridade: **A** = alta, **B** = média, **C** = baixa.
 
 ## Prioridade A — Fundamentos & segurança
 
-- [next] (A) Criar bucket `maps` no Supabase Storage via SQL migration (RLS: upload por DM da campanha, read público). Ver `dm.js` fn `uploadMapImage`.
-- [ ] (A) Preview Markdown no editor de narrativa (`dm.html` aba Narrativa) — reaproveitar marked.js via esm.sh e sanitizar com DOMPurify.
-- [ ] (A) Rate limit no insert de `dice_rolls` (max 20 por minuto por usuário) via função plpgsql + trigger.
-- [ ] (A) Realtime presence (quem está online na campanha) no painel do mestre.
+- [x] (A) ~~Criar bucket `maps` no Supabase Storage via SQL migration~~ — feito em `supabase/migrations/20261021180000_maps_bucket.sql`
+- [x] (A) ~~Preview Markdown no editor de narrativa~~ — feito (marked@12 + DOMPurify@3, abas Editar/Dividir/Preview)
+- [x] (A) ~~Rate limit no insert de `dice_rolls`~~ — feito em `supabase/migrations/20261021190000_dice_rolls_rate_limit.sql`
+- [x] (A) ~~Realtime presence~~ — feito (presence channel + dot verde nos cards + contador "X/Y online")
+- [next] (A) **Modal "Ver detalhes" expandido do jogador no DM** — clicar no card abre modal com atributos completos, salvaguardas, perícias, slots de magia, condições. Reutiliza `sheet_json` já carregado.
+- [ ] (A) **Chat de campanha** — canal broadcast realtime no `dm.html` + `index.html`. Mensagens efêmeras (não precisa persistir) com nickname + timestamp.
+- [ ] (A) **Mestre pode marcar condição em jogador remotamente** — chip clicável no card do jogador, update em `characters.sheet_json.activeConditions`.
+- [ ] (A) **Tracker de iniciativa compartilhado** — DM adiciona combatentes (jogadores + NPCs), rola iniciativa, marca turno atual, todos veem.
 
 ## Prioridade A — Compêndio do Guia do Mestre 5e
 
-- [ ] (A) Importar seção "Monstros padrão (CR 0 a 5)" do PDF em `~/Downloads/dd-5e-guia-do-mestre-biblioteca-elfica.pdf` para `data-dm.js` (equivalente a `data.js` do jogador). Instalar `brew install poppler` primeiro se `pdftotext` ainda não existir.
-- [ ] (A) Tabela de tesouro Individual (Guia do Mestre cap 7) — gerador clicável que gera moedas + 1 item.
-- [ ] (A) Calculadora de dificuldade de encontro por XP budget (CR vs. nível do grupo).
+- [x] (A) ~~Tabela de tesouro Individual~~ — feito em `dm-data.js` + aba NPCs
+- [x] (A) ~~Calculadora de dificuldade de encontro por XP budget~~ — feito em `dm-data.js` + aba NPCs
+- [ ] (A) **Importar monstros padrão (CR 0 a 5) do PDF do GdM** para `dm-data.js`. Precisa `brew install poppler` primeiro (`pdftotext` convert). PDF em `~/Downloads/dd-5e-guia-do-mestre-biblioteca-elfica.pdf`. Formato: `{ nome, cr, hp, ca, ataques, resistências, descrição }`.
+- [ ] (A) **Tesouro de Dragão (Hoard)** — tabelas por CR do cap 7, equivalente ao Individual.
+- [ ] (A) **Gerador de nomes de NPC** (humano, elfo, anão, orc) — tabelas rolagem.
 
 ## Prioridade B — Qualidade de vida
 
-- [ ] (B) Modo escuro/claro já existe no jogador — propagar para `dm.html` (`#btnToggleTheme`).
-- [ ] (B) Shortcut Ctrl/Cmd+K abre busca global (campanhas / arcos / NPCs).
-- [ ] (B) Importar/Exportar campanha completa em JSON (equivalente ao `btnExportJson` do jogador).
-- [ ] (B) Avatar do mestre: upload no profile (equivalente ao hero portrait do jogador).
+- [x] (B) ~~Modo escuro/claro no `dm.html`~~ — feito (botão `#btnDmToggleTheme`)
+- [x] (B) ~~Shortcut Ctrl/Cmd+K~~ — feito (palette com campaigns/arcs/players/maps)
+- [x] (B) ~~Importar/Exportar campanha JSON~~ — feito (botões no header do DM)
+- [x] (B) ~~Avatar do mestre~~ — feito (bucket avatars + círculo clicável no header)
+- [ ] (B) **Botão "Visualizar como jogador"** — mestre vê o mapa com fog ativo + só suas fichas públicas (preview do que o player vê).
+- [ ] (B) **Timeline de atividade no DM** — feed cronológico das mudanças (PV, condição, rolagem, movimento no mapa) usando realtime do canal.
+- [ ] (B) **Botão "Enviar handout"** — DM anexa texto/imagem no modal, aparece pra jogadores selecionados.
+- [ ] (B) **CRUD completo de NPCs** — formulário com stat block, lista na aba NPCs, converter em token com 1 clique.
 
 ## Prioridade C — Refinamento futuro
 
 - [ ] (C) Som/música ambiente (free tier do Jamendo API).
 - [ ] (C) Timer de turno de iniciativa com beep ao esgotar.
-- [ ] (C) Logs de alterações da ficha (quem mudou PV e quando).
+- [ ] (C) Logs de alterações da ficha (quem mudou PV e quando) — tabela `audit_log` + render no DM.
+- [ ] (C) Dark/light theme no `login.html`.
+- [ ] (C) PWA — instalável como app no celular do jogador (manifest.json + service worker).
+- [ ] (C) Exportar PDF da ficha (print layout já pronto; só adicionar botão).
 
 ## Precisa de clarificação
 

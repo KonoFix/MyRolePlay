@@ -175,6 +175,17 @@
     </section>
   </div>
 
+  <!-- Modal: Detalhes do Jogador -->
+  <div id="playerDetailModal" class="modal-overlay">
+    <div class="modal-content" style="max-width:720px;">
+      <div class="modal-header">
+        <h2 class="modal-title" id="pdmTitle">Ficha do Jogador</h2>
+        <button class="close-modal-btn" onclick="document.getElementById('playerDetailModal').classList.remove('open')">&times;</button>
+      </div>
+      <div id="pdmBody"></div>
+    </div>
+  </div>
+
   <!-- Palette de busca (Cmd/Ctrl+K) -->
   <div id="dmPalette" class="dm-palette" hidden>
     <div class="dm-palette-card">
