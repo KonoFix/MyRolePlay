@@ -22,9 +22,8 @@ Prioridade: **A** = alta, **B** = média, **C** = baixa.
 - [x] (A) ~~Rate limit no insert de `dice_rolls`~~ — feito em `supabase/migrations/20261021190000_dice_rolls_rate_limit.sql`
 - [x] (A) ~~Realtime presence~~ — feito (presence channel + dot verde nos cards + contador "X/Y online")
 - [x] (A) ~~Modal "Ver detalhes" expandido do jogador no DM~~ — feito: clicar no card abre modal com atributos (c/ bônus racial), salvaguardas, perícias, slots de magia, moedas, condições.
-- [next] (A) **Chat de campanha** — canal broadcast realtime no `dm.html` + `index.html`. Mensagens efêmeras (não precisa persistir) com nickname + timestamp.
-- [ ] (A) **Chat de campanha** — canal broadcast realtime no `dm.html` + `index.html`. Mensagens efêmeras (não precisa persistir) com nickname + timestamp.
-- [ ] (A) **Mestre pode marcar condição em jogador remotamente** — chip clicável no card do jogador, update em `characters.sheet_json.activeConditions`.
+- [x] (A) ~~Chat de campanha~~ — feito: `shared/chat-widget.js` (Supabase Realtime Broadcast, efêmero, sem tabela no banco). Widget flutuante compartilhado entre `dm.js` e `app-boot.js`, reaproveita o mesmo canal `campaign:<id>` já usado para presença/postgres_changes.
+- [next] (A) **Mestre pode marcar condição em jogador remotamente** — chip clicável no card do jogador, update em `characters.sheet_json.activeConditions`.
 - [ ] (A) **Tracker de iniciativa compartilhado** — DM adiciona combatentes (jogadores + NPCs), rola iniciativa, marca turno atual, todos veem.
 
 ## Prioridade A — Compêndio do Guia do Mestre 5e

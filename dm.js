@@ -4,6 +4,7 @@
 import { supabase } from './shared/supabase-client.js';
 import { requireAuth, updateRole } from './shared/auth.js';
 import { createBoard } from './map/konva-board.js';
+import { mountChatWidget } from './shared/chat-widget.js';
 import { marked } from 'https://esm.sh/marked@12.0.2';
 import DOMPurify from 'https://esm.sh/dompurify@3.1.6';
 
@@ -32,6 +33,7 @@ const state = {
   tokens: [],
   board: null,
   onlineUserIds: new Set(),
+  chatWidget: null,
 };
 
 // ---------- Boot ----------
@@ -799,21 +801,22 @@ async function importCampaignJson(file) {
 // =============================================================================
 function subscribeRealtime(campaignId) {
   if (state.liveChannel) supabase.removeChannel(state.liveChannel);
+  if (state.chatWidget) { state.chatWidget.destroy(); state.chatWidget = null; }
 
-  state.liveChannel = supabase
+  const channel = supabase
     .channel(`campaign:${campaignId}`, { config: { presence: { key: dmUserId } } })
     .on('presence', { event: 'sync' }, () => {
-      const presenceState = state.liveChannel.presenceState();
+      const presenceState = channel.presenceState();
       state.onlineUserIds = new Set(Object.keys(presenceState));
       renderPlayers();
     })
     .on('presence', { event: 'join' }, () => {
-      const presenceState = state.liveChannel.presenceState();
+      const presenceState = channel.presenceState();
       state.onlineUserIds = new Set(Object.keys(presenceState));
       renderPlayers();
     })
     .on('presence', { event: 'leave' }, () => {
-      const presenceState = state.liveChannel.presenceState();
+      const presenceState = channel.presenceState();
       state.onlineUserIds = new Set(Object.keys(presenceState));
       renderPlayers();
     })
@@ -841,13 +844,26 @@ function subscribeRealtime(campaignId) {
           const idx = state.tokens.findIndex(x => x.id === t.id);
           if (idx >= 0) state.tokens[idx] = t;
           state.board?.updateToken(t.id, { x: t.x, y: t.y });
-        })
-    .subscribe(async (status) => {
-      if (status === 'SUBSCRIBED') {
-        // Anuncia a presença do mestre (ele também fica "online")
-        await state.liveChannel.track({ since: Date.now(), role: 'dm' });
-      }
-    });
+        });
+
+  state.liveChannel = channel;
+
+  // Chat: precisa montar (registrar .on('broadcast', ...)) ANTES do
+  // .subscribe() final, por convenção do Supabase Realtime.
+  const camp = state.campaigns.find(c => c.id === campaignId);
+  state.chatWidget = mountChatWidget({
+    channel,
+    displayName: dmProfile?.display_name || 'Mestre',
+    isDM: true,
+    campaignLabel: camp?.title || 'Mesa',
+  });
+
+  channel.subscribe(async (status) => {
+    if (status === 'SUBSCRIBED') {
+      // Anuncia a presença do mestre (ele também fica "online")
+      await channel.track({ since: Date.now(), role: 'dm' });
+    }
+  });
 }
 
 // =============================================================================

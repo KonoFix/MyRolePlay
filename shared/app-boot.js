@@ -6,6 +6,7 @@
 import { supabase } from './supabase-client.js';
 import { requireAuth, signOut, getProfile, updateRole } from './auth.js';
 import { loadCharacters, scheduleSave, flushAllSaves, deleteCharacter } from './character-store.js';
+import { mountChatWidget } from './chat-widget.js';
 
 const authed = await requireAuth();
 if (!authed) {
@@ -26,26 +27,42 @@ if (!authed) {
 
   // Presença: para cada campanha em que o jogador é membro, anuncia online
   // via canal realtime da campanha. O DM vê o indicador atualizar.
+  // A primeira campanha também ganha o widget de chat flutuante (evita
+  // empilhar vários balões na tela se o jogador estiver em múltiplas mesas).
   try {
-    const session = await (async () => {
-      const r = await supabase.auth.getSession();
-      return r.data?.session;
-    })();
+    const { data: { session } } = await supabase.auth.getSession();
     if (session) {
       const { data: memberships } = await supabase
         .from('campaign_members')
         .select('campaign_id')
         .eq('user_id', session.user.id);
-      (memberships || []).forEach(({ campaign_id }) => {
-        const chan = supabase.channel(`campaign:${campaign_id}`, {
-          config: { presence: { key: session.user.id } },
-        });
-        chan.subscribe(async (status) => {
-          if (status === 'SUBSCRIBED') {
-            await chan.track({ since: Date.now(), role: 'player' });
+
+      if (memberships?.length) {
+        const campaignIds = memberships.map(m => m.campaign_id);
+        const { data: camps } = await supabase.from('campaigns').select('id, title').in('id', campaignIds);
+        const titleById = Object.fromEntries((camps || []).map(c => [c.id, c.title]));
+
+        memberships.forEach(({ campaign_id }, idx) => {
+          const chan = supabase.channel(`campaign:${campaign_id}`, {
+            config: { presence: { key: session.user.id } },
+          });
+
+          if (idx === 0) {
+            mountChatWidget({
+              channel: chan,
+              displayName: authed.profile?.display_name || 'Jogador',
+              isDM: false,
+              campaignLabel: titleById[campaign_id] || 'Mesa',
+            });
           }
+
+          chan.subscribe(async (status) => {
+            if (status === 'SUBSCRIBED') {
+              await chan.track({ since: Date.now(), role: 'player' });
+            }
+          });
         });
-      });
+      }
     }
   } catch (err) {
     console.warn('[presence] falhou:', err);
