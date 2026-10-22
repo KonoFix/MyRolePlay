@@ -14,7 +14,7 @@
       <div class="brand-wrapper">
         <label class="dm-avatar" id="dmAvatar" title="Clique para enviar sua foto">
           <input type="file" id="dmAvatarInput" accept="image/*" hidden>
-          <span id="dmAvatarPlaceholder" class="dm-avatar-placeholder">🧙</span>
+          <span id="dmAvatarPlaceholder" class="dm-avatar-placeholder"><svg class="icon icon-wizard-hat" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2 4 20h16L12 2Z"/><path d="M9 14h6"/><circle cx="12" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></span>
           <img id="dmAvatarImg" class="dm-avatar-img" alt="" hidden>
         </label>
         <span class="brand-badge">D&amp;D 5E</span>
@@ -25,23 +25,23 @@
       </div>
       <div class="header-actions">
         <select id="dmCampaignSelect" class="field-select" title="Campanha ativa"></select>
-        <button id="btnNewCampaign" class="btn">➕ Nova Campanha</button>
-        <button id="btnCopyJoinCode" class="btn" title="Copiar código de convite">🔗 Convite</button>
-        <button id="btnExportCampaign" class="btn" title="Exportar campanha em JSON">💾 Exportar</button>
-        <label class="btn" title="Importar campanha JSON" style="margin:0;">📂 Importar<input type="file" id="importCampaignInput" accept=".json" hidden></label>
-        <button id="btnDmToggleTheme" class="btn" title="Alternar tema"><span id="dmThemeIcon">📜</span> <span id="dmThemeLabel">Pergaminho</span></button>
-        <button id="btnSwitchToPlayer" class="btn" title="Voltar para a visão de Jogador">🛡️ Virar Jogador</button>
+        <button id="btnNewCampaign" class="btn"><svg class="icon icon-plus-circle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Nova Campanha</button>
+        <button id="btnCopyJoinCode" class="btn" title="Copiar código de convite"><svg class="icon icon-link" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9.5 14.5 14.5 9.5"/><path d="M11 6.5 12.5 5a3.5 3.5 0 0 1 5 5l-1.5 1.5"/><path d="M13 17.5 11.5 19a3.5 3.5 0 0 1-5-5l1.5-1.5"/></svg> Convite</button>
+        <button id="btnExportCampaign" class="btn" title="Exportar campanha em JSON"><svg class="icon icon-save" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 4h11l3 3v13H5V4Z"/><path d="M8 4v5h7V4"/><path d="M8 14h8v6H8v-6Z"/></svg> Exportar</button>
+        <label class="btn" title="Importar campanha JSON" style="margin:0;"><svg class="icon icon-folder-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 8h5l2 2h6l2 3-1.5 7H5L3 8Z"/><path d="M3 8V6a1 1 0 0 1 1-1h4l2 2"/></svg> Importar<input type="file" id="importCampaignInput" accept=".json" hidden></label>
+        <button id="btnDmToggleTheme" class="btn" title="Alternar tema"><span id="dmThemeIcon"><svg class="icon icon-scroll" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 4h11v15a2 2 0 1 1-4 0V9H7"/><path d="M7 4a2 2 0 1 0 0 4h1"/><path d="M7 15a2 2 0 1 0 0 4h5"/></svg></span> <span id="dmThemeLabel">Pergaminho</span></button>
+        <button id="btnSwitchToPlayer" class="btn" title="Voltar para a visão de Jogador"><svg class="icon icon-shield" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z"/></svg> Virar Jogador</button>
         <button id="btnDmSignOut" class="btn btn-accent">↩ Sair</button>
       </div>
     </header>
 
     <!-- Abas -->
     <nav class="sheet-tabs-nav">
-      <button class="tab-btn active" data-tab="dm-tab-live">👥 Painel Ao Vivo</button>
-      <button class="tab-btn" data-tab="dm-tab-narrative">📜 Narrativa</button>
-      <button class="tab-btn" data-tab="dm-tab-map">🗺️ Mapa</button>
-      <button class="tab-btn" data-tab="dm-tab-npcs">🐉 NPCs</button>
-      <button class="tab-btn" data-tab="dm-tab-rolls">🎲 Log de Rolagens</button>
+      <button class="tab-btn active" data-tab="dm-tab-live"><svg class="icon icon-users" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.5 2.5-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M15 20c0-2.6 1.6-4.6 4-5.3"/></svg> Painel Ao Vivo</button>
+      <button class="tab-btn" data-tab="dm-tab-narrative"><svg class="icon icon-scroll" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 4h11v15a2 2 0 1 1-4 0V9H7"/><path d="M7 4a2 2 0 1 0 0 4h1"/><path d="M7 15a2 2 0 1 0 0 4h5"/></svg> Narrativa</button>
+      <button class="tab-btn" data-tab="dm-tab-map"><svg class="icon icon-map" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4 4 6v14l5-2 6 2 5-2V4l-5 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg> Mapa</button>
+      <button class="tab-btn" data-tab="dm-tab-npcs"><svg class="icon icon-dragon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 15c2-3 4-4 6-4 1 0 2 .4 2 1.5S9.5 14 8 14M11 11c3-5 7-6 10-3-1 0-2 .5-2 2 0 1 1 1.5 2 1.5-1.5 2-4 2-5 .5-1 2-3 3-5 2.5"/><path d="M8 14c-1.5 2-1.5 4 0 6M13 10.5c1 1 1 3-.5 4"/><circle cx="16.5" cy="8.5" r="0.8" fill="currentColor" stroke="none"/></svg> NPCs</button>
+      <button class="tab-btn" data-tab="dm-tab-rolls"><svg class="icon icon-dice" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2 20 7v10l-8 5-8-5V7l8-5Z"/><path d="M12 2v10M20 7l-8 5M4 7l8 5"/><circle cx="12" cy="9" r="1" fill="currentColor" stroke="none"/></svg> Log de Rolagens</button>
     </nav>
 
     <!-- ABA: Painel Ao Vivo -->
@@ -81,9 +81,9 @@
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <label class="field-label" for="dmArcBody" style="margin:0;">Narrativa (Markdown)</label>
               <div class="dm-md-tabs">
-                <button class="dm-md-tab active" data-mode="edit" type="button">✏️ Editar</button>
+                <button class="dm-md-tab active" data-mode="edit" type="button"><svg class="icon icon-pencil" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 17.25 3 21l3.75-1L18.5 8.25a1.5 1.5 0 0 0 0-2.12l-1.63-1.63a1.5 1.5 0 0 0-2.12 0L4 15.25v2Z"/></svg> Editar</button>
                 <button class="dm-md-tab" data-mode="split" type="button">⟷ Dividir</button>
-                <button class="dm-md-tab" data-mode="preview" type="button">👁 Preview</button>
+                <button class="dm-md-tab" data-mode="preview" type="button"><svg class="icon icon-eye" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 12c2.5-5 7-7 10-7s7.5 2 10 7c-2.5 5-7 7-10 7s-7.5-2-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> Preview</button>
               </div>
             </div>
             <div class="dm-md-container" data-mode="edit">
@@ -93,8 +93,8 @@
             </div>
           </div>
           <div style="display:flex; gap:8px; margin-top:12px;">
-            <button class="btn btn-primary" id="btnSaveArc">💾 Salvar</button>
-            <button class="btn btn-accent" id="btnDeleteArc">🗑 Excluir</button>
+            <button class="btn btn-primary" id="btnSaveArc"><svg class="icon icon-save" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 4h11l3 3v13H5V4Z"/><path d="M8 4v5h7V4"/><path d="M8 14h8v6H8v-6Z"/></svg> Salvar</button>
+            <button class="btn btn-accent" id="btnDeleteArc"><svg class="icon icon-trash" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg> Excluir</button>
           </div>
         </section>
       </div>
@@ -109,7 +109,7 @@
             <select id="dmMapSelect" class="field-select" style="width:200px; padding:4px 8px; font-size:0.8rem;"></select>
             <button class="btn" id="btnNewMap" style="padding:4px 10px; font-size:0.75rem;">+ Novo mapa</button>
             <label class="btn" style="padding:4px 10px; font-size:0.75rem; margin:0;">
-              📁 Imagem
+              <svg class="icon icon-folder-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 8h5l2 2h6l2 3-1.5 7H5L3 8Z"/><path d="M3 8V6a1 1 0 0 1 1-1h4l2 2"/></svg> Imagem
               <input type="file" id="dmMapImageInput" accept="image/*" hidden>
             </label>
             <button class="btn" id="btnAddTokenNPC" style="padding:4px 10px; font-size:0.75rem;">+ Token NPC</button>
@@ -139,7 +139,7 @@
               <option value="17+">17+</option>
             </select>
           </div>
-          <button class="btn btn-primary" id="btnRollTreasure" style="margin-top:10px;">🎲 Rolar Tesouro</button>
+          <button class="btn btn-primary" id="btnRollTreasure" style="margin-top:10px;"><svg class="icon icon-dice" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2 20 7v10l-8 5-8-5V7l8-5Z"/><path d="M12 2v10M20 7l-8 5M4 7l8 5"/><circle cx="12" cy="9" r="1" fill="currentColor" stroke="none"/></svg> Rolar Tesouro</button>
           <div id="treasureResult" style="margin-top:12px;"></div>
         </div>
 
@@ -157,7 +157,7 @@
             <div id="encounterMonsters" style="display:flex; flex-direction:column; gap:6px;"></div>
             <button class="btn" id="btnAddMonster" style="margin-top:6px; padding:4px 10px; font-size:0.75rem;">+ Adicionar monstro</button>
           </div>
-          <button class="btn btn-primary" id="btnEvaluateEncounter" style="margin-top:10px;">⚖ Avaliar</button>
+          <button class="btn btn-primary" id="btnEvaluateEncounter" style="margin-top:10px;"><svg class="icon icon-scale" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v15M7 6h10M5 6l-3 7a3 3 0 0 0 6 0L5 6ZM19 6l-3 7a3 3 0 0 0 6 0L19 6Z"/><path d="M8 21h8"/></svg> Avaliar</button>
           <div id="encounterResult" style="margin-top:12px;"></div>
         </div>
       </div>
@@ -222,6 +222,7 @@
   </div>
 
   <script src="config.js"></script>
+  <script src="shared/icons.js"></script>
   <script src="data.js"></script>
   <script src="dm-data.js"></script>
   <script type="module" src="dm.js"></script>

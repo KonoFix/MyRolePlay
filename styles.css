@@ -401,6 +401,10 @@ body {
   display: block;
 }
 
+.hero-portrait-img[hidden] {
+  display: none;
+}
+
 .hero-portrait-remove {
   position: absolute;
   top: -4px;
@@ -424,6 +428,10 @@ body {
 .hero-portrait-remove:hover {
   transform: scale(1.1);
   filter: brightness(1.1);
+}
+
+.hero-portrait-remove[hidden] {
+  display: none;
 }
 
 @media (max-width: 600px) {
@@ -2146,4 +2154,214 @@ input[type="number"]::-webkit-outer-spin-button {
     border-color: #999 !important;
     color: #000 !important;
   }
+}
+
+/* Ícones SVG (shared/icons.js) — substituem emojis em toda a UI */
+.icon {
+  display: inline-block;
+  vertical-align: -3px;
+  flex-shrink: 0;
+}
+button .icon,
+.btn .icon {
+  vertical-align: -3px;
+  margin-right: 2px;
+}
+.icon-x {
+  vertical-align: -2px;
+}
+
+/* Legenda de proficiência em perícias (bolinhas coloridas) */
+.legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-muted);
+  vertical-align: -1px;
+  margin-right: 2px;
+}
+.legend-dot.dot-prof {
+  background: var(--accent-gold);
+  border-color: var(--accent-gold);
+}
+.legend-dot.dot-expertise {
+  background: #c0392b;
+  border-color: #c0392b;
+}
+
+/* ==========================================================================
+   TEMA MEDIEVAL AVANÇADO — Pergaminho, Pedra de Masmorra, Taverna & Guilda
+   ========================================================================== */
+
+:root {
+  --rivet: radial-gradient(circle, #f5cf74 0%, #8b6a2c 45%, rgba(0, 0, 0, 0.65) 100%);
+  --wood-grain:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.08) 0px, transparent 1px, transparent 3px, rgba(0, 0, 0, 0.05) 4px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.18));
+}
+
+[data-theme="parchment"] {
+  --rivet: radial-gradient(circle, #e8c98a 0%, #8b2500 45%, rgba(60, 30, 10, 0.55) 100%);
+  --wood-grain:
+    repeating-linear-gradient(90deg, rgba(80, 40, 10, 0.07) 0px, transparent 1px, transparent 3px, rgba(80, 40, 10, 0.04) 4px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(80, 40, 10, 0.08));
+}
+
+/* --- Parede de pedra de masmorra (escuro) / Fibra de pergaminho (claro) --- */
+body {
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(200, 155, 60, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.04) 0%, transparent 40%),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0px, rgba(0, 0, 0, 0.2) 1px, transparent 1px, transparent 58px),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.14) 0px, rgba(0, 0, 0, 0.14) 1px, transparent 1px, transparent 96px),
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.012) 0px, rgba(255, 255, 255, 0.012) 2px, transparent 2px, transparent 5px),
+    radial-gradient(ellipse at center, transparent 50%, rgba(0, 0, 0, 0.55) 145%);
+  background-attachment: fixed;
+}
+
+[data-theme="parchment"] body {
+  background-image:
+    radial-gradient(circle at 15% 15%, rgba(139, 37, 0, 0.05) 0%, transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(139, 37, 0, 0.04) 0%, transparent 45%),
+    repeating-linear-gradient(35deg, rgba(139, 100, 60, 0.035) 0px, rgba(139, 100, 60, 0.035) 1px, transparent 1px, transparent 3px),
+    repeating-linear-gradient(-35deg, rgba(139, 100, 60, 0.025) 0px, rgba(139, 100, 60, 0.025) 1px, transparent 1px, transparent 4px),
+    radial-gradient(ellipse at center, transparent 48%, rgba(120, 80, 40, 0.2) 145%);
+  background-attachment: fixed;
+}
+
+/* --- Painéis com cantos rebitados (baú/ledger de guilda) --- */
+.app-header,
+.dm-header,
+.character-hero-card,
+.side-panel-card,
+.modal-content {
+  position: relative;
+  border-radius: 4px;
+  background-image:
+    var(--rivet) 9px 9px / 6px 6px no-repeat,
+    var(--rivet) calc(100% - 9px) 9px / 6px 6px no-repeat,
+    var(--rivet) 9px calc(100% - 9px) / 6px 6px no-repeat,
+    var(--rivet) calc(100% - 9px) calc(100% - 9px) / 6px 6px no-repeat;
+  box-shadow: var(--shadow-md), inset 0 0 0 1px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="parchment"] .app-header,
+[data-theme="parchment"] .dm-header,
+[data-theme="parchment"] .character-hero-card,
+[data-theme="parchment"] .side-panel-card,
+[data-theme="parchment"] .modal-content {
+  box-shadow: var(--shadow-md), inset 0 0 0 1px rgba(139, 37, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* --- Botões: placas entalhadas de madeira/ferro de taverna --- */
+.btn {
+  border-radius: 3px;
+  font-family: var(--font-title);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  background-image: var(--wood-grain);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -2px 3px rgba(0, 0, 0, 0.35), var(--shadow-sm);
+}
+
+.btn:hover {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -2px 3px rgba(0, 0, 0, 0.3), var(--shadow-gold);
+}
+
+.btn-primary {
+  background-image: var(--wood-grain), linear-gradient(135deg, #c89b3c, #9d7524);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+[data-theme="parchment"] .btn-primary {
+  background-image: var(--wood-grain), linear-gradient(135deg, #8b2500, #6b1d00);
+  text-shadow: none;
+}
+
+.btn-accent {
+  background-image: var(--wood-grain);
+}
+
+.btn-icon {
+  background-image: none;
+}
+
+/* --- Cabeçalhos de seção: filete duplo tipo documento de guilda --- */
+.card-header-title {
+  position: relative;
+  border-bottom-width: 2px;
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+}
+
+.card-header-title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 1px;
+  background: var(--border-color);
+  opacity: 0.7;
+}
+
+.brand-text h1,
+.dm-live-head h2,
+.modal-title {
+  letter-spacing: 0.6px;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="parchment"] .brand-text h1,
+[data-theme="parchment"] .dm-live-head h2,
+[data-theme="parchment"] .modal-title {
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* --- Abas: placar de madeira pendurado na taverna --- */
+.sheet-tabs-nav {
+  padding: 4px 4px 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.18), transparent);
+  border-radius: 4px 4px 0 0;
+}
+
+.tab-btn {
+  text-transform: uppercase;
+  border-radius: 3px 3px 0 0;
+}
+
+.tab-btn.active {
+  background: linear-gradient(180deg, rgba(200, 155, 60, 0.14), transparent);
+}
+
+[data-theme="parchment"] .tab-btn.active {
+  background: linear-gradient(180deg, rgba(139, 37, 0, 0.1), transparent);
+}
+
+/* --- Campos: tinteiro recuado / linha de pergaminho --- */
+.field-input,
+.field-select,
+.rp-textarea {
+  border-radius: 3px;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="parchment"] .field-input,
+[data-theme="parchment"] .field-select,
+[data-theme="parchment"] .rp-textarea {
+  box-shadow: inset 0 1px 3px rgba(80, 50, 30, 0.22);
+}
+
+.field-input:focus,
+.field-select:focus,
+.rp-textarea:focus {
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.45), 0 0 0 2px var(--border-glow);
+}
+
+[data-theme="parchment"] .field-input:focus,
+[data-theme="parchment"] .field-select:focus,
+[data-theme="parchment"] .rp-textarea:focus {
+  box-shadow: inset 0 1px 3px rgba(80, 50, 30, 0.22), 0 0 0 2px var(--border-glow);
 }
