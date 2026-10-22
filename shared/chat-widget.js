@@ -26,17 +26,17 @@ export function mountChatWidget({ channel, displayName, isDM = false, campaignLa
   wrap.innerHTML = `
     <div class="mrp-chat-panel" id="${id}Panel">
       <div class="mrp-chat-header">
-        <span>💬 Chat — ${escapeHtml(campaignLabel)}</span>
+        <span>${window.svgIcon('message-circle')} Chat — ${escapeHtml(campaignLabel)}</span>
         <button type="button" class="mrp-chat-close" aria-label="Fechar">&times;</button>
       </div>
       <div class="mrp-chat-messages" id="${id}Messages"></div>
       <form class="mrp-chat-form" id="${id}Form" autocomplete="off">
         <input type="text" class="mrp-chat-input" id="${id}Input" placeholder="Digite uma mensagem..." maxlength="500">
-        <button type="submit" class="mrp-chat-send" aria-label="Enviar">➤</button>
+        <button type="submit" class="mrp-chat-send" aria-label="Enviar">${window.svgIcon('send', {size:16})}</button>
       </form>
     </div>
     <button type="button" class="mrp-chat-fab" id="${id}Fab" title="Abrir chat da mesa">
-      💬<span class="mrp-chat-badge" id="${id}Badge" hidden></span>
+      ${window.svgIcon('message-circle', {size:20})}<span class="mrp-chat-badge" id="${id}Badge" hidden></span>
     </button>`;
   document.body.appendChild(wrap);
 
@@ -66,7 +66,7 @@ export function mountChatWidget({ channel, displayName, isDM = false, campaignLa
     const time = new Date(ts || Date.now()).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     const senderEl = document.createElement('span');
     senderEl.className = 'mrp-chat-sender';
-    senderEl.textContent = (fromDM ? '🎲 ' : '') + (sender || '—');
+    senderEl.innerHTML = (fromDM ? window.svgIcon('dice', {size:13, className:'mrp-chat-dm-icon'}) + ' ' : '') + escapeHtml(sender || '—');
     const timeEl = document.createElement('span');
     timeEl.className = 'mrp-chat-time';
     timeEl.textContent = time;

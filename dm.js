@@ -208,7 +208,7 @@ function renderPlayerCard(p) {
       <div class="dm-player-head">
         ${portrait
           ? `<img class="dm-player-portrait" src="${escapeAttr(portrait)}" alt="">`
-          : `<div class="dm-player-portrait" style="display:flex;align-items:center;justify-content:center;color:var(--text-muted);">🎭</div>`}
+          : `<div class="dm-player-portrait" style="display:flex;align-items:center;justify-content:center;color:var(--text-muted);">${window.svgIcon('mask', {size:28})}</div>`}
         <div>
           <div class="dm-player-name">${dot}${escapeHtml(sheet.name || char.name)}</div>
           <div class="dm-player-class">${escapeHtml(classInfo)}</div>
@@ -220,7 +220,7 @@ function renderPlayerCard(p) {
       <div class="dm-player-hp ${hpClass}">
         <div class="dm-player-hp-bar"><div class="dm-player-hp-fill" style="width:${pct}%"></div></div>
         <div class="dm-player-hp-text">
-          <span>❤️ ${hp.current}/${hp.max}${hp.temp ? ' (+' + hp.temp + ' temp)' : ''}</span>
+          <span>${window.svgIcon('heart')} ${hp.current}/${hp.max}${hp.temp ? ' (+' + hp.temp + ' temp)' : ''}</span>
           <span>${pct.toFixed(0)}%</span>
         </div>
       </div>
@@ -228,7 +228,7 @@ function renderPlayerCard(p) {
         <div class="dm-player-stat"><span class="lbl">CA</span><span class="val">${sheet.armorClass ?? '—'}</span></div>
         <div class="dm-player-stat"><span class="lbl">Inic</span><span class="val">${formatMod(sheet.initiativeBonus)}</span></div>
         <div class="dm-player-stat"><span class="lbl">Vel</span><span class="val">${sheet.speed ?? '—'}m</span></div>
-        <div class="dm-player-stat"><span class="lbl">Insp</span><span class="val">${sheet.inspiration ? '✨' : '—'}</span></div>
+        <div class="dm-player-stat"><span class="lbl">Insp</span><span class="val">${sheet.inspiration ? window.svgIcon('sparkles') : '—'}</span></div>
       </div>
       ${conds.length ? `<div class="dm-player-conditions">${conds.map(c => `<span class="dm-condition-pill">${escapeHtml(c)}</span>`).join('')}</div>` : ''}
     </div>`;
@@ -346,11 +346,11 @@ function openPlayerDetail(userId) {
     <div class="pdm-section">
       <div class="pdm-section-title">Vitais</div>
       <div style="display:flex; gap:18px; flex-wrap:wrap; font-size:0.88rem;">
-        <span>❤️ PV: <strong>${hp.current}/${hp.max}</strong>${hp.temp ? ` (+${hp.temp})` : ''}</span>
-        <span>🛡️ CA: <strong>${sheet.armorClass ?? '—'}</strong></span>
-        <span>🎯 Iniciativa: <strong>${pdmFmtMod(sheet.initiativeBonus ?? 0)}</strong></span>
-        <span>👟 Velocidade: <strong>${sheet.speed ?? '—'}m</strong></span>
-        <span>🏅 Bônus Prof.: <strong>${pdmFmtMod(prof)}</strong></span>
+        <span>${window.svgIcon('heart')} PV: <strong>${hp.current}/${hp.max}</strong>${hp.temp ? ` (+${hp.temp})` : ''}</span>
+        <span>${window.svgIcon('shield')} CA: <strong>${sheet.armorClass ?? '—'}</strong></span>
+        <span>${window.svgIcon('target')} Iniciativa: <strong>${pdmFmtMod(sheet.initiativeBonus ?? 0)}</strong></span>
+        <span>${window.svgIcon('boots')} Velocidade: <strong>${sheet.speed ?? '—'}m</strong></span>
+        <span>${window.svgIcon('medal')} Bônus Prof.: <strong>${pdmFmtMod(prof)}</strong></span>
       </div>
       ${conds.length ? `<div class="dm-player-conditions" style="margin-top:8px;">${conds.map(c => `<span class="dm-condition-pill">${escapeHtml(c)}</span>`).join('')}</div>` : ''}
     </div>
@@ -408,7 +408,7 @@ function renderArcs() {
   ul.innerHTML = state.arcs.map(a => `
     <li data-id="${a.id}" class="${a.id === state.activeArcId ? 'active' : ''}">
       <span>${escapeHtml(a.title)}</span>
-      <span class="arc-hidden-icon">${a.visible_to_players ? '👁' : '🔒'}</span>
+      <span class="arc-hidden-icon">${a.visible_to_players ? window.svgIcon('eye') : window.svgIcon('lock')}</span>
     </li>`).join('');
   ul.querySelectorAll('li[data-id]').forEach(li => {
     li.addEventListener('click', () => selectArc(li.dataset.id));
@@ -919,7 +919,7 @@ function setupUI() {
     document.documentElement.setAttribute('data-theme', t === 'parchment' ? 'parchment' : 'dark');
     const icon = document.getElementById('dmThemeIcon');
     const label = document.getElementById('dmThemeLabel');
-    if (icon)  icon.textContent  = t === 'parchment' ? '🌙' : '📜';
+    if (icon)  icon.innerHTML  = t === 'parchment' ? window.svgIcon('moon') : window.svgIcon('scroll');
     if (label) label.textContent = t === 'parchment' ? 'Escuro' : 'Pergaminho';
   };
   applyTheme(localStorage.getItem('dnd5e_theme') || 'dark');

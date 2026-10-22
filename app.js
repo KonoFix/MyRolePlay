@@ -522,10 +522,10 @@ function renderInspirationBox() {
   const display = document.getElementById('inspirationDisplay');
   if (currentCharacter.inspiration) {
     box.classList.add('active-gold');
-    display.innerHTML = '<span class="stat-badge-icon">🌟</span> Ativa';
+    display.innerHTML = '<span class="stat-badge-icon"><svg class="icon icon-star" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3 14.5 9.5 21 10 16 14.3 17.5 21 12 17.3 6.5 21 8 14.3 3 10 9.5 9.5 12 3Z"/></svg></span> Ativa';
   } else {
     box.classList.remove('active-gold');
-    display.innerHTML = '<span class="stat-badge-icon">⚪</span> Inativa';
+    display.innerHTML = '<span class="stat-badge-icon"><svg class="icon icon-circle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/></svg></span> Inativa';
   }
 }
 
@@ -724,9 +724,9 @@ function renderWeaponsTable() {
       <td>${w.damage} ${formatMod(dmgBonus)} <small style="color:var(--text-muted);">${w.damageType || ''}</small></td>
       <td><small style="color:var(--text-secondary);">${w.properties || '—'}</small></td>
       <td style="text-align:right;">
-        <button class="weapon-roll-btn" onclick="rollWeaponAttack(${index})" title="Rolar Ataque com ${w.name}">Atk 🎲</button>
-        <button class="weapon-roll-btn" style="margin-left:4px;" onclick="rollWeaponDamage(${index})" title="Rolar Dano de ${w.name}">Dano 💥</button>
-        <button class="btn btn-icon" style="padding:2px; font-size:0.75rem; color:var(--accent-red);" onclick="removeWeapon(${index})" title="Remover arma">✕</button>
+        <button class="weapon-roll-btn" onclick="rollWeaponAttack(${index})" title="Rolar Ataque com ${w.name}">Atk <svg class="icon icon-dice" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2 20 7v10l-8 5-8-5V7l8-5Z"/><path d="M12 2v10M20 7l-8 5M4 7l8 5"/><circle cx="12" cy="9" r="1" fill="currentColor" stroke="none"/></svg></button>
+        <button class="weapon-roll-btn" style="margin-left:4px;" onclick="rollWeaponDamage(${index})" title="Rolar Dano de ${w.name}">Dano <svg class="icon icon-flame" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3c2 3-3 4-2 8 .4 1.6 2 2 2 2s1.6-.4 2-2c1-4-4-5-2-8Z"/><path d="M8 13c-1 2-1 4 0 5.5A4.5 4.5 0 0 0 12 21a4.5 4.5 0 0 0 4-2.5c1-1.5 1-3.5 0-5.5-1 2-2 3-4 3s-3-1-4-3Z"/></svg></button>
+        <button class="btn btn-icon" style="padding:2px; font-size:0.75rem; color:var(--accent-red);" onclick="removeWeapon(${index})" title="Remover arma"><svg class="icon icon-x" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
       </td>
     `;
     tbody.appendChild(tr);
@@ -781,7 +781,7 @@ function renderClassResources() {
         <button class="btn" style="padding:2px 8px; font-size:0.8rem;" onclick="adjustResource(${index}, -1)">-</button>
         <span style="font-family:var(--font-title); font-weight:800; min-width:36px; text-align:center; color:var(--accent-gold-light);">${res.current} / ${res.max}</span>
         <button class="btn" style="padding:2px 8px; font-size:0.8rem;" onclick="adjustResource(${index}, 1)">+</button>
-        <button class="btn btn-icon" style="padding:2px; font-size:0.75rem; color:var(--accent-red);" onclick="removeResource(${index})">✕</button>
+        <button class="btn btn-icon" style="padding:2px; font-size:0.75rem; color:var(--accent-red);" onclick="removeResource(${index})"><svg class="icon icon-x" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
       </div>
     `;
     container.appendChild(row);
@@ -966,7 +966,7 @@ function createSpellItemElement(sp) {
     </div>
     <div style="display:flex; align-items:center; gap:6px;">
       <span class="spell-tag">${sp.school || 'Magia'}</span>
-      <button class="btn btn-icon" style="padding:2px; font-size:0.75rem; color:var(--accent-red);" onclick="removeSpell('${sp.id}')" title="Remover do grimório">✕</button>
+      <button class="btn btn-icon" style="padding:2px; font-size:0.75rem; color:var(--accent-red);" onclick="removeSpell('${sp.id}')" title="Remover do grimório"><svg class="icon icon-x" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     </div>
   `;
   item.onclick = (e) => {
@@ -1005,7 +1005,7 @@ function renderInventoryTab() {
         </td>
         <td style="text-align:center;">${((item.weight || 0) * (item.qty || 1)).toFixed(1)} kg</td>
         <td style="text-align:right;">
-          <button class="btn btn-icon" style="padding:2px; font-size:0.75rem; color:var(--accent-red);" onclick="removeInventoryItem(${index})" title="Remover">✕</button>
+          <button class="btn btn-icon" style="padding:2px; font-size:0.75rem; color:var(--accent-red);" onclick="removeInventoryItem(${index})" title="Remover"><svg class="icon icon-x" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
         </td>
       `;
       tbody.appendChild(tr);
@@ -1020,10 +1020,10 @@ function renderInventoryTab() {
 
   const encAlert = document.getElementById('encumbranceAlert');
   if (carry.isEncumbered) {
-    encAlert.textContent = '⚠️ SOBRECARGA: Peso excedido! Deslocamento reduzido em 3 metros.';
+    encAlert.innerHTML = '<svg class="icon icon-alert-triangle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 4 21 20H3L12 4Z"/><path d="M12 10v4"/><circle cx="12" cy="17" r="0.8" fill="currentColor" stroke="none"/></svg> SOBRECARGA: Peso excedido! Deslocamento reduzido em 3 metros.';
     encAlert.style.color = 'var(--accent-red)';
   } else {
-    encAlert.textContent = '✓ Sem sobrecarga de peso';
+    encAlert.innerHTML = '<svg class="icon icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 13l4.5 4.5L19 7"/></svg> Sem sobrecarga de peso';
     encAlert.style.color = 'var(--accent-green)';
   }
 }
@@ -1072,7 +1072,7 @@ function addDiceLog(label, diceResult, total, isNat20, isNat1) {
   entry.className = 'dice-log-entry';
 
   let highlightClass = isNat20 ? 'nat20' : isNat1 ? 'nat1' : '';
-  let specialBadge = isNat20 ? ' ★ CRÍTICO (20)!' : isNat1 ? ' ✖ FALHA CRÍTICA (1)!' : '';
+  let specialBadge = isNat20 ? ' <svg class="icon icon-star" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3 14.5 9.5 21 10 16 14.3 17.5 21 12 17.3 6.5 21 8 14.3 3 10 9.5 9.5 12 3Z"/></svg> CRÍTICO (20)!' : isNat1 ? ' <svg class="icon icon-x" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg> FALHA CRÍTICA (1)!' : '';
 
   entry.innerHTML = `
     <div>
@@ -1765,7 +1765,7 @@ function filterSpellCompendium() {
       </div>
       <div>
         ${isAlreadyKnown 
-          ? '<span style="font-size:0.75rem; color:var(--accent-green); font-weight:700;">No Grimório ✓</span>'
+          ? '<span style="font-size:0.75rem; color:var(--accent-green); font-weight:700;">No Grimório <svg class="icon icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 13l4.5 4.5L19 7"/></svg></span>'
           : `<button class="btn btn-primary" style="padding:4px 10px; font-size:0.75rem;" onclick="addSpellToGrimoire('${sp.id}')">+ Adicionar</button>`}
       </div>
     `;
@@ -2030,7 +2030,7 @@ function renderWizardAttrControls() {
   } else if (wizardState.method === 'roll') {
     container.innerHTML = `
       <div style="text-align:center; padding:20px;">
-        <button class="btn btn-primary" onclick="rollAllWizardAttributes()">🎲 Rolar 4d6 (Descarta o Menor) para os 6 Atributos</button>
+        <button class="btn btn-primary" onclick="rollAllWizardAttributes()"><svg class="icon icon-dice" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2 20 7v10l-8 5-8-5V7l8-5Z"/><path d="M12 2v10M20 7l-8 5M4 7l8 5"/><circle cx="12" cy="9" r="1" fill="currentColor" stroke="none"/></svg> Rolar 4d6 (Descarta o Menor) para os 6 Atributos</button>
         <div id="rolledScoresResult" style="margin-top:16px; display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
           ${Object.keys(wizardState.scores).map(k => `
             <div class="vital-box" style="width:70px;">
@@ -2218,11 +2218,11 @@ function toggleTheme() {
 function applyTheme(theme) {
   if (theme === 'parchment') {
     document.documentElement.setAttribute('data-theme', 'parchment');
-    document.getElementById('themeIcon').textContent = '🌙';
+    document.getElementById('themeIcon').innerHTML = '<svg class="icon icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4 7 7 0 0 0 20 14.5Z"/></svg>';
     document.getElementById('themeLabel').textContent = 'Dark Fantasy';
   } else {
     document.documentElement.removeAttribute('data-theme');
-    document.getElementById('themeIcon').textContent = '📜';
+    document.getElementById('themeIcon').innerHTML = '<svg class="icon icon-scroll" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 4h11v15a2 2 0 1 1-4 0V9H7"/><path d="M7 4a2 2 0 1 0 0 4h1"/><path d="M7 15a2 2 0 1 0 0 4h5"/></svg>';
     document.getElementById('themeLabel').textContent = 'Pergaminho';
   }
   localStorage.setItem('dnd5e_theme', theme);

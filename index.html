@@ -26,43 +26,43 @@
             <!-- Opções dinâmicas -->
           </select>
           <button id="btnNewCharacter" class="btn" title="Criar nova ficha do zero">
-            <span>➕</span> Novo
+            <span><svg class="icon icon-plus-circle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span> Novo
           </button>
           <button id="btnOpenWizard" class="btn btn-primary" title="Abrir assistente guiado de criação">
-            <span>🧙‍♂️</span> Criar com Assistente
+            <span><svg class="icon icon-wizard-hat" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2 4 20h16L12 2Z"/><path d="M9 14h6"/><circle cx="12" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></span> Criar com Assistente
           </button>
         </div>
         
         <!-- DESCANSOS -->
         <div class="header-action-group">
           <button id="btnShortRest" class="btn" title="Descanso Curto (1 hora - gastar dados de vida)">
-            <span>☕</span> Descanso Curto
+            <span><svg class="icon icon-coffee" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 9h12v6a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V9Z"/><path d="M17 10h1.5a2 2 0 1 1 0 4H17"/><path d="M8 5.5c0-.8.5-1 .5-1.8M12 5.5c0-.8.5-1 .5-1.8"/></svg></span> Descanso Curto
           </button>
           <button id="btnLongRest" class="btn" title="Descanso Longo (8 horas - recupera PVs e metade dos DVs)">
-            <span>⛺</span> Descanso Longo
+            <span><svg class="icon icon-tent" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 4 3 20h18L12 4Z"/><path d="M12 4v16M8 20l4-9M16 20l-4-9"/></svg></span> Descanso Longo
           </button>
         </div>
 
         <!-- FERRAMENTAS / TEMA / SALVAR -->
         <div class="header-action-group">
           <button id="btnToggleTheme" class="btn" title="Alternar entre Tema Escuro e Pergaminho / Fundo Branco">
-            <span id="themeIcon">📜</span> <span id="themeLabel">Pergaminho</span>
+            <span id="themeIcon"><svg class="icon icon-scroll" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 4h11v15a2 2 0 1 1-4 0V9H7"/><path d="M7 4a2 2 0 1 0 0 4h1"/><path d="M7 15a2 2 0 1 0 0 4h5"/></svg></span> <span id="themeLabel">Pergaminho</span>
           </button>
           <button id="btnExportJson" class="btn" title="Exportar ficha em arquivo JSON">
-            <span>💾</span> Exportar
+            <span><svg class="icon icon-save" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 4h11l3 3v13H5V4Z"/><path d="M8 4v5h7V4"/><path d="M8 14h8v6H8v-6Z"/></svg></span> Exportar
           </button>
           <label class="btn" title="Importar arquivo JSON de ficha" style="margin:0;">
-            <span>📂</span> Importar
+            <span><svg class="icon icon-folder-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 8h5l2 2h6l2 3-1.5 7H5L3 8Z"/><path d="M3 8V6a1 1 0 0 1 1-1h4l2 2"/></svg></span> Importar
             <input type="file" id="importJsonInput" accept=".json" style="display:none;">
           </label>
           <button id="btnPrintSheet" class="btn" title="Imprimir ficha ou gerar PDF limpo">
-            <span>🖨️</span> Imprimir
+            <span><svg class="icon icon-printer" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 8V4h10v4"/><rect x="5" y="8" width="14" height="7" rx="1"/><path d="M7 15h10v5H7v-5Z"/></svg></span> Imprimir
           </button>
           <button id="btnJoinCampaign" class="btn btn-primary" title="Entrar numa campanha com código do mestre">
-            <span>🎲</span> Entrar na Mesa
+            <span><svg class="icon icon-dice" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2 20 7v10l-8 5-8-5V7l8-5Z"/><path d="M12 2v10M20 7l-8 5M4 7l8 5"/><circle cx="12" cy="9" r="1" fill="currentColor" stroke="none"/></svg></span> Entrar na Mesa
           </button>
           <button id="btnSwitchToDM" class="btn" title="Alternar sua conta para visão de Mestre">
-            <span>🧙</span> Virar Mestre
+            <span><svg class="icon icon-wizard-hat" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2 4 20h16L12 2Z"/><path d="M9 14h6"/><circle cx="12" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></span> Virar Mestre
           </button>
           <button id="btnPlayerSignOut" class="btn btn-accent" title="Sair da conta">
             <span>↩</span> Sair
@@ -77,12 +77,12 @@
         <label class="hero-portrait" id="heroPortrait" title="Clique para enviar uma foto do personagem">
           <input type="file" id="portraitFileInput" accept="image/*" hidden>
           <div class="hero-portrait-placeholder" id="heroPortraitPlaceholder">
-            <span class="hero-portrait-icon">📷</span>
+            <span class="hero-portrait-icon"><svg class="icon icon-camera" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-2.5h5L16 7"/><circle cx="12" cy="13.5" r="3.5"/></svg></span>
             <span class="hero-portrait-hint">Enviar foto</span>
           </div>
           <img id="heroPortraitImg" class="hero-portrait-img" alt="Retrato do personagem" hidden>
         </label>
-        <button type="button" id="btnRemovePortrait" class="hero-portrait-remove" title="Remover foto" hidden>✕</button>
+        <button type="button" id="btnRemovePortrait" class="hero-portrait-remove" title="Remover foto" hidden><svg class="icon icon-x" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
       </div>
 
       <div class="hero-body">
@@ -174,11 +174,11 @@
 
     <!-- ABAS DE NAVEGAÇÃO -->
     <nav class="sheet-tabs-nav">
-      <button class="tab-btn active" data-tab="tab-combat">⚔️ Combate &amp; Atributos</button>
-      <button class="tab-btn" data-tab="tab-spells">✨ Magias &amp; Conjurador</button>
-      <button class="tab-btn" data-tab="tab-inventory">🎒 Inventário &amp; Equipamento</button>
-      <button class="tab-btn" data-tab="tab-bio">📜 Biografia &amp; Interpretação</button>
-      <button class="tab-btn" data-tab="tab-rules">📖 Consulta Rápida de Regras</button>
+      <button class="tab-btn active" data-tab="tab-combat"><svg class="icon icon-swords" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 3l8 8M3 3l1.5 5L3 10M3 3l5 1.5L7 3"/><path d="M21 3l-8 8M21 3l-1.5 5L21 10M21 3l-5 1.5L17 3"/><path d="M6 14l-3 3 3 3M18 14l3 3-3 3M9 15l3-3 3 3-3 3-3-3Z"/></svg> Combate &amp; Atributos</button>
+      <button class="tab-btn" data-tab="tab-spells"><svg class="icon icon-sparkles" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v4M12 17v4M4 12H2M22 12h-2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/><circle cx="12" cy="12" r="3"/></svg> Magias &amp; Conjurador</button>
+      <button class="tab-btn" data-tab="tab-inventory"><svg class="icon icon-backpack" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 8V6a4 4 0 1 1 8 0v2"/><path d="M6 8h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2Z"/><path d="M9 13h6M9 17h6"/></svg> Inventário &amp; Equipamento</button>
+      <button class="tab-btn" data-tab="tab-bio"><svg class="icon icon-scroll" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 4h11v15a2 2 0 1 1-4 0V9H7"/><path d="M7 4a2 2 0 1 0 0 4h1"/><path d="M7 15a2 2 0 1 0 0 4h5"/></svg> Biografia &amp; Interpretação</button>
+      <button class="tab-btn" data-tab="tab-rules"><svg class="icon icon-book-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 6c-2-1.5-5-2-9-1v13c4-1 7-.5 9 1 2-1.5 5-2 9-1V5c-4-1-7-.5-9 1Z"/><path d="M12 6v13"/></svg> Consulta Rápida de Regras</button>
     </nav>
 
     <!-- ====================================================================
@@ -192,7 +192,7 @@
           <div class="badge-stats-row">
             <div id="inspirationBox" class="stat-badge-box clickable" title="Clique para ativar/desativar Inspiração de Mestre">
               <span class="field-label">Inspiração</span>
-              <span id="inspirationDisplay" class="badge-val"><span class="stat-badge-icon">⚪</span> Inativa</span>
+              <span id="inspirationDisplay" class="badge-val"><span class="stat-badge-icon"><svg class="icon icon-circle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/></svg></span> Inativa</span>
               <span class="stat-badge-sub">Clique p/ alternar</span>
             </div>
             <div class="stat-badge-box" title="Bônus de Proficiência de acordo com seu nível">
@@ -222,7 +222,7 @@
             <div class="vital-box clickable" id="rollInitiativeBtn" title="Clique para rolar Iniciativa no d20!">
               <span class="vital-title">Iniciativa</span>
               <span id="initiativeDisplay" class="vital-value">+0</span>
-              <span class="vital-sub">Mod. Destreza 🎲</span>
+              <span class="vital-sub">Mod. Destreza <svg class="icon icon-dice" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2 20 7v10l-8 5-8-5V7l8-5Z"/><path d="M12 2v10M20 7l-8 5M4 7l8 5"/><circle cx="12" cy="9" r="1" fill="currentColor" stroke="none"/></svg></span>
             </div>
             <div class="vital-box">
               <span class="vital-title">Deslocamento</span>
@@ -278,7 +278,7 @@
               <div style="display:flex; align-items:center; justify-content:space-between; margin-top:8px;">
                 <span id="hitDiceLeftDisplay" style="font-family:var(--font-title); font-size:1.3rem; font-weight:800; color:var(--text-gold);">1 / 1</span>
                 <div style="display:flex; gap:6px;">
-                  <button id="btnSpendHitDie" class="btn" style="padding:4px 8px; font-size:0.75rem;" title="Gastar 1 Dado de Vida para recuperar PVs em Descanso Curto">Gastar 🎲</button>
+                  <button id="btnSpendHitDie" class="btn" style="padding:4px 8px; font-size:0.75rem;" title="Gastar 1 Dado de Vida para recuperar PVs em Descanso Curto">Gastar <svg class="icon icon-dice" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2 20 7v10l-8 5-8-5V7l8-5Z"/><path d="M12 2v10M20 7l-8 5M4 7l8 5"/><circle cx="12" cy="9" r="1" fill="currentColor" stroke="none"/></svg></button>
                   <button id="btnResetHitDice" class="btn" style="padding:4px 8px; font-size:0.75rem;" title="Recuperar dados">Reset</button>
                 </div>
               </div>
@@ -306,7 +306,7 @@
               </div>
               <div style="display:flex; justify-content:flex-end; gap:6px; margin-top:8px;">
                 <button class="btn" style="padding:2px 8px; font-size:0.7rem;" onclick="resetDeathSaves()">Limpar</button>
-                <button class="btn btn-primary" style="padding:2px 8px; font-size:0.7rem;" onclick="rollDeathSave()">Rolar 🎲</button>
+                <button class="btn btn-primary" style="padding:2px 8px; font-size:0.7rem;" onclick="rollDeathSave()">Rolar <svg class="icon icon-dice" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2 20 7v10l-8 5-8-5V7l8-5Z"/><path d="M12 2v10M20 7l-8 5M4 7l8 5"/><circle cx="12" cy="9" r="1" fill="currentColor" stroke="none"/></svg></button>
               </div>
             </div>
           </div>
@@ -412,9 +412,9 @@
             <div class="card-header-title">
               <span>Perícias (18 Oficiais)</span>
               <div style="font-size:0.7rem; display:flex; gap:6px;">
-                <span title="Bolinha vazia = normal">⚪ Normal</span>
-                <span title="Dourado = proficiente">🟡 Prof</span>
-                <span title="Vermelho = especialização">🔴 Dobro</span>
+                <span title="Bolinha vazia = normal"><span class="legend-dot dot-normal"></span> Normal</span>
+                <span title="Dourado = proficiente"><span class="legend-dot dot-prof"></span> Prof</span>
+                <span title="Vermelho = especialização"><span class="legend-dot dot-expertise"></span> Dobro</span>
               </div>
             </div>
             <div class="skills-list" id="skillsListContainer">
@@ -459,10 +459,10 @@
         <h2 style="font-family:var(--font-title); font-size:1.15rem; color:var(--text-gold);">Grimório &amp; Espaços de Magia</h2>
         <div style="display:flex; gap:10px;">
           <button id="btnOpenSpellCompendiumBtn" class="btn btn-primary">
-            <span>✨</span> Compêndio de Magias do Livro
+            <span><svg class="icon icon-sparkles" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v4M12 17v4M4 12H2M22 12h-2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/><circle cx="12" cy="12" r="3"/></svg></span> Compêndio de Magias do Livro
           </button>
           <button id="btnAddCustomSpellBtn" class="btn">
-            <span>➕</span> Criar Magia
+            <span><svg class="icon icon-plus-circle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span> Criar Magia
           </button>
         </div>
       </div>
@@ -508,7 +508,7 @@
             <span>Mochila &amp; Bens Carregados</span>
             <div style="display:flex; gap:8px;">
               <button class="btn" style="padding:4px 10px; font-size:0.75rem;" onclick="openItemAddModal()">+ Adicionar Item</button>
-              <button class="btn" style="padding:4px 10px; font-size:0.75rem;" onclick="rollTrinket()">🎲 Rolar Bugiganga</button>
+              <button class="btn" style="padding:4px 10px; font-size:0.75rem;" onclick="rollTrinket()"><svg class="icon icon-dice" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2 20 7v10l-8 5-8-5V7l8-5Z"/><path d="M12 2v10M20 7l-8 5M4 7l8 5"/><circle cx="12" cy="9" r="1" fill="currentColor" stroke="none"/></svg> Rolar Bugiganga</button>
             </div>
           </div>
 
@@ -567,7 +567,7 @@
                 <strong id="pushWeightDisplay">150.0 kg</strong>
               </div>
               <div id="encumbranceAlert" style="margin-top:6px; font-size:0.78rem; color:var(--accent-green); font-weight:600;">
-                ✓ Sem sobrecarga de peso
+                <svg class="icon icon-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 13l4.5 4.5L19 7"/></svg> Sem sobrecarga de peso
               </div>
             </div>
           </div>
@@ -691,7 +691,7 @@
     </div>
 
     <button id="toggleDiceDrawerBtn" class="dice-fab-btn" title="Abrir rolador de dados">
-      🎲
+      <svg class="icon icon-dice" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2 20 7v10l-8 5-8-5V7l8-5Z"/><path d="M12 2v10M20 7l-8 5M4 7l8 5"/><circle cx="12" cy="9" r="1" fill="currentColor" stroke="none"/></svg>
     </button>
   </div>
 
@@ -799,6 +799,7 @@
 
   <!-- SCRIPTS -->
   <script src="config.js"></script>
+  <script src="shared/icons.js"></script>
   <script type="module" src="shared/app-boot.js"></script>
   <script src="data.js"></script>
   <script src="app.js"></script>
