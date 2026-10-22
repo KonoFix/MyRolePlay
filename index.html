@@ -455,9 +455,9 @@
       </div>
 
       <!-- BOTÃO DE ADICIONAR MAGIA -->
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
         <h2 style="font-family:var(--font-title); font-size:1.15rem; color:var(--text-gold);">Grimório &amp; Espaços de Magia</h2>
-        <div style="display:flex; gap:10px;">
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <button id="btnOpenSpellCompendiumBtn" class="btn btn-primary">
             <span><svg class="icon icon-sparkles" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v4M12 17v4M4 12H2M22 12h-2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/><circle cx="12" cy="12" r="3"/></svg></span> Compêndio de Magias do Livro
           </button>
@@ -674,15 +674,19 @@
         <button class="mode-btn" id="modeDis" onclick="setRollMode('disadvantage')">Desvantagem</button>
       </div>
 
+      <div id="diceStage3D" class="dice-stage" hidden>
+        <span id="diceStageResult" class="dice-stage-result" aria-hidden="true"></span>
+      </div>
+
       <div class="dice-tray-buttons">
-        <button class="die-btn" onclick="rollDie(4)">d4</button>
-        <button class="die-btn" onclick="rollDie(6)">d6</button>
-        <button class="die-btn" onclick="rollDie(8)">d8</button>
-        <button class="die-btn" onclick="rollDie(10)">d10</button>
-        <button class="die-btn" onclick="rollDie(12)">d12</button>
-        <button class="die-btn" style="background:var(--border-accent); color:#000;" onclick="rollDie(20)">d20</button>
-        <button class="die-btn" onclick="rollDie(100)">d100</button>
-        <button class="die-btn" onclick="rollCustomDicePrompt()">XdY</button>
+        <button class="die-btn" data-sides="4" onclick="rollDie(4, this)"><span class="die-face"><svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="die-art"><polygon points="12.00,2.00 12.00,14.00 2.00,21.00" fill="#f3cf7e" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="12.00,2.00 22.00,21.00 12.00,14.00" fill="#6e5018" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="2.00,21.00 22.00,21.00 12.00,14.00" fill="#c89b3c" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><ellipse cx="9" cy="8" rx="3.4" ry="2.4" fill="white" opacity="0.28"/></svg></span><span class="die-label">d4</span></button>
+        <button class="die-btn" data-sides="6" onclick="rollDie(6, this)"><span class="die-face"><svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="die-art"><polygon points="12.00,2.00 21.00,7.50 12.00,13.00 3.00,7.50" fill="#f3cf7e" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="3.00,7.50 12.00,13.00 12.00,22.00 3.00,16.50" fill="#c89b3c" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="21.00,7.50 21.00,16.50 12.00,22.00 12.00,13.00" fill="#6e5018" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><ellipse cx="9" cy="6.5" rx="3.6" ry="2.2" fill="white" opacity="0.28"/></svg></span><span class="die-label">d6</span></button>
+        <button class="die-btn" data-sides="8" onclick="rollDie(8, this)"><span class="die-face"><svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="die-art"><polygon points="12.00,2.00 12.00,12.00 3.00,12.00" fill="#f3cf7e" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="12.00,2.00 21.00,12.00 12.00,12.00" fill="#dba83e" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="21.00,12.00 12.00,22.00 12.00,12.00" fill="#9c7526" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="12.00,22.00 3.00,12.00 12.00,12.00" fill="#6e5018" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><ellipse cx="9" cy="7" rx="3" ry="2.2" fill="white" opacity="0.28"/></svg></span><span class="die-label">d8</span></button>
+        <button class="die-btn" data-sides="10" onclick="rollDie(10, this)"><span class="die-face"><svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="die-art"><polygon points="12.00,1.00 6.00,9.00 12.00,23.00" fill="#dba83e" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="12.00,1.00 12.00,23.00 18.00,9.00" fill="#6e5018" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><ellipse cx="9.5" cy="7" rx="2.6" ry="2.4" fill="white" opacity="0.28"/></svg></span><span class="die-label">d10</span></button>
+        <button class="die-btn" data-sides="12" onclick="rollDie(12, this)"><span class="die-face"><svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="die-art"><polygon points="12.00,1.50 22.00,8.75 12.00,12.00" fill="#f3cf7e" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="22.00,8.75 18.20,20.50 12.00,12.00" fill="#dba83e" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="18.20,20.50 5.80,20.50 12.00,12.00" fill="#9c7526" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="5.80,20.50 2.00,8.75 12.00,12.00" fill="#6e5018" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="2.00,8.75 12.00,1.50 12.00,12.00" fill="#c89b3c" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><ellipse cx="9" cy="7.5" rx="3.4" ry="2.4" fill="white" opacity="0.28"/></svg></span><span class="die-label">d12</span></button>
+        <button class="die-btn die-btn-featured" data-sides="20" onclick="rollDie(20, this)"><span class="die-face"><svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="die-art"><polygon points="12.00,2.00 21.00,7.50 12.00,12.00" fill="#f3cf7e" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="21.00,7.50 21.00,16.50 12.00,12.00" fill="#dba83e" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="21.00,16.50 12.00,22.00 12.00,12.00" fill="#c89b3c" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="12.00,22.00 3.00,16.50 12.00,12.00" fill="#9c7526" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="3.00,16.50 3.00,7.50 12.00,12.00" fill="#6e5018" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="3.00,7.50 12.00,2.00 12.00,12.00" fill="#dba83e" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><ellipse cx="9" cy="7" rx="3.4" ry="2.6" fill="white" opacity="0.28"/></svg></span><span class="die-label">d20</span></button>
+        <button class="die-btn" data-sides="100" onclick="rollDie(100, this)"><span class="die-face"><svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="die-art"><polygon points="12.00,1.00 6.00,9.00 12.00,23.00" fill="#dba83e" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="12.00,1.00 12.00,23.00 18.00,9.00" fill="#6e5018" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><ellipse cx="9.5" cy="7" rx="2.6" ry="2.4" fill="white" opacity="0.28"/></svg></span><span class="die-label">d100</span></button>
+        <button class="die-btn" onclick="rollCustomDicePrompt(this)"><span class="die-face"><svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="die-art"><polygon points="12.00,2.00 21.00,7.50 12.00,12.00" fill="#f3cf7e" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="21.00,7.50 21.00,16.50 12.00,12.00" fill="#dba83e" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="21.00,16.50 12.00,22.00 12.00,12.00" fill="#c89b3c" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="12.00,22.00 3.00,16.50 12.00,12.00" fill="#9c7526" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="3.00,16.50 3.00,7.50 12.00,12.00" fill="#6e5018" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="3.00,7.50 12.00,2.00 12.00,12.00" fill="#dba83e" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><ellipse cx="9" cy="7" rx="3.4" ry="2.6" fill="white" opacity="0.28"/></svg></span><span class="die-label">XdY</span></button>
       </div>
 
       <div class="dice-log" id="diceLogContainer">
@@ -691,7 +695,7 @@
     </div>
 
     <button id="toggleDiceDrawerBtn" class="dice-fab-btn" title="Abrir rolador de dados">
-      <svg class="icon icon-dice" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2 20 7v10l-8 5-8-5V7l8-5Z"/><path d="M12 2v10M20 7l-8 5M4 7l8 5"/><circle cx="12" cy="9" r="1" fill="currentColor" stroke="none"/></svg>
+      <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><polygon points="12.00,2.00 21.00,7.50 12.00,12.00" fill="#f3cf7e" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="21.00,7.50 21.00,16.50 12.00,12.00" fill="#dba83e" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="21.00,16.50 12.00,22.00 12.00,12.00" fill="#c89b3c" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="12.00,22.00 3.00,16.50 12.00,12.00" fill="#9c7526" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="3.00,16.50 3.00,7.50 12.00,12.00" fill="#6e5018" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><polygon points="3.00,7.50 12.00,2.00 12.00,12.00" fill="#dba83e" stroke="rgba(40,26,8,0.55)" stroke-width="0.6" stroke-linejoin="round"/><ellipse cx="9" cy="7" rx="3.4" ry="2.6" fill="white" opacity="0.28"/></svg>
     </button>
   </div>
 
@@ -802,6 +806,8 @@
   <script src="shared/icons.js"></script>
   <script type="module" src="shared/app-boot.js"></script>
   <script src="data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script src="shared/dice3d.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

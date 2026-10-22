@@ -16,6 +16,12 @@
 let widgetSeq = 0;
 let stylesInjected = false;
 
+const SEALED_LETTER_INNER = '<rect x="3" y="6" width="18" height="13" rx="1.2" fill="#f0e2bc" stroke="#8a6d3a" stroke-width="0.8"/><path d="M3.5 6.8 L12 13.5 L20.5 6.8" stroke="#8a6d3a" stroke-width="0.9" fill="none" stroke-linejoin="round"/><circle cx="12" cy="13.5" r="3" fill="#9c2b1f" stroke="#6e1d14" stroke-width="0.5"/>';
+
+function scrollSealIcon(size = 18) {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" class="icon" aria-hidden="true" focusable="false">${SEALED_LETTER_INNER}</svg>`;
+}
+
 export function mountChatWidget({ channel, displayName, isDM = false, campaignLabel = 'Mesa' }) {
   widgetSeq += 1;
   const id = `mrpChat${widgetSeq}`;
@@ -26,7 +32,7 @@ export function mountChatWidget({ channel, displayName, isDM = false, campaignLa
   wrap.innerHTML = `
     <div class="mrp-chat-panel" id="${id}Panel">
       <div class="mrp-chat-header">
-        <span>${window.svgIcon('message-circle')} Chat — ${escapeHtml(campaignLabel)}</span>
+        <span>${scrollSealIcon(18)} Chat — ${escapeHtml(campaignLabel)}</span>
         <button type="button" class="mrp-chat-close" aria-label="Fechar">&times;</button>
       </div>
       <div class="mrp-chat-messages" id="${id}Messages"></div>
@@ -36,7 +42,7 @@ export function mountChatWidget({ channel, displayName, isDM = false, campaignLa
       </form>
     </div>
     <button type="button" class="mrp-chat-fab" id="${id}Fab" title="Abrir chat da mesa">
-      ${window.svgIcon('message-circle', {size:20})}<span class="mrp-chat-badge" id="${id}Badge" hidden></span>
+      ${scrollSealIcon(28)}<span class="mrp-chat-badge" id="${id}Badge" hidden></span>
     </button>`;
   document.body.appendChild(wrap);
 
@@ -113,12 +119,14 @@ function injectStylesOnce() {
     .mrp-chat-wrap { position: fixed; bottom: 24px; left: 24px; z-index: 950; }
     .mrp-chat-fab {
       width: 52px; height: 52px; border-radius: 50%; position: relative;
+      display: flex; align-items: center; justify-content: center;
       background: linear-gradient(135deg, #c89b3c, #855e12);
       border: 2px solid var(--accent-gold-light);
       color: #12100a; font-size: 1.3rem; cursor: pointer;
       box-shadow: 0 4px 16px rgba(0,0,0,0.8), var(--shadow-gold);
       transition: var(--transition);
     }
+    .mrp-chat-fab svg { filter: drop-shadow(0 1px 1px rgba(0,0,0,0.4)); }
     .mrp-chat-fab:hover { transform: scale(1.08); }
     .mrp-chat-badge {
       position: absolute; top: -2px; right: -2px;
@@ -162,7 +170,9 @@ function injectStylesOnce() {
     .mrp-chat-send:hover { filter: brightness(1.1); }
     @media (max-width: 500px) {
       .mrp-chat-wrap { bottom: 14px; left: 14px; }
-      .mrp-chat-panel { left: 10px; bottom: 76px; width: calc(100vw - 20px); }
+      .mrp-chat-fab { width: 44px; height: 44px; }
+      .mrp-chat-fab svg { width: 24px; height: 24px; }
+      .mrp-chat-panel { left: 10px; bottom: 68px; width: calc(100vw - 20px); }
     }
   `;
   document.head.appendChild(style);

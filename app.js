@@ -115,7 +115,16 @@ document.addEventListener('DOMContentLoaded', () => {
   setupUIEventListeners();
   populateDropdowns();
   renderFullSheet();
+  initDiceStage3D();
 });
+
+function initDiceStage3D() {
+  const stage = document.getElementById('diceStage3D');
+  if (!stage || !window.DiceStage3D) return;
+  if (window.DiceStage3D.init(stage)) {
+    stage.hidden = false;
+  }
+}
 
 // Carrega personagens — preferindo o pré-carregamento feito por app-boot.js
 // (Supabase), com localStorage como fallback offline.
@@ -1085,29 +1094,112 @@ function addDiceLog(label, diceResult, total, isNat20, isNat1) {
 
   // Abre gaveta de dados caso fechada
   document.getElementById('diceDrawer').classList.add('open');
+  pulseDiceFab();
+}
+
+function pulseDiceFab() {
+  const fab = document.getElementById('toggleDiceDrawerBtn');
+  if (!fab) return;
+  fab.classList.remove('is-pulsing');
+  void fab.offsetWidth; // reflow para reiniciar a animação em rolagens seguidas
+  fab.classList.add('is-pulsing');
 }
 
 function clearDiceLog() {
   document.getElementById('diceLogContainer').innerHTML = '';
 }
 
-function rollDie(sides) {
-  if (sides === 20) {
-    const r = rollD20Core();
-    addDiceLog('d20 Puro', r.detail, r.val, r.isNat20, r.isNat1);
+// --------------------------------------------------------------------------
+// ANIMAÇÃO DO DADO (giro + pouso no botão correspondente ao formato clicado)
+// --------------------------------------------------------------------------
+function prefersReducedMotion() {
+  return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function animateDieRoll(btnEl, sides, revealFn) {
+  if (prefersReducedMotion()) {
+    revealFn();
+    return;
+  }
+
+  const face = btnEl?.querySelector('.die-face');
+  face?.classList.add('is-rolling');
+
+  const stop3D = () => face?.classList.remove('is-rolling');
+
+  if (window.DiceStage3D && window.DiceStage3D.available) {
+    window.DiceStage3D.roll(sides, () => {
+      stop3D();
+      revealFn();
+    });
+  } else if (btnEl) {
+    setTimeout(() => {
+      stop3D();
+      revealFn();
+    }, 560);
   } else {
-    const val = Math.floor(Math.random() * sides) + 1;
-    addDiceLog(`d${sides}`, `[${val}]`, val, false, false);
+    revealFn();
   }
 }
 
-function rollCustomDicePrompt() {
-  const formula = prompt('Digite a fórmula de dados (ex: 2d6+3 ou 3d8):', '2d6+3');
-  if (!formula) return;
-  parseAndRollDiceFormula(formula, 'Rolagem Customizada');
+function showStageResult(value, isCrit, isFumble) {
+  const el = document.getElementById('diceStageResult');
+  if (!el) return;
+  el.textContent = value;
+  el.classList.remove('is-visible', 'is-crit', 'is-fumble');
+  void el.offsetWidth;
+  el.classList.toggle('is-crit', !!isCrit);
+  el.classList.toggle('is-fumble', !!isFumble);
+  el.classList.add('is-visible');
 }
 
-function parseAndRollDiceFormula(formula, label) {
+function showDieResultPop(btnEl, value) {
+  if (!btnEl) return;
+  let pop = btnEl.querySelector('.die-result-pop');
+  if (!pop) {
+    pop = document.createElement('span');
+    pop.className = 'die-result-pop';
+    btnEl.appendChild(pop);
+  }
+  pop.textContent = value;
+  pop.classList.remove('is-visible');
+  void pop.offsetWidth; // reflow para poder reiniciar a animação em rolagens seguidas
+  pop.classList.add('is-visible');
+}
+
+function flashDieCrit(btnEl, isCrit, isFumble) {
+  if (!btnEl || (!isCrit && !isFumble)) return;
+  btnEl.classList.toggle('is-crit', !!isCrit);
+  btnEl.classList.toggle('is-fumble', !!isFumble);
+  setTimeout(() => btnEl.classList.remove('is-crit', 'is-fumble'), 1300);
+}
+
+function rollDie(sides, btnEl) {
+  animateDieRoll(btnEl, sides, () => {
+    if (sides === 20) {
+      const r = rollD20Core();
+      addDiceLog('d20 Puro', r.detail, r.val, r.isNat20, r.isNat1);
+      showDieResultPop(btnEl, r.val);
+      showStageResult(r.val, r.isNat20, r.isNat1);
+      flashDieCrit(btnEl, r.isNat20, r.isNat1);
+    } else {
+      const val = Math.floor(Math.random() * sides) + 1;
+      addDiceLog(`d${sides}`, `[${val}]`, val, false, false);
+      showDieResultPop(btnEl, val);
+      showStageResult(val, false, false);
+    }
+  });
+}
+
+function rollCustomDicePrompt(btnEl) {
+  const formula = prompt('Digite a fórmula de dados (ex: 2d6+3 ou 3d8):', '2d6+3');
+  if (!formula) return;
+  const sidesMatch = formula.replace(/\s+/g, '').match(/^\d+d(\d+)/i);
+  const sides = sidesMatch ? parseInt(sidesMatch[1]) : 20;
+  animateDieRoll(btnEl, sides, () => parseAndRollDiceFormula(formula, 'Rolagem Customizada', btnEl));
+}
+
+function parseAndRollDiceFormula(formula, label, btnEl) {
   try {
     const match = formula.replace(/\s+/g, '').match(/^(\d+)d(\d+)([+-]\d+)?$/i);
     if (!match) {
@@ -1127,6 +1219,8 @@ function parseAndRollDiceFormula(formula, label) {
     }
     const total = sum + mod;
     addDiceLog(label, `${formula} -> [${rolls.join(', ')}] ${formatMod(mod)}`, total, false, false);
+    showDieResultPop(btnEl, total);
+    showStageResult(total, false, false);
   } catch (e) {
     console.error(e);
   }
