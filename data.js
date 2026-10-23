@@ -381,7 +381,10 @@ const DND_DATA = {
       speed: 9,
       size: 'Médio',
       languages: ['Comum', 'Primordial'],
-      traits: [],
+      traits: [
+        'Descendência Elemental: Filhos de gênios, carregam um traço de um dos quatro planos elementais (Ar, Terra, Fogo ou Água)',
+        'Escolha uma variante elemental abaixo para definir seus traços raciais específicos'
+      ],
       subraces: {
         ar: {
           name: 'Genasi do Ar',
