@@ -430,7 +430,10 @@ const DND_DATA = {
       speed: 9,
       size: 'Médio',
       languages: ['Comum', 'Gith'],
-      traits: ['Resistência Psíquica: Resistência a dano psíquico'],
+      traits: [
+        'Resistência Psíquica: Resistência a dano psíquico',
+        'Escolha uma variante abaixo (Githyanki ou Githzerai) para definir seus bônus de atributo e traços específicos'
+      ],
       subraces: {
         githyanki: {
           name: 'Githyanki',
@@ -598,7 +601,8 @@ const DND_DATA = {
       languages: ['Comum'],
       traits: [
         'Visão no Escuro (18 metros)',
-        'Metamorfose: Ação bônus por 1 minuto, ganha PV temporários = nível + Constituição (mín. 1); benefício extra varia por subraça (1x por descanso curto ou longo)'
+        'Metamorfose: Ação bônus por 1 minuto, ganha PV temporários = nível + Constituição (mín. 1); benefício extra varia por subraça (1x por descanso curto ou longo)',
+        'Escolha uma variante abaixo (Pele de Fera, Presas Longas, Passo Veloz ou Caça Selvagem) para definir seus bônus de atributo e benefício de Metamorfose'
       ],
       subraces: {
         pele_de_fera: {
