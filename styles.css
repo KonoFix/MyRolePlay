@@ -2096,6 +2096,37 @@ body {
   margin-bottom: 14px;
 }
 
+.wizard-std-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.wizard-pb-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* Abaixo de ~600px os rótulos (ex: "Constituição", "Inteligência") não
+   cabem em 3 ou 2 colunas sem truncar — empilha em 1 coluna para caber
+   o rótulo inteiro + o controle (input ou stepper +/-). */
+@media (max-width: 600px) {
+  .wizard-std-grid, .wizard-pb-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Botão de rolagem tem um rótulo longo demais pra caber em uma linha só
+   em telas estreitas — .btn é nowrap por padrão (certo pros outros botões
+   curtos do app), então sobrescreve só aqui pra ele quebrar linha. */
+.wizard-roll-btn {
+  white-space: normal;
+  max-width: 100%;
+  text-align: center;
+  justify-content: center;
+}
+
 /* ==========================================================================
    ESTILOS UTILITÁRIOS EXTRAS
    ========================================================================== */

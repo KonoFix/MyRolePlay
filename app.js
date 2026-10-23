@@ -2012,7 +2012,7 @@ function renderWizardStep() {
     // PASSO 3: ATRIBUTOS
     body.innerHTML = `
       <h3 style="font-family:var(--font-title); color:var(--text-gold); margin-bottom:12px;">Passo 3: Determinar Valores de Habilidade</h3>
-      <div style="display:flex; gap:10px; margin-bottom:16px;">
+      <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
         <button class="btn ${wizardState.method === 'standard' ? 'btn-primary' : ''}" onclick="setWizardAttrMethod('standard')">Valores Padrão (15, 14, 13, 12, 10, 8)</button>
         <button class="btn ${wizardState.method === 'pointbuy' ? 'btn-primary' : ''}" onclick="setWizardAttrMethod('pointbuy')">Compra de 27 Pontos</button>
         <button class="btn ${wizardState.method === 'roll' ? 'btn-primary' : ''}" onclick="setWizardAttrMethod('roll')">Rolar 4d6 (Descarta Menor)</button>
@@ -2117,14 +2117,14 @@ function renderWizardAttrControls() {
         <span>Pontos Disponíveis para Gastar:</span>
         <strong style="font-family:var(--font-title); font-size:1.3rem; color:var(--accent-gold-light);">${wizardState.pointsRemaining} / 27</strong>
       </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <div class="wizard-pb-grid">
         ${inputsHtml}
       </div>
     `;
   } else if (wizardState.method === 'roll') {
     container.innerHTML = `
       <div style="text-align:center; padding:20px;">
-        <button class="btn btn-primary" onclick="rollAllWizardAttributes()"><svg class="icon icon-dice" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2 20 7v10l-8 5-8-5V7l8-5Z"/><path d="M12 2v10M20 7l-8 5M4 7l8 5"/><circle cx="12" cy="9" r="1" fill="currentColor" stroke="none"/></svg> Rolar 4d6 (Descarta o Menor) para os 6 Atributos</button>
+        <button class="btn btn-primary wizard-roll-btn" onclick="rollAllWizardAttributes()"><svg class="icon icon-dice" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2 20 7v10l-8 5-8-5V7l8-5Z"/><path d="M12 2v10M20 7l-8 5M4 7l8 5"/><circle cx="12" cy="9" r="1" fill="currentColor" stroke="none"/></svg> Rolar 4d6 (Descarta o Menor) para os 6 Atributos</button>
         <div id="rolledScoresResult" style="margin-top:16px; display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
           ${Object.keys(wizardState.scores).map(k => `
             <div class="vital-box" style="width:70px;">
@@ -2138,7 +2138,7 @@ function renderWizardAttrControls() {
   } else {
     // Standard Array
     container.innerHTML = `
-      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px;">
+      <div class="wizard-std-grid">
         ${Object.keys(DND_DATA.abilities).map(k => `
           <div class="field-group">
             <label class="field-label">${DND_DATA.abilities[k].name}</label>
