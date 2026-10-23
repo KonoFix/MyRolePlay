@@ -25,6 +25,7 @@
     x: '<path d="M6 6l12 12M18 6 6 18"/>',
     check: '<path d="M5 13l4.5 4.5L19 7"/>',
     'alert-triangle': '<path d="M12 4 21 20H3L12 4Z"/><path d="M12 10v4"/><circle cx="12" cy="17" r="0.8" fill="currentColor" stroke="none"/>',
+    'log-out': '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>',
 
     // --- Dados / combate ---
     dice: '<path d="M12 2 20 7v10l-8 5-8-5V7l8-5Z"/><path d="M12 2v10M20 7l-8 5M4 7l8 5"/><circle cx="12" cy="9" r="1" fill="currentColor" stroke="none"/>',

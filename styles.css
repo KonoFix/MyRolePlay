@@ -317,6 +317,21 @@ body {
   color: #fff;
 }
 
+/* Sair da conta não é uma ação destrutiva — usa um estilo discreto e
+   elegante (contorno sutil + realce dourado no hover) em vez do vermelho
+   de alerta do .btn-accent, reservado para ações irreversíveis. */
+.btn-logout {
+  background: transparent;
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+.btn-logout:hover {
+  background: rgba(200, 155, 60, 0.1);
+  border-color: var(--border-accent);
+  color: var(--accent-gold-light);
+}
+
 .btn-icon {
   padding: 8px;
   border-radius: 50%;
