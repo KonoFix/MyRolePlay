@@ -64,6 +64,17 @@ const DND_DATA = {
           name: 'Anão da Montanha',
           abilityBonus: { str: 2 },
           traits: ['Treinamento Anão com Armaduras: Proficiência em armaduras leves e médias.']
+        },
+        cinzento: {
+          name: 'Anão Cinzento (Duergar)',
+          abilityBonus: { str: 1 },
+          traits: [
+            'Visão no Escuro Superior: 36 metros (substitui a visão no escuro padrão)',
+            'Resiliência Duergar: Vantagem em salvaguardas contra veneno (e resistência a dano de veneno), ilusões, ficar enfeitiçado ou paralisado',
+            'Magia Duergar: 3º nível: Aumentar/Diminuir (só aumentar) em si mesmo; 5º nível: Invisibilidade em si mesmo — 1x cada por descanso longo, efeito cessa sob luz solar direta (Inteligência)',
+            'Sensibilidade à Luz Solar: Desvantagem em ataques e testes de Percepção que dependam de visão sob sol direto',
+            'Idioma Adicional: Submundo (Undercommon)'
+          ]
         }
       }
     },
@@ -107,6 +118,14 @@ const DND_DATA = {
             'Sensibilidade à Luz Solar: Desvantagem em ataques e testes de Percepção sob sol direto',
             'Magia Drow: Truque Globos de Luz; 3º nível: Fogo das Fadas; 5º nível: Escuridão (Carisma)',
             'Treinamento Drow com Armas: Rapieiras, espadas curtas e bestas de mão'
+          ]
+        },
+        eladrin: {
+          name: 'Eladrin',
+          abilityBonus: { cha: 1 },
+          traits: [
+            'Passo Feérico: Ação bônus, teletransporte mágico até 9 metros para um espaço desocupado que possa ver (recarrega em descanso curto ou longo)',
+            'Estação Feérica: A partir do 3º nível, escolha uma estação (Outono, Inverno, Primavera ou Verão) ao final de um descanso longo — ela adiciona um efeito extra ao usar Passo Feérico (Outono: encanta inimigos próximos; Inverno: amedronta um inimigo próximo; Primavera: teleporta um aliado em seu lugar; Verão: causa dano de fogo igual ao seu Carisma aos inimigos próximos)'
           ]
         }
       }
@@ -253,6 +272,437 @@ const DND_DATA = {
         'Visão no Escuro (18 metros)',
         'Resistência Infernal: Resistência a dano de fogo',
         'Legado Infernal: Conhece Taumaturgia; 3º nível: Repreensão Infernal (2º nível); 5º nível: Escuridão (Carisma)'
+      ],
+      subraces: {}
+    },
+
+    // ---- Raças de expansões (Volo's Guide, Mordenkainen, Eberron, Theros, Ravnica, Witchlight etc.) ----
+    aarakocra: {
+      name: 'Aarakocra',
+      abilityBonus: { dex: 2, wis: 1 },
+      speed: 7.5,
+      size: 'Médio',
+      languages: ['Comum', 'Aarakocra', 'Auran'],
+      traits: [
+        'Voo: Deslocamento de voo de 15 metros (não pode usar vestindo armadura média ou pesada)',
+        'Talões: Arma natural para ataques desarmados, causando 1d4 + modificador de Força de dano cortante'
+      ],
+      subraces: {}
+    },
+    aasimar: {
+      name: 'Aasimar',
+      abilityBonus: { cha: 2 },
+      speed: 9,
+      size: 'Médio',
+      languages: ['Comum', 'Celestial'],
+      traits: [
+        'Visão no Escuro (18 metros)',
+        'Resistência Celestial: Resistência a dano necrótico e radiante',
+        'Mãos Curativas: Ação para tocar uma criatura e curar PV igual ao seu nível (1x por descanso longo)',
+        'Portador de Luz: Conhece o truque Luz (Carisma)'
+      ],
+      subraces: {
+        protetor: {
+          name: 'Aasimar Protetor',
+          abilityBonus: { wis: 1 },
+          traits: ['Alma Radiante: A partir do 3º nível, ação para ganhar asas e voo de 9 metros por 1 minuto; dano radiante extra igual ao seu nível 1x por turno (1x por descanso longo)']
+        },
+        flagelo: {
+          name: 'Aasimar Flagelo',
+          abilityBonus: { con: 1 },
+          traits: ['Consumação Radiante: A partir do 3º nível, ação para irradiar luz por 1 minuto; ao fim de cada turno você e criaturas a 3m sofrem dano radiante igual à metade do seu nível, e causa dano radiante extra igual ao seu nível 1x por turno (1x por descanso longo)']
+        },
+        caido: {
+          name: 'Aasimar Caído',
+          abilityBonus: { str: 1 },
+          traits: ['Manto Necrótico: A partir do 3º nível, ação para amedrontar criaturas próximas (salvaguarda de Carisma) e, por 1 minuto, causar dano necrótico extra igual ao seu nível 1x por turno (1x por descanso longo)']
+        }
+      }
+    },
+    bugbear: {
+      name: 'Bugbear',
+      abilityBonus: { str: 2, dex: 1 },
+      speed: 9,
+      size: 'Médio',
+      languages: ['Comum', 'Goblin'],
+      traits: [
+        'Visão no Escuro (18 metros)',
+        'Braços Longos: Alcance corpo-a-corpo +1,5 metro',
+        'Compleição Poderosa: Conta como uma categoria de tamanho maior para capacidade de carga',
+        'Furtivo: Proficiência na perícia Furtividade',
+        'Ataque Surpresa: +2d6 de dano ao acertar uma criatura surpresa (1x por combate)'
+      ],
+      subraces: {}
+    },
+    centauro: {
+      name: 'Centauro',
+      abilityBonus: { str: 2, wis: 1 },
+      speed: 12,
+      size: 'Médio',
+      languages: ['Comum', 'Silvano'],
+      traits: [
+        'Tipo Feérico (ao invés de humanoide)',
+        'Investida: Ao mover 9m reto em direção a um alvo e acertá-lo corpo-a-corpo, pode atacar com os cascos como ação bônus',
+        'Cascos: Arma natural, 1d4 + modificador de Força de dano contundente',
+        'Compleição Equina: Conta como tamanho maior para carga; escalar com mãos e pés custa 4x o deslocamento normal',
+        'Sobrevivente: Proficiência em 1 perícia à escolha entre Adestrar Animais, Medicina, Natureza ou Sobrevivência'
+      ],
+      subraces: {}
+    },
+    changeling: {
+      name: 'Changeling',
+      abilityBonus: { cha: 2, choice: 1 },
+      speed: 9,
+      size: 'Médio',
+      languages: ['Comum', '2 idiomas à escolha'],
+      traits: [
+        'Metamorfo: Ação para mudar aparência e voz (sem alterar estatísticas); mantém a forma até reverter com outra ação',
+        'Instintos de Changeling: Proficiência em 2 perícias à escolha entre Enganação, Intuição, Intimidação e Persuasão'
+      ],
+      subraces: {}
+    },
+    firbolg: {
+      name: 'Firbolg',
+      abilityBonus: { wis: 2, str: 1 },
+      speed: 9,
+      size: 'Médio',
+      languages: ['Comum', 'Élfico', 'Gigante'],
+      traits: [
+        'Magia Firbolg: Conhece Detectar Magia e Disfarçar-se, 1x cada por descanso curto ou longo (Sabedoria)',
+        'Passo Oculto: Ação bônus para ficar invisível até o início do próximo turno ou até atacar (1x por descanso curto ou longo)',
+        'Compleição Poderosa: Conta como tamanho maior para capacidade de carga',
+        'Fala com Bestas e Plantas: Comunica ideias simples com elas; vantagem em testes de Carisma para influenciá-las'
+      ],
+      subraces: {}
+    },
+    genasi: {
+      name: 'Genasi',
+      abilityBonus: { con: 2 },
+      speed: 9,
+      size: 'Médio',
+      languages: ['Comum', 'Primordial'],
+      traits: [],
+      subraces: {
+        ar: {
+          name: 'Genasi do Ar',
+          abilityBonus: { dex: 1 },
+          traits: [
+            'Fôlego Infinito: Pode prender a respiração indefinidamente enquanto não estiver incapacitado',
+            'Mesclar-se ao Vento: Conhece Levitar, 1x por descanso longo (Constituição)'
+          ]
+        },
+        terra: {
+          name: 'Genasi da Terra',
+          abilityBonus: { str: 1 },
+          traits: [
+            'Passo Terrestre: Ignora terreno difícil feito de terra ou pedra',
+            'Fundir-se com a Pedra: Conhece Passo sem Rastro, 1x por descanso longo (Constituição)'
+          ]
+        },
+        fogo: {
+          name: 'Genasi do Fogo',
+          abilityBonus: { int: 1 },
+          traits: [
+            'Visão no Escuro (18 metros, em tons de vermelho)',
+            'Resistência a Fogo',
+            'Alcançar a Chama: Conhece o truque Criar Chama; 3º nível: Mãos Flamejantes 1x por descanso longo (Constituição)'
+          ]
+        },
+        agua: {
+          name: 'Genasi da Água',
+          abilityBonus: { wis: 1 },
+          speed: 9,
+          traits: [
+            'Anfíbio: Respira ar e água',
+            'Natação: Deslocamento de natação de 9 metros',
+            'Resistência a Ácido',
+            'Chamado da Onda: Conhece o truque Manipular Água; 3º nível: Criar ou Destruir Água 1x por descanso longo (Constituição)'
+          ]
+        }
+      }
+    },
+    gith: {
+      name: 'Gith',
+      abilityBonus: {},
+      speed: 9,
+      size: 'Médio',
+      languages: ['Comum', 'Gith'],
+      traits: ['Resistência Psíquica: Resistência a dano psíquico'],
+      subraces: {
+        githyanki: {
+          name: 'Githyanki',
+          abilityBonus: { str: 2, int: 1 },
+          traits: [
+            'Conhecimento Astral: Ao final de um descanso longo, ganha proficiência em 1 perícia e 1 arma ou ferramenta à escolha até o fim do próximo descanso longo',
+            'Psiônicos Githyanki: Conhece o truque Mão Mágica (invisível); 3º nível: Saltar; 5º nível: Passo Enevoado — 1x cada por descanso longo (Inteligência, Sabedoria ou Carisma)'
+          ]
+        },
+        githzerai: {
+          name: 'Githzerai',
+          abilityBonus: { wis: 2, int: 1 },
+          traits: [
+            'Disciplina Mental: Vantagem em salvaguardas contra ficar enfeitiçado ou amedrontado',
+            'Psiônicos Githzerai: Conhece o truque Mão Mágica (invisível); 3º nível: Escudo Arcano; 5º nível: Detectar Pensamentos — 1x cada por descanso longo (Inteligência, Sabedoria ou Carisma)'
+          ]
+        }
+      }
+    },
+    goblin: {
+      name: 'Goblin',
+      abilityBonus: { dex: 2, con: 1 },
+      speed: 9,
+      size: 'Pequeno',
+      languages: ['Comum', 'Goblin'],
+      traits: [
+        'Visão no Escuro (18 metros)',
+        'Fúria do Pequeno: Dano extra igual ao seu nível ao acertar uma criatura maior que você (1x por descanso curto ou longo)',
+        'Fuga Ágil: Pode usar Desengajar ou Esconder-se como ação bônus'
+      ],
+      subraces: {}
+    },
+    goliath: {
+      name: 'Goliath',
+      abilityBonus: { str: 2, con: 1 },
+      speed: 9,
+      size: 'Médio',
+      languages: ['Comum', 'Gigante'],
+      traits: [
+        'Atleta Natural: Proficiência na perícia Atletismo',
+        'Resistência de Pedra: Reação para rolar 1d12 + Constituição e reduzir o dano sofrido (1x por descanso curto ou longo)',
+        'Compleição Poderosa: Conta como tamanho maior para capacidade de carga',
+        'Nascido na Montanha: Resistência a dano de frio; aclimatado a grandes altitudes'
+      ],
+      subraces: {}
+    },
+    hobgoblin: {
+      name: 'Hobgoblin',
+      abilityBonus: { con: 2, int: 1 },
+      speed: 9,
+      size: 'Médio',
+      languages: ['Comum', 'Goblin'],
+      traits: [
+        'Visão no Escuro (18 metros)',
+        'Treinamento Marcial: Proficiência com 2 armas marciais à escolha e com armaduras leves',
+        'Salvar as Aparências: Ao falhar um ataque, teste ou salvaguarda, ganha bônus igual ao nº de aliados visíveis a 9m (máx. +5), 1x por descanso curto ou longo'
+      ],
+      subraces: {}
+    },
+    kalashtar: {
+      name: 'Kalashtar',
+      abilityBonus: { wis: 2, cha: 1 },
+      speed: 9,
+      size: 'Médio',
+      languages: ['Comum', 'Quori', '1 idioma à escolha'],
+      traits: [
+        'Mente Dupla: Vantagem em salvaguardas de Sabedoria',
+        'Disciplina Mental: Resistência a dano psíquico',
+        'Elo Mental: Telepatia com criaturas visíveis em alcance (3m × seu nível)',
+        'Livre de Sonhos: Imune a efeitos mágicos que exigem sonhar'
+      ],
+      subraces: {}
+    },
+    kenku: {
+      name: 'Kenku',
+      abilityBonus: { dex: 2, wis: 1 },
+      speed: 9,
+      size: 'Médio',
+      languages: ['Lê e escreve Comum e Auran (só fala por Mímica)'],
+      traits: [
+        'Falsificação Perita: Vantagem em testes para forjar ou duplicar objetos',
+        'Treinamento Kenku: Proficiência em 2 perícias à escolha entre Acrobacia, Enganação, Furtividade e Prestidigitação',
+        'Mímica: Pode imitar sons e vozes já ouvidos'
+      ],
+      subraces: {}
+    },
+    kobold: {
+      name: 'Kobold',
+      abilityBonus: { dex: 2, str: -2 },
+      speed: 9,
+      size: 'Pequeno',
+      languages: ['Comum', 'Dracônico'],
+      traits: [
+        'Visão no Escuro (18 metros)',
+        'Implorar e Se Encolher: Ação para dar vantagem a aliados contra inimigos próximos até o fim do próximo turno (1x por descanso curto ou longo)',
+        'Táticas de Matilha: Vantagem em ataque se um aliado estiver a 1,5m do alvo',
+        'Sensibilidade à Luz Solar: Desvantagem em ataques e testes de Percepção visual sob sol direto'
+      ],
+      subraces: {}
+    },
+    homem_lagarto: {
+      name: 'Homem-Lagarto',
+      abilityBonus: { con: 2, wis: 1 },
+      speed: 9,
+      size: 'Médio',
+      languages: ['Comum', 'Dracônico'],
+      traits: [
+        'Natação: Deslocamento de natação de 9 metros',
+        'Mordida: Arma natural, 1d6 + modificador de Força de dano perfurante',
+        'Armadura Natural: CA 13 + Destreza sem armadura (compatível com escudo)',
+        'Prender a Respiração: Até 15 minutos',
+        'Instinto de Caçador: Proficiência em 2 perícias à escolha entre Adestrar Animais, Natureza, Percepção, Furtividade e Sobrevivência',
+        'Mandíbulas Famintas: Ação bônus com a mordida; ao acertar, ganha PV temporários igual ao mod. de Constituição (1x por descanso curto ou longo)'
+      ],
+      subraces: {}
+    },
+    minotauro: {
+      name: 'Minotauro',
+      abilityBonus: { str: 2, con: 1 },
+      speed: 9,
+      size: 'Médio',
+      languages: ['Comum', 'Minotauro'],
+      traits: [
+        'Chifres: Arma natural, 1d6 + modificador de Força de dano perfurante',
+        'Investida Perfurante: Após Disparada e mover ao menos 6m, pode atacar com os chifres como ação bônus',
+        'Chifres Martelantes: Após acertar um ataque corpo-a-corpo, ação bônus para empurrar o alvo até 3m (CD 8 + proficiência + Força)',
+        'Presença Imponente: Proficiência em Intimidação ou Persuasão'
+      ],
+      subraces: {}
+    },
+    orc: {
+      name: 'Orc',
+      abilityBonus: { str: 2, con: 1 },
+      speed: 9,
+      size: 'Médio',
+      languages: ['Comum', 'Orc'],
+      traits: [
+        'Visão no Escuro (18 metros)',
+        'Agressivo: Ação bônus para mover até seu deslocamento em direção a um inimigo visível ou audível',
+        'Intuição Primitiva: Proficiência em 2 perícias à escolha entre Adestrar Animais, Intuição, Intimidação, Medicina, Natureza, Percepção e Sobrevivência',
+        'Compleição Poderosa: Conta como tamanho maior para capacidade de carga'
+      ],
+      subraces: {}
+    },
+    satiro: {
+      name: 'Sátiro',
+      abilityBonus: { cha: 2, dex: 1 },
+      speed: 10.5,
+      size: 'Médio',
+      languages: ['Comum', 'Silvano'],
+      traits: [
+        'Tipo Feérico (ao invés de humanoide)',
+        'Aríete: Arma natural (chifres), 1d4 + modificador de Força de dano contundente',
+        'Resistência Mágica: Vantagem em salvaguardas contra magia',
+        'Saltos Alegres: Soma 1d8 à distância de saltos',
+        'Folgazão: Proficiência em Atuação e Persuasão, e com 1 instrumento musical à escolha'
+      ],
+      subraces: {}
+    },
+    shifter: {
+      name: 'Shifter',
+      abilityBonus: {},
+      speed: 9,
+      size: 'Médio',
+      languages: ['Comum'],
+      traits: [
+        'Visão no Escuro (18 metros)',
+        'Metamorfose: Ação bônus por 1 minuto, ganha PV temporários = nível + Constituição (mín. 1); benefício extra varia por subraça (1x por descanso curto ou longo)'
+      ],
+      subraces: {
+        pele_de_fera: {
+          name: 'Shifter Pele de Fera',
+          abilityBonus: { str: 1, con: 2 },
+          traits: ['Atleta Natural: Proficiência em Atletismo', 'Metamorfose: +1d6 PV temporários extras; +1 CA enquanto metamorfoseado']
+        },
+        presas_longas: {
+          name: 'Shifter Presas Longas',
+          abilityBonus: { str: 2, dex: 1 },
+          traits: ['Feroz: Proficiência em Intimidação', 'Metamorfose: Ataque desarmado bônus com presas, 1d6 + Força de dano perfurante']
+        },
+        passo_veloz: {
+          name: 'Shifter Passo Veloz',
+          abilityBonus: { dex: 2, cha: 1 },
+          traits: ['Grácil: Proficiência em Acrobacia', 'Metamorfose: +3m de deslocamento; reação para mover 3m quando criatura termina o turno a 1,5m']
+        },
+        caca_selvagem: {
+          name: 'Shifter Caça Selvagem',
+          abilityBonus: { dex: 1, wis: 2 },
+          traits: ['Rastreador Natural: Proficiência em Sobrevivência', 'Metamorfose: Vantagem em testes de Sabedoria; ninguém a 9m tem vantagem em ataques contra você, a menos que incapacitado']
+        }
+      }
+    },
+    tabaxi: {
+      name: 'Tabaxi',
+      abilityBonus: { dex: 2, cha: 1 },
+      speed: 9,
+      size: 'Médio',
+      languages: ['Comum', '1 idioma à escolha'],
+      traits: [
+        'Visão no Escuro (18 metros)',
+        'Agilidade Felina: Dobra o deslocamento até o fim do turno (recarrega ao mover 0 em um turno)',
+        'Garras de Gato: Escalada de 6 metros; arma natural, 1d4 + Força de dano cortante',
+        'Talentos de Gato: Proficiência em Percepção e Furtividade'
+      ],
+      subraces: {}
+    },
+    tortle: {
+      name: 'Tortle',
+      abilityBonus: { str: 2, wis: 1 },
+      speed: 9,
+      size: 'Médio',
+      languages: ['Aquan', 'Comum'],
+      traits: [
+        'Garras: Arma natural, 1d4 + Força de dano cortante',
+        'Prender a Respiração: Até 1 hora',
+        'Armadura Natural: CA 17 (Destreza não se aplica); pode usar escudo normalmente',
+        'Defesa de Casco: Ação para +4 CA e vantagem em salvaguardas de Força e Constituição; enquanto isso fica caído, deslocamento 0, desvantagem em DES, sem reações (só sai com ação bônus)',
+        'Instinto de Sobrevivência: Proficiência em Sobrevivência'
+      ],
+      subraces: {}
+    },
+    tritao: {
+      name: 'Tritão',
+      abilityBonus: { str: 1, con: 1, cha: 1 },
+      speed: 9,
+      size: 'Médio',
+      languages: ['Comum', 'Primordial'],
+      traits: [
+        'Visão no Escuro (18 metros)',
+        'Anfíbio: Respira ar e água',
+        'Natação: Deslocamento de natação de 9 metros',
+        'Resistência a Frio',
+        'Controlar Ar e Água: Conhece Névoa; 3º nível: Rajada de Vento; 5º nível: Muralha de Água — 1x cada por descanso longo (Carisma)',
+        'Emissário do Mar: Comunica ideias simples com bestas aquáticas'
+      ],
+      subraces: {}
+    },
+    yuan_ti: {
+      name: 'Yuan-ti Puro-Sangue',
+      abilityBonus: { cha: 2, int: 1 },
+      speed: 9,
+      size: 'Médio',
+      languages: ['Comum', 'Abissal', 'Dracônico'],
+      traits: [
+        'Visão no Escuro (18 metros)',
+        'Imunidade a Veneno: Imune a dano de veneno e à condição envenenado',
+        'Resistência Mágica: Vantagem em salvaguardas contra magia',
+        'Magia Inata: Conhece o truque Borrifo Venenoso; conjura Amizade com Animais ilimitadamente (só em cobras); 3º nível: Sugestão 1x por descanso longo (Carisma)'
+      ],
+      subraces: {}
+    },
+    harengon: {
+      name: 'Harengon',
+      abilityBonus: { choice: 2 },
+      speed: 9,
+      size: 'Pequeno ou Médio (à escolha)',
+      languages: ['Comum', '1 idioma à escolha'],
+      traits: [
+        'Gatilho de Lebre: Soma o bônus de proficiência na iniciativa',
+        'Sentidos Leporinos: Proficiência em Percepção',
+        'Trabalho de Pés Sortudo: Reação ao falhar salvaguarda de Destreza, rola 1d4 e soma ao resultado',
+        'Salto de Coelho: Ação bônus para saltar 1,5m × 5 × bônus de proficiência sem provocar ataques de oportunidade (usos = bônus de proficiência, recarrega em descanso longo)'
+      ],
+      subraces: {}
+    },
+    owlin: {
+      name: 'Owlin',
+      abilityBonus: { choice: 2 },
+      speed: 9,
+      size: 'Pequeno ou Médio (à escolha)',
+      languages: ['Comum', '1 idioma à escolha'],
+      traits: [
+        'Visão no Escuro (36 metros)',
+        'Voo: Deslocamento de voo igual ao de pernas (não pode usar vestindo armadura média ou pesada)',
+        'Penas Silenciosas: Proficiência em Furtividade'
       ],
       subraces: {}
     }
