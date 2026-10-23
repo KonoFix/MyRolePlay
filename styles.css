@@ -2009,30 +2009,33 @@ body {
 /* WIZARD STEPS */
 .wizard-steps-indicator {
   display: flex;
-  justify-content: space-between;
-  position: relative;
   margin-bottom: 20px;
-  padding: 0 20px;
-}
-
-/* Horizontal connector line between steps */
-.wizard-steps-indicator::before {
-  content: '';
-  position: absolute;
-  top: 16px;
-  left: 40px;
-  right: 40px;
-  height: 2px;
-  background: var(--border-color);
-  z-index: 0;
+  padding: 0 8px;
 }
 
 .wizard-step-node {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
+  flex: 1 1 0;
+  min-width: 0;
   z-index: 1;
+}
+
+/* Conector horizontal entre este nó e o próximo — escala automaticamente
+   com a largura de cada coluna, então os círculos ficam sempre centralizados
+   e alinhados com a linha, independente do tamanho do rótulo ou da tela. */
+.wizard-step-node:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--border-color);
+  z-index: 0;
 }
 
 .wizard-node-circle {
@@ -2067,6 +2070,17 @@ body {
   font-family: var(--font-title);
   font-size: 0.72rem;
   color: var(--text-secondary);
+  text-align: center;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+@media (max-width: 600px) {
+  .wizard-steps-indicator { padding: 0 2px; }
+  .wizard-node-circle { width: 26px; height: 26px; font-size: 0.75rem; }
+  .wizard-step-node:not(:last-child)::after { top: 13px; }
+  .wizard-node-label { font-size: 0.6rem; }
 }
 
 .point-buy-counter {
