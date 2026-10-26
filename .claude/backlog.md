@@ -32,7 +32,7 @@ Prioridade: **A** = alta, **B** = média, **C** = baixa.
 - [x] (A) ~~Calculadora de dificuldade de encontro por XP budget~~ — feito em `dm-data.js` + aba NPCs
 - [ ] (A) **Importar monstros padrão (CR 0 a 5) do PDF do GdM** para `dm-data.js`. Precisa `brew install poppler` primeiro (`pdftotext` convert). PDF em `~/Downloads/dd-5e-guia-do-mestre-biblioteca-elfica.pdf`. Formato: `{ nome, cr, hp, ca, ataques, resistências, descrição }`.
 - [ ] (A) **Tesouro de Dragão (Hoard)** — tabelas por CR do cap 7, equivalente ao Individual.
-- [ ] (A) **Gerador de nomes de NPC** (humano, elfo, anão, orc) — tabelas rolagem.
+- [x] (A) ~~Gerador de nomes de NPC~~ — feito: tabelas humano/elfo/anão/orc (masc/fem + sobrenome) em `dm-data.js`, card na aba NPCs.
 
 ## Prioridade B — Qualidade de vida
 
@@ -56,7 +56,7 @@ Prioridade: **A** = alta, **B** = média, **C** = baixa.
 
 ## Precisa de clarificação
 
-(vazio)
+- **[2026-10-26] Vários branches `routine/*` implementam os mesmos itens sem merge em `main`.** Como nenhum branch de rotina anterior foi mesclado, o item `[next]` "condição remota" e o item "tracker de iniciativa" foram implementados de forma independente e duplicada em pelo menos 3 e 2 branches respectivamente (`routine/20261022-2236`, `routine/20261024-0915`, `routine/20261025-1513` para condições; `routine/20261023-0915`, `routine/20261024-1404` para iniciativa). Recomenda-se revisar e mesclar a melhor versão de cada um em `main` e descartar os branches redundantes, para que a rotina automática não continue reimplementando os mesmos itens. Por isso, hoje a rotina pulou o `[next]` e o item de tracker de iniciativa (já cobertos nesses branches) e implementou o gerador de nomes de NPC em vez disso.
 
 ---
 
