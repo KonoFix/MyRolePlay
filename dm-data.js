@@ -140,6 +140,44 @@ function evaluateEncounter(partyLevels, monsters) {
   return { baseXP, mult, adjustedXP, thresholds, difficulty, totalCount };
 }
 
+// --- Gerador de Nomes de NPC (humano, elfo, anão, orc) -----------------------
+const DM_NPC_NAMES = {
+  human: {
+    label: 'Humano',
+    male: ['Aldric', 'Bram', 'Cedric', 'Darian', 'Edmund', 'Garrick', 'Hadrian', 'Ivo', 'Jorah', 'Kellan', 'Lucan', 'Magnus', 'Nolan', 'Osric', 'Percival', 'Quinlan', 'Roderick', 'Soren', 'Thaddeus', 'Victor'],
+    female: ['Adelaide', 'Brienne', 'Celestine', 'Dahlia', 'Elowen', 'Fiora', 'Gwyneth', 'Helena', 'Isolde', 'Josephine', 'Katarina', 'Liora', 'Maren', 'Nerissa', 'Odalys', 'Petra', 'Rosalind', 'Seraphina', 'Tabitha', 'Wilhelmina'],
+    surname: ['Ashford', 'Blackwood', 'Castellan', 'Dunmore', 'Everhart', 'Fenwick', 'Graves', 'Harlow', 'Ironside', 'Kingsley', 'Lockhart', 'Marsh', 'Norwood', 'Pemberton', 'Quill', 'Ravencroft', 'Stonebridge', 'Thornbury', 'Vane', 'Winters'],
+  },
+  elf: {
+    label: 'Elfo',
+    male: ['Adran', 'Aelar', 'Aramil', 'Arannis', 'Beiro', 'Carric', 'Enialis', 'Erevan', 'Galinndan', 'Hadarai', 'Immeral', 'Ivellios', 'Korfel', 'Mindartis', 'Paelias', 'Quarion', 'Riardon', 'Soveliss', 'Tharivol', 'Varis'],
+    female: ['Adrie', 'Althaea', 'Anastrianna', 'Andraste', 'Birel', 'Caelynn', 'Drusilia', 'Enna', 'Felosial', 'Ielenia', 'Keyleth', 'Leshanna', 'Mialee', 'Myathel', 'Naivara', 'Quelenna', 'Sariel', 'Shanairra', 'Silaqui', 'Vadania'],
+    surname: ['Amakiir', 'Amastacia', 'Galanodel', 'Holimion', 'Ilphelkiir', 'Liadon', 'Meliamne', 'Nailo', 'Siannodel', 'Xiloscient'],
+  },
+  dwarf: {
+    label: 'Anão',
+    male: ['Adrik', 'Alberich', 'Baern', 'Barendd', 'Brottor', 'Bruenor', 'Dain', 'Darrak', 'Delg', 'Eberk', 'Einkil', 'Fargrim', 'Flint', 'Harbek', 'Kildrak', 'Morgran', 'Rurik', 'Thoradin', 'Thorin', 'Tordek'],
+    female: ['Amber', 'Artin', 'Audhild', 'Bardryn', 'Dagnal', 'Diesa', 'Eldeth', 'Falkrunn', 'Finellen', 'Gunnloda', 'Gurdis', 'Helja', 'Hlin', 'Kathra', 'Kristryd', 'Liftrasa', 'Mardred', 'Riswynn', 'Torbera', 'Vistra'],
+    surname: ['Balderk', 'Battlehammer', 'Brawnanvil', 'Dankil', 'Fireforge', 'Frostbeard', 'Gorunn', 'Holderhek', 'Lutgehr', 'Strakeln', 'Torunn', 'Ungart'],
+  },
+  orc: {
+    label: 'Orc',
+    male: ['Gaath', 'Grommok', 'Krusk', 'Lubash', 'Mhurren', 'Ront', 'Shamgar', 'Thokk', 'Varg', 'Zegg'],
+    female: ['Emen', 'Engong', 'Kansif', 'Myev', 'Neega', 'Ovak', 'Ownka', 'Shautha', 'Vola', 'Yevelda'],
+    surname: ['Bonecrusher', 'Bloodfang', 'Doomhowl', 'Grimtusk', 'Ironjaw', 'Ragefist', 'Skullcrack', 'Stonefist', 'Warhide', 'Bloodaxe'],
+  },
+};
+
+function rollNpcName(race, gender) {
+  const table = DM_NPC_NAMES[race] || DM_NPC_NAMES.human;
+  const firstPool = table[gender] || table.male;
+  const first = firstPool[Math.floor(Math.random() * firstPool.length)];
+  const surname = table.surname[Math.floor(Math.random() * table.surname.length)];
+  return `${first} ${surname}`;
+}
+
 window.DM_DATA = DM_DATA;
+window.DM_NPC_NAMES = DM_NPC_NAMES;
 window.rollTreasureIndividual = rollTreasureIndividual;
 window.evaluateEncounter = evaluateEncounter;
+window.rollNpcName = rollNpcName;

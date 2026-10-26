@@ -160,6 +160,31 @@
           <button class="btn btn-primary" id="btnEvaluateEncounter" style="margin-top:10px;"><svg class="icon icon-scale" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v15M7 6h10M5 6l-3 7a3 3 0 0 0 6 0L5 6ZM19 6l-3 7a3 3 0 0 0 6 0L19 6Z"/><path d="M8 21h8"/></svg> Avaliar</button>
           <div id="encounterResult" style="margin-top:12px;"></div>
         </div>
+
+        <!-- Gerador de Nomes de NPC -->
+        <div class="side-panel-card">
+          <div class="card-header-title">
+            <span>Gerador de Nomes de NPC</span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="npcNameRace">Raça</label>
+            <select id="npcNameRace" class="field-select">
+              <option value="human">Humano</option>
+              <option value="elf">Elfo</option>
+              <option value="dwarf">Anão</option>
+              <option value="orc">Orc</option>
+            </select>
+          </div>
+          <div class="field-group" style="margin-top:10px;">
+            <label class="field-label" for="npcNameGender">Gênero</label>
+            <select id="npcNameGender" class="field-select">
+              <option value="male">Masculino</option>
+              <option value="female">Feminino</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="btnRollNpcName" style="margin-top:10px;"><svg class="icon icon-dice" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2 20 7v10l-8 5-8-5V7l8-5Z"/><path d="M12 2v10M20 7l-8 5M4 7l8 5"/><circle cx="12" cy="9" r="1" fill="currentColor" stroke="none"/></svg> Gerar Nomes</button>
+          <div id="npcNameResult" style="margin-top:12px;"></div>
+        </div>
       </div>
     </section>
 
