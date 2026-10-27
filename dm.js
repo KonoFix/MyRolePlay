@@ -25,6 +25,8 @@ const state = {
   activeCampaignId: null,
   arcs: [],
   activeArcId: null,
+  npcs: [],
+  activeNpcId: null,
   players: [],       // [{ user_id, display_name, character }]
   rolls: [],
   liveChannel: null,
@@ -100,6 +102,7 @@ async function setActiveCampaign(id) {
   await Promise.all([
     loadPlayers(id),
     loadArcs(id),
+    loadNpcs(id),
     loadRolls(id),
     loadMaps(id),
   ]);
@@ -470,6 +473,119 @@ async function deleteActiveArc() {
   await supabase.from('arcs').delete().eq('id', state.activeArcId);
   state.activeArcId = null;
   await loadArcs(state.activeCampaignId);
+}
+
+// =============================================================================
+// NPCs da campanha (CRUD + conversão em token)
+// =============================================================================
+async function loadNpcs(campaignId) {
+  const { data, error } = await supabase
+    .from('npcs')
+    .select('*')
+    .eq('campaign_id', campaignId)
+    .order('created_at');
+  if (error) { console.warn(error); state.npcs = []; }
+  else state.npcs = data || [];
+  renderNpcsList();
+}
+
+function renderNpcsList() {
+  const ul = document.getElementById('dmNpcsList');
+  if (!ul) return;
+  if (state.npcs.length === 0) {
+    ul.innerHTML = `<li style="cursor:default;color:var(--text-muted);">Nenhum NPC ainda</li>`;
+    return;
+  }
+  ul.innerHTML = state.npcs.map(n => `
+    <li data-id="${n.id}" class="${n.id === state.activeNpcId ? 'active' : ''}">
+      <span>${escapeHtml(n.name)}</span>
+      <span class="arc-hidden-icon">${n.is_hostile ? window.svgIcon('swords') : window.svgIcon('heart')}</span>
+    </li>`).join('');
+  ul.querySelectorAll('li[data-id]').forEach(li => {
+    li.addEventListener('click', () => selectNpc(li.dataset.id));
+  });
+}
+
+function selectNpc(id) {
+  state.activeNpcId = id;
+  const n = state.npcs.find(x => x.id === id);
+  if (!n) return clearNpcEditor();
+  const sb = n.stat_block_json || {};
+  document.getElementById('dmNpcName').value = n.name;
+  document.getElementById('dmNpcHp').value = sb.hp ?? '';
+  document.getElementById('dmNpcCa').value = sb.ca ?? '';
+  document.getElementById('dmNpcAttacks').value = sb.ataques ?? '';
+  document.getElementById('dmNpcNotes').value = sb.descricao ?? '';
+  document.getElementById('dmNpcHostile').checked = !!n.is_hostile;
+  renderNpcsList();
+}
+
+function clearNpcEditor() {
+  state.activeNpcId = null;
+  document.getElementById('dmNpcName').value = '';
+  document.getElementById('dmNpcHp').value = '';
+  document.getElementById('dmNpcCa').value = '';
+  document.getElementById('dmNpcAttacks').value = '';
+  document.getElementById('dmNpcNotes').value = '';
+  document.getElementById('dmNpcHostile').checked = true;
+  renderNpcsList();
+}
+
+async function saveNpc() {
+  if (!state.activeCampaignId) return alert('Selecione uma campanha.');
+  const name = document.getElementById('dmNpcName').value.trim();
+  if (!name) return alert('Informe um nome para o NPC.');
+  const stat_block_json = {
+    hp: document.getElementById('dmNpcHp').value ? +document.getElementById('dmNpcHp').value : null,
+    ca: document.getElementById('dmNpcCa').value ? +document.getElementById('dmNpcCa').value : null,
+    ataques: document.getElementById('dmNpcAttacks').value.trim(),
+    descricao: document.getElementById('dmNpcNotes').value.trim(),
+  };
+  const is_hostile = document.getElementById('dmNpcHostile').checked;
+
+  if (state.activeNpcId) {
+    const { error } = await supabase.from('npcs')
+      .update({ name, stat_block_json, is_hostile })
+      .eq('id', state.activeNpcId);
+    if (error) return alert('Erro: ' + error.message);
+  } else {
+    const { data, error } = await supabase.from('npcs')
+      .insert({ campaign_id: state.activeCampaignId, name, stat_block_json, is_hostile })
+      .select().single();
+    if (error) return alert('Erro: ' + error.message);
+    state.activeNpcId = data.id;
+  }
+  await loadNpcs(state.activeCampaignId);
+}
+
+async function deleteActiveNpc() {
+  if (!state.activeNpcId) return;
+  if (!confirm('Excluir este NPC?')) return;
+  await supabase.from('npcs').delete().eq('id', state.activeNpcId);
+  state.activeNpcId = null;
+  await loadNpcs(state.activeCampaignId);
+}
+
+async function convertNpcToToken() {
+  if (!state.activeNpcId) return alert('Selecione um NPC na lista.');
+  if (!state.activeMapId) return alert('Selecione um mapa na aba Mapa primeiro.');
+  const npc = state.npcs.find(n => n.id === state.activeNpcId);
+  if (!npc) return;
+  const sb = npc.stat_block_json || {};
+  const color = npc.is_hostile ? '#c0392b' : '#4e8a5a';
+  const { data, error } = await supabase.from('tokens').insert({
+    map_id: state.activeMapId,
+    npc_id: npc.id,
+    label: npc.name,
+    x: 0, y: 0,
+    color,
+    hp_current: sb.hp ?? null,
+    hp_max: sb.hp ?? null,
+  }).select().single();
+  if (error) return alert('Erro: ' + error.message);
+  state.tokens.push(data);
+  state.board?.addToken({ id: data.id, x: 0, y: 0, color, label: npc.name, size_cells: 1 });
+  alert(`"${npc.name}" adicionado ao mapa.`);
 }
 
 // =============================================================================
@@ -978,6 +1094,15 @@ function setupUI() {
       });
     });
   }
+
+  // NPCs da campanha
+  document.getElementById('btnSaveNpc')?.addEventListener('click', saveNpc);
+  document.getElementById('btnDeleteNpc')?.addEventListener('click', deleteActiveNpc);
+  document.getElementById('btnNewNpc')?.addEventListener('click', () => {
+    clearNpcEditor();
+    document.getElementById('dmNpcName').focus();
+  });
+  document.getElementById('btnNpcToToken')?.addEventListener('click', convertNpcToToken);
 
   // Compêndio GdM: Tesouros + Encontros
   document.getElementById('btnRollTreasure')?.addEventListener('click', () => {
