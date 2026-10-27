@@ -43,7 +43,7 @@ Prioridade: **A** = alta, **B** = média, **C** = baixa.
 - [ ] (B) **Botão "Visualizar como jogador"** — mestre vê o mapa com fog ativo + só suas fichas públicas (preview do que o player vê).
 - [ ] (B) **Timeline de atividade no DM** — feed cronológico das mudanças (PV, condição, rolagem, movimento no mapa) usando realtime do canal.
 - [ ] (B) **Botão "Enviar handout"** — DM anexa texto/imagem no modal, aparece pra jogadores selecionados.
-- [ ] (B) **CRUD completo de NPCs** — formulário com stat block, lista na aba NPCs, converter em token com 1 clique.
+- [x] (B) ~~CRUD completo de NPCs~~ — feito: card "NPCs da Campanha" na aba NPCs (dm.html/dm.js) com formulário (nome, PV, CA, ataques, notas, hostil), lista clicável reaproveitando `.dm-arcs-list`, e botão "Converter em token" que insere na tabela `tokens` (sem migration nova — `npcs`/`tokens` já existiam no schema).
 
 ## Prioridade C — Refinamento futuro
 
@@ -56,7 +56,7 @@ Prioridade: **A** = alta, **B** = média, **C** = baixa.
 
 ## Precisa de clarificação
 
-(vazio)
+- **[2026-10-27] Vários branches `routine/*` implementam os mesmos itens sem merge em `main`.** Como nenhum branch de rotina anterior foi mesclado nesta linha de `main`, o item `[next]` "Mestre pode marcar condição em jogador remotamente" já foi implementado de forma independente em pelo menos 3 branches não mesclados (`routine/20261022-2236`, `routine/20261024-0915`, `routine/20261025-1513`), e "Tracker de iniciativa compartilhado" em pelo menos 2 (`routine/20261023-0915`, `routine/20261024-1404`). Há também um "Gerador de nomes de NPC" pronto em `routine/20261026-0915`. Esta nota já tinha sido escrita uma vez (branch `routine/20261026-0915`), mas como esse branch nunca foi mesclado em `main`, a rotina de hoje partiu de `main` sem essa informação e quase recriou a feature de condição uma 4ª vez — descoberta a tempo consultando `.claude/routine.log` (arquivo local, não versionado, mas persistente entre checkouts). Recomendação: revisar e mesclar a melhor versão de cada feature duplicada em `main` e apagar os branches redundantes — isso também vai fazer essa nota parar de precisar ser reescrita a cada rotina. Por isso, hoje a rotina pulou os itens `[next]`/iniciativa e implementou "CRUD completo de NPCs" em vez disso (branch `routine/20261027-0914`, sem duplicação prévia).
 
 ---
 
