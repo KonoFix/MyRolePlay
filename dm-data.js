@@ -34,6 +34,64 @@ const DM_DATA = {
     ],
   },
 
+  // --- Tabela de Tesouro de Covil / Hoard (p.136-139 do Guia do Mestre) ----
+  // Valores aproximados: as moedas são uma quantia fixa por faixa de CR
+  // (diferente do Tesouro Individual, que sorteia a faixa via d100). O d100
+  // "extra" decide se o covil também tem objetos de arte, gemas, ou item(ns)
+  // mágico(s) — nesse caso o mestre rola a peça exata na Tabela de Item
+  // Mágico (A–I) correspondente, direto no livro.
+  treasureHoard: {
+    '0-4': {
+      coins: '6d6×100 PC + 3d6×100 PP + 2d6×10 PO',
+      extra: [
+        { p: 16, kind: 'none' },
+        { p: 36, kind: 'art',  count: '2d4', each: 25 },
+        { p: 56, kind: 'gems', count: '2d4', each: 50 },
+        { p: 76, kind: 'item', table: 'A' },
+        { p: 88, kind: 'item', table: 'B' },
+        { p: 95, kind: 'item', table: 'C' },
+        { p: 100, kind: 'item', table: 'F' },
+      ],
+    },
+    '5-10': {
+      coins: '2d6×100 PC + 2d6×100 PP + 6d6×100 PO + 3d6×10 PL',
+      extra: [
+        { p: 14, kind: 'none' },
+        { p: 30, kind: 'art',  count: '2d4', each: 250 },
+        { p: 52, kind: 'gems', count: '3d6', each: 100 },
+        { p: 68, kind: 'item', table: 'C' },
+        { p: 78, kind: 'item', table: 'D' },
+        { p: 88, kind: 'item', table: 'E' },
+        { p: 95, kind: 'item', table: 'F' },
+        { p: 100, kind: 'item', table: 'G' },
+      ],
+    },
+    '11-16': {
+      coins: '4d6×100 PP + 5d6×100 PO + 9d6×100 PL',
+      extra: [
+        { p: 10, kind: 'none' },
+        { p: 24, kind: 'art',  count: '2d4', each: 750 },
+        { p: 44, kind: 'gems', count: '3d6', each: 500 },
+        { p: 58, kind: 'item', table: 'E' },
+        { p: 72, kind: 'item', table: 'F' },
+        { p: 84, kind: 'item', table: 'G' },
+        { p: 94, kind: 'item', table: 'H' },
+        { p: 100, kind: 'item', table: 'I' },
+      ],
+    },
+    '17+': {
+      coins: '7d6×100 PO + 8d6×100 PL',
+      extra: [
+        { p: 8, kind: 'none' },
+        { p: 20, kind: 'art',  count: '3d6', each: 2500 },
+        { p: 38, kind: 'gems', count: '3d6', each: 1000 },
+        { p: 52, kind: 'item', table: 'G' },
+        { p: 66, kind: 'item', table: 'H' },
+        { p: 100, kind: 'item', table: 'I' },
+      ],
+    },
+  },
+
   // --- XP budget por nível (Guia do Mestre p.82) ---------------------------
   xpThresholds: {
     1:  { easy: 25,  medium: 50,  hard: 75,   deadly: 100 },
@@ -105,6 +163,34 @@ function resolveDiceExpr(expr) {
   return totals;
 }
 
+function rollDiceNotation(notation) {
+  const m = notation.match(/^(\d+)d(\d+)$/i);
+  if (!m) return 0;
+  const [, n, d] = m;
+  let sum = 0;
+  for (let i = 0; i < +n; i++) sum += Math.floor(Math.random() * +d) + 1;
+  return sum;
+}
+
+function rollTreasureHoard(crTier) {
+  const table = DM_DATA.treasureHoard[crTier];
+  const coinsResolved = resolveDiceExpr(table.coins);
+  const roll = Math.floor(Math.random() * 100) + 1;
+  const entry = table.extra.find(e => roll <= e.p);
+
+  let extraLabel = 'Nenhum item adicional';
+  if (entry.kind === 'art' || entry.kind === 'gems') {
+    const count = rollDiceNotation(entry.count);
+    const total = count * entry.each;
+    const noun = entry.kind === 'art' ? 'objeto(s) de arte' : 'gema(s)';
+    extraLabel = `${count} ${noun} (${entry.each} po cada) = ${total} po`;
+  } else if (entry.kind === 'item') {
+    extraLabel = `1 item mágico — role na Tabela de Item Mágico ${entry.table} do GdM`;
+  }
+
+  return { coinsLabel: table.coins, coinsResolved, roll, extraLabel };
+}
+
 function encounterMultiplier(nMonsters) {
   const row = DM_DATA.encounterMultiplier.find(r => r.n >= nMonsters)
             || DM_DATA.encounterMultiplier[DM_DATA.encounterMultiplier.length - 1];
@@ -142,4 +228,5 @@ function evaluateEncounter(partyLevels, monsters) {
 
 window.DM_DATA = DM_DATA;
 window.rollTreasureIndividual = rollTreasureIndividual;
+window.rollTreasureHoard = rollTreasureHoard;
 window.evaluateEncounter = evaluateEncounter;
