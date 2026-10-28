@@ -335,6 +335,29 @@ function openPlayerDetail(userId) {
     .map(([key, label]) => `<span style="margin-right:10px;"><strong>${currency[key] || 0}</strong> ${label}</span>`)
     .join('');
 
+  const armorInfo = window.DND_DATA?.armors?.find(a => a.id === sheet.equippedArmor);
+  const armorLabel = (armorInfo ? armorInfo.name : 'Nenhuma') + (sheet.equippedShield ? ' + Escudo' : '');
+  const weaponsHtml = (sheet.weapons || []).length
+    ? sheet.weapons.map(w => `<li>${escapeHtml(w.name)} <span style="color:var(--text-muted);">(${escapeHtml(w.damage || '')} ${escapeHtml(w.damageType || '')})</span></li>`).join('')
+    : '<li style="color:var(--text-muted);">Nenhuma arma</li>';
+  const invItemsHtml = (sheet.inventory || []).length
+    ? sheet.inventory.map(it => `<li>${escapeHtml(it.name)} <span style="color:var(--text-muted);">×${it.qty ?? 1}</span></li>`).join('')
+    : '<li style="color:var(--text-muted);">Vazio</li>';
+
+  const bio = sheet.bio || {};
+  const bioRow = (label, val) => val
+    ? `<div style="margin-bottom:10px;"><strong style="color:var(--text-gold);">${escapeHtml(label)}:</strong> <span style="color:var(--text-secondary);">${escapeHtml(val)}</span></div>`
+    : '';
+  const bioHtml = [
+    (bio.height || bio.weight) ? `<div style="margin-bottom:10px;"><strong style="color:var(--text-gold);">Altura/Peso:</strong> <span style="color:var(--text-secondary);">${escapeHtml(bio.height || '—')} · ${escapeHtml(bio.weight || '—')}</span></div>` : '',
+    bioRow('Aparência', bio.appearance),
+    bioRow('Traços de Personalidade', bio.traits),
+    bioRow('Ideais', bio.ideals),
+    bioRow('Vínculos', bio.bonds),
+    bioRow('Defeitos', bio.flaws),
+    bioRow('História', bio.backstory),
+  ].join('') || '<p style="color:var(--text-muted); font-size:0.82rem;">Jogador ainda não preencheu a biografia.</p>';
+
   body.innerHTML = `
     <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:center;">
       <div style="font-size:0.85rem; color:var(--text-secondary);">
@@ -378,6 +401,26 @@ function openPlayerDetail(userId) {
     <div class="pdm-section">
       <div class="pdm-section-title">Moedas</div>
       <div style="font-size:0.88rem;">${coinsHtml}</div>
+    </div>
+
+    <div class="pdm-section">
+      <div class="pdm-section-title">Inventário &amp; Equipamento</div>
+      <div style="font-size:0.85rem; margin-bottom:8px;"><strong style="color:var(--text-gold);">Armadura:</strong> ${escapeHtml(armorLabel)}</div>
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px;">
+        <div>
+          <div style="font-size:0.72rem; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">Armas</div>
+          <ul class="pdm-skills" style="display:flex; flex-direction:column; grid-template-columns:none;">${weaponsHtml}</ul>
+        </div>
+        <div>
+          <div style="font-size:0.72rem; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">Itens</div>
+          <ul class="pdm-skills" style="display:flex; flex-direction:column; grid-template-columns:none;">${invItemsHtml}</ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="pdm-section">
+      <div class="pdm-section-title">Biografia</div>
+      ${bioHtml}
     </div>
   `;
 
