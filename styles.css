@@ -582,7 +582,7 @@ body {
 .field-input, .field-select {
   width: 100%;
   padding: 8px 12px;
-  background: rgba(10, 12, 18, 0.7);
+  background-color: rgba(10, 12, 18, 0.7);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
@@ -594,9 +594,29 @@ body {
   text-overflow: ellipsis;
 }
 
-[data-theme="parchment"] .field-input,
+/* Seta customizada do <select> — a nativa fica colada na borda em
+   mobile (Chrome/Safari Android/iOS não dão espaço consistente). */
+.field-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 34px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--text-secondary) 50%),
+    linear-gradient(135deg, var(--text-secondary) 50%, transparent 50%);
+  background-position:
+    calc(100% - 20px) calc(50% - 3px),
+    calc(100% - 15px) calc(50% - 3px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+[data-theme="parchment"] .field-input {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
 [data-theme="parchment"] .field-select {
-  background: rgba(255, 255, 255, 0.8);
+  background-color: rgba(255, 255, 255, 0.8);
 }
 
 .field-input:focus, .field-select:focus {
@@ -2246,6 +2266,12 @@ input[type="number"]::-webkit-outer-spin-button {
     justify-content: center;
     padding: 8px 6px;
     font-size: 0.78rem;
+  }
+  .header-action-group .btn-icon {
+    width: 40px;
+    max-width: 40px;
+    justify-self: center;
+    align-self: center;
   }
 
   /* Hero card: avatar grande centralizado + campos embaixo */
