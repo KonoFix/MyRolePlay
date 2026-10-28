@@ -994,6 +994,22 @@ function setupUI() {
       </div>`;
   });
 
+  document.getElementById('btnRollHoard')?.addEventListener('click', () => {
+    const cr = document.getElementById('hoardCR').value;
+    const r = window.rollTreasureHoard(cr);
+    const coinRows = Object.entries(r.coinsResolved)
+      .filter(([, v]) => v > 0)
+      .map(([k, v]) => `<li><strong>${v}</strong> ${k.toUpperCase()}</li>`).join('');
+    document.getElementById('hoardResult').innerHTML = `
+      <div style="padding:10px 12px; background:rgba(0,0,0,0.25); border-radius:6px;">
+        <div style="color:var(--text-muted); font-size:0.78rem;">Moedas (${escapeHtml(r.coinsLabel)})</div>
+        <ul style="margin:8px 0 0 16px;">${coinRows || '<li>Sem moedas</li>'}</ul>
+        <div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border-color); font-size:0.82rem;">
+          <span style="color:var(--text-muted);">d100 = ${r.roll} → </span>${escapeHtml(r.extraLabel)}
+        </div>
+      </div>`;
+  });
+
   const addMonsterRow = (cr = '1', count = 1) => {
     const container = document.getElementById('encounterMonsters');
     const row = document.createElement('div');

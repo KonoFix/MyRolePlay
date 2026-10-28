@@ -609,7 +609,17 @@
 
         <div class="rp-box">
           <span class="field-label">Aparência Física &amp; Aliados</span>
-          <textarea id="bioAppearance" class="rp-textarea" style="min-height:160px;" placeholder="Idade, altura, peso, marcas, cicatrizes, guildas e companheiros de confiança..."></textarea>
+          <div class="field-flex-row">
+            <div class="field-group">
+              <label class="field-label" for="bioHeight">Altura</label>
+              <input type="text" id="bioHeight" class="field-input" placeholder="Ex: 1,75m">
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="bioWeight">Peso</label>
+              <input type="text" id="bioWeight" class="field-input" placeholder="Ex: 70 kg">
+            </div>
+          </div>
+          <textarea id="bioAppearance" class="rp-textarea" style="min-height:140px;" placeholder="Idade, marcas, cicatrizes, guildas e companheiros de confiança..."></textarea>
         </div>
       </div>
     </section>
