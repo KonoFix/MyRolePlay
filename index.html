@@ -25,6 +25,9 @@
           <select id="characterSelector" class="field-select header-char-select" title="Alternar entre fichas salvas">
             <!-- Opções dinâmicas -->
           </select>
+          <button id="btnDeleteCharacter" class="btn btn-icon" title="Excluir este personagem da conta">
+            <svg class="icon icon-trash" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 7h16"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></svg>
+          </button>
           <button id="btnNewCharacter" class="btn" title="Criar nova ficha do zero">
             <span><svg class="icon icon-plus-circle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span> Novo
           </button>
@@ -60,6 +63,9 @@
           </button>
           <button id="btnJoinCampaign" class="btn btn-primary" title="Entrar numa campanha com código do mestre">
             <span><svg class="icon icon-dice" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2 20 7v10l-8 5-8-5V7l8-5Z"/><path d="M12 2v10M20 7l-8 5M4 7l8 5"/><circle cx="12" cy="9" r="1" fill="currentColor" stroke="none"/></svg></span> Entrar na Mesa
+          </button>
+          <button id="btnMyCampaigns" class="btn" title="Ver as mesas em que você está jogando">
+            <span><svg class="icon icon-users" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.5 2.5-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M15 20c0-2.6 1.6-4.6 4-5.3"/></svg></span> Minhas Mesas
           </button>
           <button id="btnSwitchToDM" class="btn" title="Alternar sua conta para visão de Mestre">
             <span><svg class="icon icon-wizard-hat" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2 4 20h16L12 2Z"/><path d="M9 14h6"/><circle cx="12" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></span> Virar Mestre
@@ -787,6 +793,19 @@
 
       <div id="spellCompendiumResults" style="max-height:450px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; margin-top:10px;">
         <!-- Lista de magias filtrada -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Minhas Mesas -->
+  <div id="myCampaignsModal" class="modal-overlay">
+    <div class="modal-content" style="max-width:520px;">
+      <div class="modal-header">
+        <h2 class="modal-title">Minhas Mesas</h2>
+        <button class="close-modal-btn" onclick="document.getElementById('myCampaignsModal').classList.remove('open')">&times;</button>
+      </div>
+      <div id="myCampaignsList" style="display:flex; flex-direction:column; gap:10px;">
+        <!-- Preenchido via JS -->
       </div>
     </div>
   </div>

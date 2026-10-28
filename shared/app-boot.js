@@ -22,6 +22,50 @@ if (!authed) {
   window.__deleteCharacter  = (id) => deleteCharacter(id);
   window.__signOut          = async () => { await flushAllSaves(); await signOut(); };
 
+  // Mesas em que o jogador está (campanha + mestre + personagem vinculado)
+  window.__loadMyCampaigns = async () => {
+    const { data: { session: s } } = await supabase.auth.getSession();
+    if (!s) return [];
+
+    const { data: memberships } = await supabase
+      .from('campaign_members')
+      .select('campaign_id, character_id')
+      .eq('user_id', s.user.id);
+    if (!memberships?.length) return [];
+
+    const campaignIds = memberships.map(m => m.campaign_id);
+    const { data: camps } = await supabase.from('campaigns').select('id, title, dm_id').in('id', campaignIds);
+    const campById = Object.fromEntries((camps || []).map(c => [c.id, c]));
+
+    const dmIds = [...new Set((camps || []).map(c => c.dm_id))];
+    const { data: dmProfiles } = dmIds.length
+      ? await supabase.from('profiles').select('user_id, display_name').in('user_id', dmIds)
+      : { data: [] };
+    const dmNameById = Object.fromEntries((dmProfiles || []).map(p => [p.user_id, p.display_name]));
+
+    return memberships.map(m => {
+      const camp = campById[m.campaign_id];
+      return {
+        campaignId: m.campaign_id,
+        title: camp?.title || '—',
+        dmName: camp ? (dmNameById[camp.dm_id] || '—') : '—',
+        characterId: m.character_id,
+      };
+    });
+  };
+
+  // Jogador sai voluntariamente de uma mesa (RLS: members_delete_dm_or_self)
+  window.__leaveCampaign = async (campaignId) => {
+    const { data: { session: s } } = await supabase.auth.getSession();
+    if (!s) return;
+    const { error } = await supabase
+      .from('campaign_members')
+      .delete()
+      .eq('campaign_id', campaignId)
+      .eq('user_id', s.user.id);
+    if (error) throw error;
+  };
+
   // Flush ao sair da aba
   window.addEventListener('beforeunload', () => flushAllSaves());
 
