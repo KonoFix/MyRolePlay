@@ -274,6 +274,7 @@ function openPlayerDetail(userId) {
   const title = document.getElementById('pdmTitle');
   const body = document.getElementById('pdmBody');
   const sheet = p.character?.sheet_json;
+  modal.dataset.uid = userId;
 
   if (!sheet) {
     title.textContent = p.display_name;
@@ -996,6 +997,22 @@ function setupUI() {
       await updateRole('player');
       window.location.href = 'index.html';
     } catch (err) { alert('Falha: ' + err.message); }
+  });
+
+  document.getElementById('btnRemovePlayer')?.addEventListener('click', async () => {
+    const modal = document.getElementById('playerDetailModal');
+    const userId = modal.dataset.uid;
+    const p = state.players.find(x => x.user_id === userId);
+    if (!p) return;
+    if (!confirm(`Remover ${p.display_name} desta campanha? O jogador perde acesso à mesa (o personagem dele não é excluído).`)) return;
+    const { error } = await supabase
+      .from('campaign_members')
+      .delete()
+      .eq('campaign_id', state.activeCampaignId)
+      .eq('user_id', userId);
+    if (error) { alert('Falha ao remover jogador: ' + error.message); return; }
+    modal.classList.remove('open');
+    await loadPlayers(state.activeCampaignId);
   });
   document.getElementById('btnSaveArc').addEventListener('click', saveArc);
   document.getElementById('btnDeleteArc').addEventListener('click', deleteActiveArc);

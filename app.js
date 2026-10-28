@@ -1386,8 +1386,12 @@ function setupUIEventListeners() {
   document.getElementById('importJsonInput').addEventListener('change', importCharacterJson);
   document.getElementById('btnPrintSheet').addEventListener('click', () => window.print());
 
-  // Novo Personagem
+  // Novo Personagem / Excluir Personagem
   document.getElementById('btnNewCharacter').addEventListener('click', createNewCharacterAction);
+  document.getElementById('btnDeleteCharacter')?.addEventListener('click', deleteCurrentCharacterAction);
+
+  // Minhas Mesas
+  document.getElementById('btnMyCampaigns')?.addEventListener('click', openMyCampaignsModal);
 
   // Seletor de Personagem
   document.getElementById('characterSelector').addEventListener('change', (e) => {
@@ -2269,6 +2273,77 @@ function createNewCharacterAction() {
   currentCharacter = newChar;
   saveToLocalStorage();
   renderFullSheet();
+}
+
+async function deleteCurrentCharacterAction() {
+  const ids = Object.keys(savedCharacters);
+  if (ids.length <= 1) {
+    alert('Você precisa manter ao menos um personagem na conta.');
+    return;
+  }
+  const char = currentCharacter;
+  if (!confirm(`Excluir permanentemente "${char.name}"? Essa ação não pode ser desfeita.`)) return;
+
+  delete savedCharacters[char.id];
+  currentCharacter = Object.values(savedCharacters)[0];
+
+  try { await window.__deleteCharacter?.(char.id); }
+  catch (err) { console.warn('[char] falha ao excluir remotamente:', err); }
+
+  saveToLocalStorage();
+  renderFullSheet();
+}
+
+// --------------------------------------------------------------------------
+// MINHAS MESAS (campanhas em que o jogador participa)
+// --------------------------------------------------------------------------
+function escapeHtmlApp(s) {
+  return (s ?? '').toString().replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '\'': '&#39;' }[c]));
+}
+
+async function openMyCampaignsModal() {
+  const modal = document.getElementById('myCampaignsModal');
+  const list = document.getElementById('myCampaignsList');
+  list.innerHTML = '<p style="color:var(--text-muted);">Carregando...</p>';
+  modal.classList.add('open');
+  await renderMyCampaignsList();
+}
+
+async function renderMyCampaignsList() {
+  const list = document.getElementById('myCampaignsList');
+  const camps = (await window.__loadMyCampaigns?.()) || [];
+
+  if (camps.length === 0) {
+    list.innerHTML = '<p style="color:var(--text-muted);">Você ainda não entrou em nenhuma mesa. Use "Entrar na Mesa" com o código do mestre.</p>';
+    return;
+  }
+
+  list.innerHTML = camps.map(c => {
+    const char = savedCharacters[c.characterId];
+    const charLabel = char ? char.name : 'Nenhum personagem vinculado';
+    return `
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; background:rgba(0,0,0,0.2); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:10px 12px;">
+        <div>
+          <strong style="color:var(--text-gold);">${escapeHtmlApp(c.title)}</strong>
+          <div style="font-size:0.78rem; color:var(--text-muted);">Mestre: ${escapeHtmlApp(c.dmName)} · Personagem: ${escapeHtmlApp(charLabel)}</div>
+        </div>
+        <button class="btn btn-accent" data-campaign-id="${escapeHtmlApp(c.campaignId)}" data-campaign-title="${escapeHtmlApp(c.title)}" style="flex-shrink:0;">Sair</button>
+      </div>`;
+  }).join('');
+
+  list.querySelectorAll('button[data-campaign-id]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.campaignId;
+      const title = btn.dataset.campaignTitle;
+      if (!confirm(`Sair da mesa "${title}"? Você perderá acesso até ser convidado novamente.`)) return;
+      try {
+        await window.__leaveCampaign(id);
+        await renderMyCampaignsList();
+      } catch (err) {
+        alert('Falha ao sair da mesa: ' + (err?.message || err));
+      }
+    });
+  });
 }
 
 // --------------------------------------------------------------------------
