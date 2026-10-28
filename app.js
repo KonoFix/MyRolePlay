@@ -1047,6 +1047,8 @@ function renderBioTab() {
   document.getElementById('bioFlaws').value = currentCharacter.bio?.flaws || '';
   document.getElementById('bioBackstory').value = currentCharacter.bio?.backstory || '';
   document.getElementById('bioAppearance').value = currentCharacter.bio?.appearance || '';
+  document.getElementById('bioHeight').value = currentCharacter.bio?.height || '';
+  document.getElementById('bioWeight').value = currentCharacter.bio?.weight || '';
 }
 
 // --------------------------------------------------------------------------
@@ -1506,6 +1508,8 @@ function setupUIEventListeners() {
   bindBioField('bioFlaws', 'flaws');
   bindBioField('bioBackstory', 'backstory');
   bindBioField('bioAppearance', 'appearance');
+  bindBioField('bioHeight', 'height');
+  bindBioField('bioWeight', 'weight');
 
   // Modais
   document.getElementById('btnOpenWizard').addEventListener('click', openWizardModal);
