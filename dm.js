@@ -34,6 +34,7 @@ const state = {
   board: null,
   onlineUserIds: new Set(),
   chatWidget: null,
+  playerViewActive: false,
 };
 
 // ---------- Boot ----------
@@ -642,6 +643,7 @@ function renderBoard() {
   if (!map) return destroyBoard();
   destroyBoard();
 
+  const asPlayer = state.playerViewActive;
   state.board = createBoard({
     container: 'dmBoardHost',
     map,
@@ -653,8 +655,8 @@ function renderBoard() {
       label: t.label || '',
       size_cells: t.size_cells || 1,
     })),
-    isDM: true,
-    callbacks: {
+    isDM: !asPlayer,
+    callbacks: asPlayer ? {} : {
       onTokenMove: async (id, x, y) => {
         await supabase.from('tokens').update({ x, y, updated_at: new Date().toISOString() }).eq('id', id);
       },
@@ -665,6 +667,17 @@ function renderBoard() {
       },
     },
   });
+}
+
+function togglePlayerView() {
+  state.playerViewActive = !state.playerViewActive;
+  document.getElementById('dmPlayerViewBanner').hidden = !state.playerViewActive;
+  document.getElementById('dmMapHint').hidden = state.playerViewActive;
+  ['dmMapSelect', 'btnNewMap', 'dmMapImageInput', 'btnAddTokenNPC'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = state.playerViewActive;
+  });
+  renderBoard();
 }
 
 async function addNpcToken() {
@@ -1118,6 +1131,8 @@ function setupUI() {
   document.getElementById('dmMapSelect')?.addEventListener('change', e => selectMap(e.target.value));
   document.getElementById('btnNewMap')?.addEventListener('click', createMap);
   document.getElementById('btnAddTokenNPC')?.addEventListener('click', addNpcToken);
+  document.getElementById('btnTogglePlayerView')?.addEventListener('click', togglePlayerView);
+  document.getElementById('btnExitPlayerView')?.addEventListener('click', togglePlayerView);
   document.getElementById('dmMapImageInput')?.addEventListener('change', e => {
     const file = e.target.files?.[0];
     if (file) uploadMapImage(file);
