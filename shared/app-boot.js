@@ -162,7 +162,19 @@ async function joinCampaign() {
 
   if (!code || code.length < 4) return showErr('Digite o código recebido do mestre.');
 
-  const activeChar = window.__PRELOADED_CHARACTERS__?.activeId || null;
+  // Lê o personagem ativo ATUAL do localStorage (sempre em dia, atualizado
+  // pelo app.js a cada troca/criação/exclusão) em vez do snapshot capturado
+  // uma única vez no boot da página (window.__PRELOADED_CHARACTERS__.activeId),
+  // que fica stale e pode apontar pra um personagem já excluído — causando
+  // violação da FK campaign_members_character_id_fkey.
+  const activeChar = localStorage.getItem('dnd5e_active_character_id') || null;
+
+  // Garante que o personagem ativo já foi persistido no Supabase antes de
+  // vinculá-lo (o save remoto tem debounce de 600ms e pode não ter rodado
+  // ainda se o personagem acabou de ser criado/trocado).
+  if (activeChar) {
+    try { await flushAllSaves(); } catch (err) { console.warn('[join] flush falhou:', err); }
+  }
 
   // Chama a RPC security-definer que resolve code → campaign + insert em members
   const { data, error } = await supabase.rpc('join_campaign_by_code', {
