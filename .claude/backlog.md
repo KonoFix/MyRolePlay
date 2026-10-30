@@ -41,7 +41,7 @@ Prioridade: **A** = alta, **B** = média, **C** = baixa.
 - [x] (B) ~~Importar/Exportar campanha JSON~~ — feito (botões no header do DM)
 - [x] (B) ~~Avatar do mestre~~ — feito (bucket avatars + círculo clicável no header)
 - [ ] (B) **Botão "Visualizar como jogador"** — mestre vê o mapa com fog ativo + só suas fichas públicas (preview do que o player vê).
-- [ ] (B) **Timeline de atividade no DM** — feed cronológico das mudanças (PV, condição, rolagem, movimento no mapa) usando realtime do canal.
+- [x] (B) ~~Timeline de atividade no DM~~ — feito: nova aba "Timeline" em `dm.html`/`dm.js` (lista `#dmActivityLog`, reaproveita `.dm-roll-log`). Diffs client-side (sem REPLICA IDENTITY FULL) comparando `state.players`/`state.tokens` antes de recarregar: PV de personagem (`sheet_json.hp`), condições (`sheet_json.activeConditions`), rolagens (`dice_rolls` INSERT) e movimento/PV/condição de token no mapa. Em memória por sessão, sem migration nova.
 - [ ] (B) **Botão "Enviar handout"** — DM anexa texto/imagem no modal, aparece pra jogadores selecionados.
 - [?] (B) ~~CRUD completo de NPCs~~ — **já implementado** em `routine/20261027-0914` (não mesclado). Não reimplementar — mesclar em `main`.
 
