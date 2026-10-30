@@ -34,6 +34,7 @@ const state = {
   board: null,
   onlineUserIds: new Set(),
   chatWidget: null,
+  activityLog: [],
 };
 
 // ---------- Boot ----------
@@ -96,6 +97,9 @@ async function setActiveCampaign(id) {
   document.getElementById('dmCampaignTitle').textContent = camp.title;
   document.getElementById('dmCampaignSubtitle').textContent =
     `Código de convite: ${camp.join_code} • Mestre: ${dmProfile?.display_name || 'Você'}`;
+
+  state.activityLog = [];
+  renderActivityLog();
 
   await Promise.all([
     loadPlayers(id),
@@ -841,6 +845,91 @@ async function importCampaignJson(file) {
 }
 
 // =============================================================================
+// Timeline de atividade (feed cronológico ao vivo, só em memória na sessão)
+// =============================================================================
+function pushActivity(kind, html) {
+  state.activityLog.unshift({ id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, kind, html, ts: Date.now() });
+  if (state.activityLog.length > 50) state.activityLog.length = 50;
+  renderActivityLog();
+}
+
+function renderActivityLog() {
+  const ol = document.getElementById('dmActivityLog');
+  if (!ol) return;
+  if (!state.activityLog.length) {
+    ol.innerHTML = `<li style="cursor:default;color:var(--text-muted);">Nenhuma atividade ainda nesta sessão.</li>`;
+    return;
+  }
+  ol.innerHTML = state.activityLog.map(e => {
+    const time = new Date(e.ts).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    return `<li class="dm-activity-${e.kind}"><span>${e.html}</span><span class="dm-activity-time">${time}</span></li>`;
+  }).join('');
+}
+
+async function handleCharacterActivity(campaignId, payload) {
+  const charId = payload.new?.id || payload.old?.id;
+  const prevPlayer = state.players.find(p => p.character?.id === charId);
+  // Guarda uma cópia do sheet_json ANTES de recarregar — o payload do Supabase
+  // Realtime não traz o "old" completo (sem REPLICA IDENTITY FULL na tabela),
+  // então o único jeito de diffar PV/condições é comparar contra o cache local.
+  const prevSheet = prevPlayer?.character?.sheet_json ? JSON.parse(JSON.stringify(prevPlayer.character.sheet_json)) : null;
+
+  await loadPlayers(campaignId);
+  if (!prevSheet) return;
+
+  const newPlayer = state.players.find(p => p.character?.id === charId);
+  if (!newPlayer) return;
+  const name = newPlayer.display_name || newPlayer.character?.name || 'Jogador';
+  const newSheet = newPlayer.character.sheet_json || {};
+
+  const oldHp = prevSheet.hp || {};
+  const newHp = newSheet.hp || {};
+  if (newHp.current != null && oldHp.current !== newHp.current) {
+    const delta = (newHp.current ?? 0) - (oldHp.current ?? 0);
+    const sign = delta > 0 ? '+' : '';
+    const icon = delta < 0 ? window.svgIcon('heart') : window.svgIcon('sparkles');
+    pushActivity('hp', `${icon} <strong>${escapeHtml(name)}</strong>: PV ${oldHp.current ?? '?'} → ${newHp.current} (${sign}${delta})`);
+  }
+
+  const oldConds = new Set(Array.isArray(prevSheet.activeConditions) ? prevSheet.activeConditions : []);
+  const newConds = new Set(Array.isArray(newSheet.activeConditions) ? newSheet.activeConditions : []);
+  for (const c of newConds) {
+    if (!oldConds.has(c)) pushActivity('cond', `<strong>${escapeHtml(name)}</strong> ganhou a condição <em>${escapeHtml(c)}</em>`);
+  }
+  for (const c of oldConds) {
+    if (!newConds.has(c)) pushActivity('cond', `<strong>${escapeHtml(name)}</strong> removeu a condição <em>${escapeHtml(c)}</em>`);
+  }
+}
+
+function logRollActivity(roll) {
+  if (!roll) return;
+  const name = state.players.find(p => p.user_id === roll.user_id)?.display_name || 'Jogador';
+  const nat = roll.result_detail?.nat20 ? ' 🎯' : roll.result_detail?.nat1 ? ' 💀' : '';
+  pushActivity('roll', `${window.svgIcon('dice')} <strong>${escapeHtml(name)}</strong> rolou <em>${escapeHtml(roll.label)}</em>: <strong>${roll.result_total}</strong>${nat}`);
+}
+
+function logTokenActivity(prev, t) {
+  if (!prev) return;
+  const name = t.label || 'Token';
+  if (prev.x !== t.x || prev.y !== t.y) {
+    pushActivity('move', `${window.svgIcon('map')} <strong>${escapeHtml(name)}</strong> moveu no mapa`);
+  }
+  if (prev.hp_current != null && t.hp_current != null && prev.hp_current !== t.hp_current) {
+    const delta = t.hp_current - prev.hp_current;
+    const sign = delta > 0 ? '+' : '';
+    pushActivity('hp', `${window.svgIcon('heart')} <strong>${escapeHtml(name)}</strong>: PV ${prev.hp_current} → ${t.hp_current} (${sign}${delta})`);
+  }
+  const oldConds = new Set(Array.isArray(prev.conditions) ? prev.conditions : []);
+  const newConds = new Set(Array.isArray(t.conditions) ? t.conditions : []);
+  for (const c of newConds) {
+    if (!oldConds.has(c)) pushActivity('cond', `<strong>${escapeHtml(name)}</strong> ganhou a condição <em>${escapeHtml(c)}</em>`);
+  }
+  for (const c of oldConds) {
+    if (!newConds.has(c)) pushActivity('cond', `<strong>${escapeHtml(name)}</strong> removeu a condição <em>${escapeHtml(c)}</em>`);
+  }
+}
+
+// =============================================================================
 // Realtime
 // =============================================================================
 function subscribeRealtime(campaignId) {
@@ -866,13 +955,13 @@ function subscribeRealtime(campaignId) {
     })
     .on('postgres_changes',
         { event: '*', schema: 'public', table: 'characters' },
-        () => loadPlayers(campaignId))
+        (payload) => handleCharacterActivity(campaignId, payload))
     .on('postgres_changes',
         { event: '*', schema: 'public', table: 'campaign_members', filter: `campaign_id=eq.${campaignId}` },
         () => loadPlayers(campaignId))
     .on('postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'dice_rolls', filter: `campaign_id=eq.${campaignId}` },
-        () => loadRolls(campaignId))
+        (payload) => { logRollActivity(payload.new); loadRolls(campaignId); })
     .on('postgres_changes',
         { event: '*', schema: 'public', table: 'arcs', filter: `campaign_id=eq.${campaignId}` },
         () => loadArcs(campaignId))
@@ -886,8 +975,10 @@ function subscribeRealtime(campaignId) {
           const t = payload.new;
           if (t.map_id !== state.activeMapId) return;
           const idx = state.tokens.findIndex(x => x.id === t.id);
+          const prev = idx >= 0 ? state.tokens[idx] : null;
           if (idx >= 0) state.tokens[idx] = t;
           state.board?.updateToken(t.id, { x: t.x, y: t.y });
+          logTokenActivity(prev, t);
         });
 
   state.liveChannel = channel;
