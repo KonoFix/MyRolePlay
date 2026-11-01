@@ -110,12 +110,27 @@ function createDefaultCharacter() {
 // --------------------------------------------------------------------------
 // INICIALIZAÇÃO DA APLICAÇÃO
 // --------------------------------------------------------------------------
-document.addEventListener('DOMContentLoaded', () => {
+function initApp() {
   loadStoredCharacters();
   setupUIEventListeners();
   populateDropdowns();
   renderFullSheet();
   initDiceStage3D();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // shared/app-boot.js é módulo ES (roda só depois do parsing terminar) e
+  // pré-carrega os personagens do Supabase em window.__PRELOADED_CHARACTERS__
+  // de forma assíncrona — pode não estar pronto ainda quando o DOM termina
+  // de carregar. window.__BOOT_READY__ é o sinal de que já terminou; sem
+  // esperar por ele, loadStoredCharacters() cai no fallback de localStorage
+  // cru (possivelmente desatualizado) mesmo estando logado e com dados
+  // atuais no servidor.
+  if (window.__BOOT_READY__) {
+    initApp();
+  } else {
+    window.addEventListener('mrp:boot-ready', initApp, { once: true });
+  }
 });
 
 function initDiceStage3D() {
@@ -128,6 +143,17 @@ function initDiceStage3D() {
 
 // Carrega personagens — preferindo o pré-carregamento feito por app-boot.js
 // (Supabase), com localStorage como fallback offline.
+//
+// As chaves de cache são namespaced por conta (ver shared/character-store.js)
+// — window.__characterStorageKeys é a ponte montada por app-boot.js, já que
+// este arquivo é script clássico e não importa módulos ES. Sem o namespace,
+// o cache de uma conta vaza pra outra que logue no mesmo navegador (bug real
+// encontrado em QA: ver characters_restrict_dm_update em
+// supabase/migrations — só não virou corrupção de dados por sorte da trigger
+// já existir por outro motivo).
+function charactersStorageKey() { return window.__characterStorageKeys?.charactersKey || 'dnd5e_characters'; }
+function activeIdStorageKey()   { return window.__characterStorageKeys?.activeIdKey   || 'dnd5e_active_character_id'; }
+
 function loadStoredCharacters() {
   const preload = window.__PRELOADED_CHARACTERS__;
   if (preload && preload.characters && Object.keys(preload.characters).length > 0) {
@@ -135,12 +161,12 @@ function loadStoredCharacters() {
     currentCharacter = savedCharacters[preload.activeId] || Object.values(savedCharacters)[0];
   } else {
     // Fallback: localStorage puro (modo offline ou sem app-boot)
-    const stored = localStorage.getItem('dnd5e_characters');
+    const stored = localStorage.getItem(charactersStorageKey());
     if (stored) {
       try { savedCharacters = JSON.parse(stored); }
       catch (e) { console.error('Erro ao ler personagens salvos:', e); savedCharacters = {}; }
     }
-    const activeId = localStorage.getItem('dnd5e_active_character_id');
+    const activeId = localStorage.getItem(activeIdStorageKey());
     if (activeId && savedCharacters[activeId]) {
       currentCharacter = savedCharacters[activeId];
     } else if (Object.keys(savedCharacters).length > 0) {
@@ -163,8 +189,8 @@ function loadStoredCharacters() {
 function saveToLocalStorage() {
   if (currentCharacter) {
     savedCharacters[currentCharacter.id] = currentCharacter;
-    localStorage.setItem('dnd5e_characters', JSON.stringify(savedCharacters));
-    localStorage.setItem('dnd5e_active_character_id', currentCharacter.id);
+    localStorage.setItem(charactersStorageKey(), JSON.stringify(savedCharacters));
+    localStorage.setItem(activeIdStorageKey(), currentCharacter.id);
     // Dispara persistência remota (Supabase) com debounce, se disponível
     window.__persistCharacter?.(currentCharacter);
   }
@@ -742,6 +768,18 @@ function renderWeaponsTable() {
   });
 }
 
+// Chamado por shared/app-boot.js quando o mestre marca/desmarca uma condição
+// remotamente (characters.sheet_json.activeConditions) — sem isso, o próprio
+// jogador só descobria que está com uma condição ativa se recarregasse a
+// página. Só sincroniza activeConditions (o único campo que o mestre pode
+// escrever remotamente — ver trigger characters_restrict_dm_update), nunca
+// o resto da ficha, pra não atropelar uma edição em andamento do jogador.
+window.__applyRemoteConditions = function(conditions) {
+  if (!currentCharacter) return;
+  currentCharacter.activeConditions = Array.isArray(conditions) ? conditions : [];
+  renderConditions();
+};
+
 function renderConditions() {
   const container = document.getElementById('conditionsContainer');
   container.innerHTML = '';
@@ -1097,6 +1135,15 @@ function addDiceLog(label, diceResult, total, isNat20, isNat1) {
   // Abre gaveta de dados caso fechada
   document.getElementById('diceDrawer').classList.add('open');
   pulseDiceFab();
+
+  // Sobe a rolagem pro log compartilhado da mesa (tabela dice_rolls — RLS e
+  // assinatura realtime do mestre já prontas, só faltava quem insere). Só
+  // loga entradas que são rolagem de verdade (total numérico); entradas de
+  // texto livre (gasto de Dado de Vida, cura, etc.) não viram linha no log
+  // compartilhado, já que `result_total` é integer not null no banco.
+  if (Number.isFinite(total)) {
+    window.__logDiceRoll?.({ label, formula: diceResult, total, isNat20: !!isNat20, isNat1: !!isNat1 });
+  }
 }
 
 function pulseDiceFab() {

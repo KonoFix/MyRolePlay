@@ -30,6 +30,14 @@ export async function signIn({ email, password }) {
 export async function signOut() {
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
+  // Limpa o cache local de personagens (chaves de shared/character-store.js,
+  // duplicadas aqui para evitar import circular). Sem isso, personagens da
+  // conta que está saindo ficam no localStorage e, se outra conta logar
+  // neste mesmo navegador com zero personagens no Supabase, o character-store
+  // "adota" esse cache como se fosse dela e faz upload pra conta errada —
+  // vazamento real de dados entre contas que compartilham o navegador.
+  localStorage.removeItem('dnd5e_characters');
+  localStorage.removeItem('dnd5e_active_character_id');
   window.location.href = LOGIN_PAGE;
 }
 
