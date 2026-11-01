@@ -30,7 +30,7 @@ Prioridade: **A** = alta, **B** = média, **C** = baixa.
 
 - [x] (A) ~~Tabela de tesouro Individual~~ — feito em `dm-data.js` + aba NPCs
 - [x] (A) ~~Calculadora de dificuldade de encontro por XP budget~~ — feito em `dm-data.js` + aba NPCs
-- [ ] (A) **Importar monstros padrão (CR 0 a 5) do PDF do GdM** para `dm-data.js`. Precisa `brew install poppler` primeiro (`pdftotext` convert). PDF em `~/Downloads/dd-5e-guia-do-mestre-biblioteca-elfica.pdf`. Formato: `{ nome, cr, hp, ca, ataques, resistências, descrição }`.
+- [?] (A) ~~Importar monstros padrão (CR 0 a 5) do PDF do GdM~~ — **bloqueado, ver nota em "Precisa de clarificação"**: o PDF `dd-5e-guia-do-mestre-biblioteca-elfica.pdf` é o Guia do Mestre (DMG), que não contém blocos de estatística de criaturas por CR — ele remete explicitamente ao Manual dos Monstros ("veja o Manual dos Monstros para estatísticas de jogo") em todas as referências a criaturas. Não reimplementar até apontar o PDF correto (Manual dos Monstros/Bestiário).
 - [x] (A) ~~Tesouro de Dragão (Hoard)~~ — feito: `DM_DATA.treasureHoard` em `dm-data.js` (moedas fixas por faixa de CR + d100 extra de objetos de arte/gemas/item mágico com tabela A–I), novo card "Tesouro de Covil" na aba NPCs (`dm.html`/`dm.js`).
 - [x] (A) ~~Gerador de nomes de NPC~~ — feito: tabelas humano/elfo/anão/orc (masc/fem + sobrenome) em `dm-data.js`, card na aba NPCs (mesclado de `routine/20261026-0915`).
 
@@ -40,7 +40,7 @@ Prioridade: **A** = alta, **B** = média, **C** = baixa.
 - [x] (B) ~~Shortcut Ctrl/Cmd+K~~ — feito (palette com campaigns/arcs/players/maps)
 - [x] (B) ~~Importar/Exportar campanha JSON~~ — feito (botões no header do DM)
 - [x] (B) ~~Avatar do mestre~~ — feito (bucket avatars + círculo clicável no header)
-- [ ] (B) **Botão "Visualizar como jogador"** — mestre vê o mapa com fog ativo + só suas fichas públicas (preview do que o player vê).
+- [x] (B) ~~Botão "Visualizar como jogador"~~ — feito: botão na aba Mapa (`dm.html`/`dm.js`) alterna `createBoard({ isDM: false })`, mostrando a névoa exatamente como o jogador vê (opaca, sem pincel) e desabilitando os controles exclusivos do mestre (novo mapa, upload de imagem, token NPC) enquanto o modo está ativo. Banner de aviso com botão "Voltar ao modo Mestre".
 - [ ] (B) **Timeline de atividade no DM** — feed cronológico das mudanças (PV, condição, rolagem, movimento no mapa) usando realtime do canal.
 - [ ] (B) **Botão "Enviar handout"** — DM anexa texto/imagem no modal, aparece pra jogadores selecionados.
 - [x] (B) ~~CRUD completo de NPCs~~ — feito: card "NPCs da Campanha" na aba NPCs (dm.html/dm.js) com formulário (nome, PV, CA, ataques, notas, hostil), lista clicável reaproveitando `.dm-arcs-list`, e botão "Converter em token" que insere na tabela `tokens` (sem migration nova — `npcs`/`tokens` já existiam no schema; mesclado de `routine/20261027-0914`).
@@ -57,6 +57,8 @@ Prioridade: **A** = alta, **B** = média, **C** = baixa.
 ## Precisa de clarificação
 
 - **[2026-11-02] Mesclando os branches `routine/*` restantes um a um (sessão interativa).** "Condição remota" e "iniciativa" já tinham sido consolidadas e mescladas em `8b34612`. Dos 5 branches `routine/*` ainda soltos, 2 eram ruído (`routine/20261022-1259` chat e `routine/20261028-0914` modal — zero diff contra `main`, já cobertos por outro caminho, apagados sem merge) e 3 traziam feature real: "Gerador de nomes de NPC" (`routine/20261026-0915`, já mesclado) e "CRUD completo de NPCs" (`routine/20261027-0914`, sendo mesclado agora); "Visualizar como jogador" (`routine/20261029-0915`) é o próximo da fila. Conflito de merge esperado só em `.claude/backlog.md` (texto, não lógica) — arquivos de código mesclam limpo porque cada branch toca região isolada de `dm.js`.
+
+- **[2026-10-29] "Importar monstros padrão (CR 0 a 5) do PDF do GdM" está bloqueado por premissa errada, não por falta de ferramenta.** Extraí o texto completo das 322 páginas de `~/Downloads/dd-5e-guia-do-mestre-biblioteca-elfica.pdf` (usei `pypdf` via pip, já que `poppler`/`brew` não estão disponíveis neste ambiente — isso não foi o bloqueio real) e não existe nenhum bloco de estatística de criatura com CR nesse arquivo: é o **Guia do Mestre** (armas de cerco, itens mágicos, doenças, regras de perseguição, etc.), e toda vez que o texto menciona uma criatura (cobra constritora gigante, enxame de insetos, elemental do fogo...) ele remete explicitamente ao **Manual dos Monstros** ("veja o Manual dos Monstros para estatísticas de jogo"). Não há busca por "Grau de Desafio" ou "Desafio:" que retorne resultado no texto extraído. **Ação recomendada:** se o usuário tiver o PDF do Manual dos Monstros (Bestiário) em algum lugar, apontar o caminho correto no item do backlog; alternativamente, popular `dm-data.js` a partir do SRD 5e (conteúdo aberto sob OGL, não precisa de PDF). Não reimplementar a partir do PDF do GdM — ele não tem os dados. Como não havia nenhum item `[ ]` restante disponível na seção de prioridade A (os outros já estão `[x]` ou `[?]` aguardando merge), implementei o primeiro item `[ ]` da prioridade B em vez disso: "Botão 'Visualizar como jogador'".
 
 ---
 
