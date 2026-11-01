@@ -2,7 +2,7 @@
 // dm.js — Página do Mestre
 // =============================================================================
 import { supabase } from './shared/supabase-client.js';
-import { requireAuth, updateRole } from './shared/auth.js';
+import { requireAuth, updateRole, signOut } from './shared/auth.js';
 import { createBoard } from './map/konva-board.js';
 import { mountChatWidget } from './shared/chat-widget.js';
 import { marked } from 'https://esm.sh/marked@12.0.2';
@@ -172,6 +172,7 @@ function renderPlayers() {
         <p>Nenhum jogador na campanha ainda. Compartilhe o <strong>código de convite</strong> acima.</p>
       </div>`;
     document.getElementById('dmPresenceSummary').textContent = '0 jogadores';
+    populateInitiativeSourceSelect();
     return;
   }
 
@@ -618,11 +619,13 @@ async function addInitiativeEntry() {
   if (error) return alert('Erro: ' + error.message);
   npcNameInput.value = '';
   valueInput.value = '';
+  await loadInitiative(state.activeCampaignId);
 }
 
 async function removeInitiativeEntry(id) {
   const { error } = await supabase.from('initiative_entries').delete().eq('id', id);
-  if (error) alert('Erro: ' + error.message);
+  if (error) return alert('Erro: ' + error.message);
+  await loadInitiative(state.activeCampaignId);
 }
 
 async function nextInitiativeTurn() {
@@ -633,13 +636,15 @@ async function nextInitiativeTurn() {
   if (idx !== -1) ops.push(supabase.from('initiative_entries').update({ is_current: false }).eq('id', state.initiative[idx].id));
   ops.push(supabase.from('initiative_entries').update({ is_current: true }).eq('id', state.initiative[nextIdx].id));
   await Promise.all(ops);
+  await loadInitiative(state.activeCampaignId);
 }
 
 async function clearInitiative() {
   if (!state.activeCampaignId) return;
   if (!confirm('Encerrar o combate e limpar a lista de iniciativa?')) return;
   const { error } = await supabase.from('initiative_entries').delete().eq('campaign_id', state.activeCampaignId);
-  if (error) alert('Erro: ' + error.message);
+  if (error) return alert('Erro: ' + error.message);
+  await loadInitiative(state.activeCampaignId);
 }
 
 // =============================================================================
@@ -720,6 +725,7 @@ async function saveArc() {
     state.activeArcId = data.id;
   }
   await loadArcs(state.activeCampaignId);
+  refreshArcPreview();
 }
 
 async function deleteActiveArc() {
@@ -1302,8 +1308,7 @@ function setupUI() {
     e.preventDefault();
     if (!confirm('Deseja sair?')) return;
     try {
-      await supabase.auth.signOut();
-      window.location.href = 'login.html';
+      await signOut();
     } catch (err) { alert('Falha ao sair: ' + (err?.message || err)); }
   });
 

@@ -5,7 +5,7 @@
 // =============================================================================
 import { supabase } from './supabase-client.js';
 import { requireAuth, signOut, getProfile, updateRole } from './auth.js';
-import { loadCharacters, scheduleSave, flushAllSaves, deleteCharacter } from './character-store.js';
+import { loadCharacters, scheduleSave, flushAllSaves, deleteCharacter, getCharacterStorageKeys } from './character-store.js';
 import { mountChatWidget } from './chat-widget.js';
 import { mountInitiativeWidget } from './initiative-widget.js';
 
@@ -17,11 +17,44 @@ if (!authed) {
   const { characters, activeId, offline } = await loadCharacters();
   window.__PRELOADED_CHARACTERS__ = { characters, activeId, offline };
   window.__CURRENT_PROFILE__ = authed.profile;
+  // Ponte pra app.js (script clássico, não importa módulos ES): chaves de
+  // localStorage namespaced pela conta logada — ver character-store.js.
+  window.__characterStorageKeys = getCharacterStorageKeys();
 
   // Hook que app.js vai chamar a cada mudança
   window.__persistCharacter = (char) => scheduleSave(char);
   window.__deleteCharacter  = (id) => deleteCharacter(id);
   window.__signOut          = async () => { await flushAllSaves(); await signOut(); };
+
+  // Sobe uma rolagem de dado pro log compartilhado (tabela dice_rolls — RLS
+  // e assinatura realtime do mestre já existiam, só faltava o jogador
+  // inserir). Chamado por addDiceLog() em app.js. Insere em toda campanha em
+  // que o jogador está (normalmente só uma); falha silenciosa — nunca deve
+  // travar a UI de dados por causa de uma rolagem que não subiu.
+  window.__logDiceRoll = async ({ label, formula, total, isNat20, isNat1 }) => {
+    try {
+      const { data: { session: s } } = await supabase.auth.getSession();
+      if (!s) return;
+      const { data: memberships } = await supabase
+        .from('campaign_members')
+        .select('campaign_id')
+        .eq('user_id', s.user.id);
+      if (!memberships?.length) return;
+      const rows = memberships.map(m => ({
+        campaign_id: m.campaign_id,
+        user_id: s.user.id,
+        label,
+        formula: formula || '',
+        result_total: Math.trunc(total),
+        result_detail: { nat20: !!isNat20, nat1: !!isNat1 },
+        is_hidden: false,
+      }));
+      const { error } = await supabase.from('dice_rolls').insert(rows);
+      if (error) console.warn('[dice_rolls] falha ao logar rolagem:', error);
+    } catch (err) {
+      console.warn('[dice_rolls] falha ao logar rolagem:', err);
+    }
+  };
 
   // Mesas em que o jogador está (campanha + mestre + personagem vinculado)
   window.__loadMyCampaigns = async () => {
@@ -70,6 +103,18 @@ if (!authed) {
   // Flush ao sair da aba
   window.addEventListener('beforeunload', () => flushAllSaves());
 
+  // Sinaliza pra app.js (script clássico, carregado depois mas SEM `defer`)
+  // que os dados acima já estão prontos. app-boot.js é módulo ES — módulos
+  // só rodam depois que o parsing termina (equivalente a `defer`), mas
+  // app.js roda inline assim que o parser chega nele, bem antes disso. Sem
+  // esse sinal, app.js já tinha chamado loadStoredCharacters() e caído no
+  // fallback de localStorage cru (sem namespace, possivelmente desatualizado
+  // em relação ao Supabase) antes de window.__PRELOADED_CHARACTERS__ sequer
+  // existir — confirmado em QA: o preload chegava certo, mas tarde demais
+  // pra ser usado, e nada re-sincronizava depois.
+  window.__BOOT_READY__ = true;
+  window.dispatchEvent(new CustomEvent('mrp:boot-ready'));
+
   // Presença: para cada campanha em que o jogador é membro, anuncia online
   // via canal realtime da campanha. O DM vê o indicador atualizar.
   // A primeira campanha também ganha o widget de chat flutuante (evita
@@ -79,7 +124,7 @@ if (!authed) {
     if (session) {
       const { data: memberships } = await supabase
         .from('campaign_members')
-        .select('campaign_id')
+        .select('campaign_id, character_id')
         .eq('user_id', session.user.id);
 
       if (memberships?.length) {
@@ -87,7 +132,7 @@ if (!authed) {
         const { data: camps } = await supabase.from('campaigns').select('id, title').in('id', campaignIds);
         const titleById = Object.fromEntries((camps || []).map(c => [c.id, c.title]));
 
-        memberships.forEach(({ campaign_id }, idx) => {
+        memberships.forEach(({ campaign_id, character_id }, idx) => {
           const chan = supabase.channel(`campaign:${campaign_id}`, {
             config: { presence: { key: session.user.id } },
           });
@@ -100,6 +145,17 @@ if (!authed) {
               campaignLabel: titleById[campaign_id] || 'Mesa',
             });
             mountInitiativeWidget({ supabase, channel: chan, campaignId: campaign_id });
+          }
+
+          // O mestre pode marcar/desmarcar condições remotamente
+          // (characters.sheet_json.activeConditions — única coisa que a
+          // trigger characters_restrict_dm_update deixa ele escrever). Sem
+          // isso, o jogador só saberia que está envenenado/caído/etc. se
+          // recarregasse a página — o update acontecia só na tela do mestre.
+          if (character_id) {
+            chan.on('postgres_changes',
+              { event: 'UPDATE', schema: 'public', table: 'characters', filter: `id=eq.${character_id}` },
+              (payload) => window.__applyRemoteConditions?.(payload.new?.sheet_json?.activeConditions));
           }
 
           chan.subscribe(async (status) => {
@@ -169,7 +225,7 @@ async function joinCampaign() {
   // uma única vez no boot da página (window.__PRELOADED_CHARACTERS__.activeId),
   // que fica stale e pode apontar pra um personagem já excluído — causando
   // violação da FK campaign_members_character_id_fkey.
-  const activeChar = localStorage.getItem('dnd5e_active_character_id') || null;
+  const activeChar = localStorage.getItem(window.__characterStorageKeys?.activeIdKey) || null;
 
   // Garante que o personagem ativo já foi persistido no Supabase antes de
   // vinculá-lo (o save remoto tem debounce de 600ms e pode não ter rodado
@@ -195,4 +251,9 @@ async function joinCampaign() {
   const title = row?.out_title || row?.title || 'campanha';
   document.getElementById('joinCampaignModal').classList.remove('open');
   alert(`Entrou em "${title}"! O mestre já pode ver sua ficha.`);
+  // Chat e presença só são montados no boot da página (acima), a partir das
+  // campanhas em que o jogador já era membro no carregamento — sem reload,
+  // quem acabou de entrar fica "mudo" (sem chat, sem indicador online) até
+  // sair e voltar à página. Recarrega pra ativar tudo de uma vez.
+  window.location.reload();
 }
