@@ -7,6 +7,7 @@ import { supabase } from './supabase-client.js';
 import { requireAuth, signOut, getProfile, updateRole } from './auth.js';
 import { loadCharacters, scheduleSave, flushAllSaves, deleteCharacter } from './character-store.js';
 import { mountChatWidget } from './chat-widget.js';
+import { mountInitiativeWidget } from './initiative-widget.js';
 
 const authed = await requireAuth();
 if (!authed) {
@@ -98,6 +99,7 @@ if (!authed) {
               isDM: false,
               campaignLabel: titleById[campaign_id] || 'Mesa',
             });
+            mountInitiativeWidget({ supabase, channel: chan, campaignId: campaign_id });
           }
 
           chan.subscribe(async (status) => {
