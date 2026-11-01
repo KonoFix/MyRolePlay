@@ -34,6 +34,7 @@ const state = {
   board: null,
   onlineUserIds: new Set(),
   chatWidget: null,
+  initiative: [],
 };
 
 // ---------- Boot ----------
@@ -102,6 +103,7 @@ async function setActiveCampaign(id) {
     loadArcs(id),
     loadRolls(id),
     loadMaps(id),
+    loadInitiative(id),
   ]);
 
   subscribeRealtime(id);
@@ -178,6 +180,80 @@ function renderPlayers() {
   grid.querySelectorAll('.dm-player-card[data-uid]').forEach(card => {
     card.addEventListener('click', () => openPlayerDetail(card.dataset.uid));
   });
+
+  // Clique num chip de condição ativa remove; clique em "+ Condição" abre o seletor
+  grid.querySelectorAll('.dm-condition-pill[data-cond]').forEach(pill => {
+    pill.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const uid = pill.closest('.dm-player-card')?.dataset.uid;
+      if (uid) dmToggleCondition(uid, pill.dataset.cond);
+    });
+  });
+  grid.querySelectorAll('[data-add-cond]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const uid = btn.closest('.dm-player-card')?.dataset.uid;
+      if (uid) openConditionPicker(uid, btn);
+    });
+  });
+
+  populateInitiativeSourceSelect();
+}
+
+let conditionPickerEl = null;
+
+function closeConditionPicker() {
+  if (conditionPickerEl) { conditionPickerEl.remove(); conditionPickerEl = null; }
+  document.removeEventListener('click', closeConditionPicker, true);
+}
+
+function openConditionPicker(userId, anchorEl) {
+  closeConditionPicker();
+  const p = state.players.find(x => x.user_id === userId);
+  const active = p?.character?.sheet_json?.activeConditions || [];
+  const list = window.DND_DATA?.conditions || [];
+
+  const picker = document.createElement('div');
+  picker.className = 'dm-condition-picker';
+  picker.innerHTML = list.map(c => `
+    <span class="condition-chip ${active.includes(c.id) ? 'active' : ''}" data-cond="${escapeAttr(c.id)}">${escapeHtml(c.name)}</span>
+  `).join('');
+
+  const rect = anchorEl.getBoundingClientRect();
+  picker.style.position = 'fixed';
+  picker.style.top = `${rect.bottom + 6}px`;
+  picker.style.left = `${Math.min(rect.left, window.innerWidth - 280)}px`;
+
+  picker.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const chip = e.target.closest('[data-cond]');
+    if (!chip) return;
+    dmToggleCondition(userId, chip.dataset.cond);
+    chip.classList.toggle('active');
+  });
+
+  document.body.appendChild(picker);
+  conditionPickerEl = picker;
+  setTimeout(() => document.addEventListener('click', closeConditionPicker, true), 0);
+}
+
+async function dmToggleCondition(userId, condId) {
+  const p = state.players.find(x => x.user_id === userId);
+  if (!p?.character) return;
+  const sheet = { ...(p.character.sheet_json || {}) };
+  const conds = Array.isArray(sheet.activeConditions) ? [...sheet.activeConditions] : [];
+  const idx = conds.indexOf(condId);
+  if (idx > -1) conds.splice(idx, 1); else conds.push(condId);
+  sheet.activeConditions = conds;
+
+  const { error } = await supabase.from('characters').update({ sheet_json: sheet }).eq('id', p.character.id);
+  if (error) { alert('Erro ao atualizar condição: ' + error.message); return; }
+
+  p.character.sheet_json = sheet;
+  renderPlayers();
+  if (document.getElementById('playerDetailModal')?.classList.contains('open')) {
+    openPlayerDetail(userId);
+  }
 }
 
 function renderPlayerCard(p) {
@@ -230,8 +306,15 @@ function renderPlayerCard(p) {
         <div class="dm-player-stat"><span class="lbl">Vel</span><span class="val">${sheet.speed ?? '—'}m</span></div>
         <div class="dm-player-stat"><span class="lbl">Insp</span><span class="val">${sheet.inspiration ? window.svgIcon('sparkles') : '—'}</span></div>
       </div>
-      ${conds.length ? `<div class="dm-player-conditions">${conds.map(c => `<span class="dm-condition-pill">${escapeHtml(c)}</span>`).join('')}</div>` : ''}
+      <div class="dm-player-conditions">
+        ${conds.map(c => `<span class="dm-condition-pill" data-cond="${escapeAttr(c)}" title="Clique para remover">${escapeHtml(conditionName(c))}</span>`).join('')}
+        <span class="dm-condition-pill dm-condition-add" data-add-cond title="Marcar condição">+ Condição</span>
+      </div>
     </div>`;
+}
+
+function conditionName(condId) {
+  return window.DND_DATA?.conditions?.find(c => c.id === condId)?.name || condId;
 }
 
 // =============================================================================
@@ -376,7 +459,12 @@ function openPlayerDetail(userId) {
         <span>${window.svgIcon('boots')} Velocidade: <strong>${sheet.speed ?? '—'}m</strong></span>
         <span>${window.svgIcon('medal')} Bônus Prof.: <strong>${pdmFmtMod(prof)}</strong></span>
       </div>
-      ${conds.length ? `<div class="dm-player-conditions" style="margin-top:8px;">${conds.map(c => `<span class="dm-condition-pill">${escapeHtml(c)}</span>`).join('')}</div>` : ''}
+      <div class="pdm-section-title" style="margin-top:14px;">Condições</div>
+      <div class="conditions-chips">
+        ${(window.DND_DATA?.conditions || []).map(c => `
+          <span class="condition-chip ${conds.includes(c.id) ? 'active' : ''}" data-cond="${escapeAttr(c.id)}" title="${escapeAttr(c.desc)}">${escapeHtml(c.name)}</span>
+        `).join('')}
+      </div>
     </div>
 
     <div class="pdm-section">
@@ -425,7 +513,129 @@ function openPlayerDetail(userId) {
     </div>
   `;
 
+  body.querySelectorAll('.conditions-chips [data-cond]').forEach(chip => {
+    chip.addEventListener('click', () => dmToggleCondition(userId, chip.dataset.cond));
+  });
+
   modal.classList.add('open');
+}
+
+// =============================================================================
+// Tracker de iniciativa
+// =============================================================================
+async function loadInitiative(campaignId) {
+  const { data, error } = await supabase
+    .from('initiative_entries')
+    .select('*')
+    .eq('campaign_id', campaignId)
+    .order('initiative', { ascending: false })
+    .order('created_at', { ascending: true });
+  if (error) { console.warn('[dm] loadInitiative', error); state.initiative = []; }
+  else state.initiative = data || [];
+  renderInitiative();
+}
+
+function populateInitiativeSourceSelect() {
+  const sel = document.getElementById('initiativeSourceSelect');
+  if (!sel) return;
+  const current = sel.value;
+  const opts = state.players
+    .filter(p => p.character)
+    .map(p => `<option value="${escapeAttr(p.character.id)}">${escapeHtml(p.character.sheet_json?.name || p.character.name)} (${escapeHtml(p.display_name)})</option>`)
+    .join('');
+  sel.innerHTML = opts + `<option value="">NPC / Outro</option>`;
+  if ([...sel.options].some(o => o.value === current)) sel.value = current;
+  toggleInitiativeNpcName();
+}
+
+function toggleInitiativeNpcName() {
+  const sel = document.getElementById('initiativeSourceSelect');
+  const npcInput = document.getElementById('initiativeNpcName');
+  if (!sel || !npcInput) return;
+  npcInput.style.display = sel.value ? 'none' : '';
+}
+
+function renderInitiative() {
+  const ol = document.getElementById('dmInitiativeList');
+  if (!ol) return;
+  if (state.initiative.length === 0) {
+    ol.innerHTML = `<li style="list-style:none; color:var(--text-muted); padding:10px 0;">Nenhum combatente. Adicione jogadores ou NPCs acima para iniciar o combate.</li>`;
+    return;
+  }
+  ol.innerHTML = state.initiative.map(e => `
+    <li class="dm-initiative-item ${e.is_current ? 'is-current' : ''}" data-id="${e.id}">
+      <span class="dm-initiative-score">${e.initiative}</span>
+      <span class="dm-initiative-name">${escapeHtml(e.name)}${e.is_npc ? ' <small>(NPC)</small>' : ''}</span>
+      <button class="dm-initiative-remove" data-id="${e.id}" title="Remover">&times;</button>
+    </li>`).join('');
+  ol.querySelectorAll('.dm-initiative-remove').forEach(btn => {
+    btn.addEventListener('click', () => removeInitiativeEntry(btn.dataset.id));
+  });
+}
+
+function rollInitiativeValue() {
+  const sel = document.getElementById('initiativeSourceSelect');
+  let bonus = 0;
+  if (sel?.value) {
+    const p = state.players.find(pl => pl.character?.id === sel.value);
+    bonus = Number(p?.character?.sheet_json?.initiativeBonus) || 0;
+  }
+  const d20 = 1 + Math.floor(Math.random() * 20);
+  document.getElementById('initiativeValue').value = d20 + bonus;
+}
+
+async function addInitiativeEntry() {
+  if (!state.activeCampaignId) return alert('Selecione uma campanha.');
+  const sel = document.getElementById('initiativeSourceSelect');
+  const npcNameInput = document.getElementById('initiativeNpcName');
+  const valueInput = document.getElementById('initiativeValue');
+  const charId = sel?.value || null;
+  const initiative = parseInt(valueInput.value, 10) || 0;
+
+  let name, isNpc;
+  if (charId) {
+    const p = state.players.find(pl => pl.character?.id === charId);
+    if (!p) return;
+    name = p.character.sheet_json?.name || p.character.name;
+    isNpc = false;
+  } else {
+    name = npcNameInput.value.trim();
+    if (!name) return alert('Dê um nome ao NPC.');
+    isNpc = true;
+  }
+
+  const { error } = await supabase.from('initiative_entries').insert({
+    campaign_id: state.activeCampaignId,
+    character_id: charId,
+    name,
+    initiative,
+    is_npc: isNpc,
+  });
+  if (error) return alert('Erro: ' + error.message);
+  npcNameInput.value = '';
+  valueInput.value = '';
+}
+
+async function removeInitiativeEntry(id) {
+  const { error } = await supabase.from('initiative_entries').delete().eq('id', id);
+  if (error) alert('Erro: ' + error.message);
+}
+
+async function nextInitiativeTurn() {
+  if (state.initiative.length === 0) return;
+  const idx = state.initiative.findIndex(e => e.is_current);
+  const nextIdx = idx === -1 ? 0 : (idx + 1) % state.initiative.length;
+  const ops = [];
+  if (idx !== -1) ops.push(supabase.from('initiative_entries').update({ is_current: false }).eq('id', state.initiative[idx].id));
+  ops.push(supabase.from('initiative_entries').update({ is_current: true }).eq('id', state.initiative[nextIdx].id));
+  await Promise.all(ops);
+}
+
+async function clearInitiative() {
+  if (!state.activeCampaignId) return;
+  if (!confirm('Encerrar o combate e limpar a lista de iniciativa?')) return;
+  const { error } = await supabase.from('initiative_entries').delete().eq('campaign_id', state.activeCampaignId);
+  if (error) alert('Erro: ' + error.message);
 }
 
 // =============================================================================
@@ -880,6 +1090,9 @@ function subscribeRealtime(campaignId) {
         { event: '*', schema: 'public', table: 'maps', filter: `campaign_id=eq.${campaignId}` },
         () => loadMaps(campaignId))
     .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'initiative_entries', filter: `campaign_id=eq.${campaignId}` },
+        () => loadInitiative(campaignId))
+    .on('postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'tokens' },
         async (payload) => {
           if (!state.activeMapId) return;
@@ -931,6 +1144,13 @@ function setupUI() {
   document.getElementById('dmCampaignSelect').addEventListener('change', e => {
     setActiveCampaign(e.target.value);
   });
+
+  document.getElementById('initiativeSourceSelect')?.addEventListener('change', toggleInitiativeNpcName);
+  document.getElementById('btnInitiativeRoll')?.addEventListener('click', rollInitiativeValue);
+  document.getElementById('btnInitiativeAdd')?.addEventListener('click', addInitiativeEntry);
+  document.getElementById('btnInitiativeNext')?.addEventListener('click', nextInitiativeTurn);
+  document.getElementById('btnInitiativeClear')?.addEventListener('click', clearInitiative);
+
   document.getElementById('btnNewCampaign').addEventListener('click', () => {
     document.getElementById('newCampaignTitle').value = '';
     document.getElementById('newCampaignDesc').value = '';
