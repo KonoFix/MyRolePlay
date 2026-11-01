@@ -601,6 +601,13 @@
   z-index: 2000;
 }
 .dm-palette[hidden] { display: none; }
+
+/* O resto dos estilos do banner vem inline no dm.html (cor/padding), mas
+   "display" precisa estar numa classe: inline style sempre vence o atributo
+   `hidden`, então um `display:flex` inline deixava o banner visível desde o
+   carregamento da página, antes do mestre clicar em qualquer coisa. */
+.dm-player-view-banner { display: flex; }
+.dm-player-view-banner[hidden] { display: none; }
 .dm-palette-card {
   width: 100%;
   max-width: 640px;
