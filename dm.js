@@ -866,7 +866,21 @@ function renderActivityLog() {
   }).join('');
 }
 
-async function handleCharacterActivity(campaignId, payload) {
+// Fila serial: se dois eventos de personagem chegarem em rápida sucessão
+// (ex: dois jogadores tomando dano quase ao mesmo tempo), processar em
+// paralelo faria ambos capturarem o mesmo "estado anterior" (já que o
+// primeiro await loadPlayers ainda não resolveu) e duplicar a entrada na
+// timeline. Encadear por uma promise garante que cada evento só comece a
+// diffar depois que o anterior já recarregou e atualizou state.players.
+let activityQueue = Promise.resolve();
+function handleCharacterActivity(campaignId, payload) {
+  activityQueue = activityQueue
+    .then(() => handleCharacterActivityInner(campaignId, payload))
+    .catch(err => console.warn('[timeline] falha ao processar atividade:', err));
+  return activityQueue;
+}
+
+async function handleCharacterActivityInner(campaignId, payload) {
   const charId = payload.new?.id || payload.old?.id;
   const prevPlayer = state.players.find(p => p.character?.id === charId);
   // Guarda uma cópia do sheet_json ANTES de recarregar — o payload do Supabase
