@@ -150,6 +150,45 @@
     <!-- ABA: NPCs / Compêndio do GdM -->
     <section id="dm-tab-npcs" class="tab-content">
       <div class="dm-compendium-grid">
+        <!-- NPCs da Campanha: CRUD + converter em token -->
+        <div class="side-panel-card">
+          <div class="card-header-title">
+            <span>NPCs da Campanha</span>
+          </div>
+          <ul id="dmNpcsList" class="dm-arcs-list"></ul>
+          <div class="field-group" style="margin-top:12px;">
+            <label class="field-label" for="dmNpcName">Nome</label>
+            <input id="dmNpcName" class="field-input" placeholder="Ex: Guarda da Cidade">
+          </div>
+          <div style="display:flex; gap:10px; margin-top:8px;">
+            <div class="field-group" style="flex:1;">
+              <label class="field-label" for="dmNpcHp">PV</label>
+              <input id="dmNpcHp" class="field-input" type="number" min="0" placeholder="10">
+            </div>
+            <div class="field-group" style="flex:1;">
+              <label class="field-label" for="dmNpcCa">CA</label>
+              <input id="dmNpcCa" class="field-input" type="number" min="0" placeholder="12">
+            </div>
+          </div>
+          <div class="field-group" style="margin-top:8px;">
+            <label class="field-label" for="dmNpcAttacks">Ataques</label>
+            <input id="dmNpcAttacks" class="field-input" placeholder="Ex: Espada curta +4 (1d6+2 perfurante)">
+          </div>
+          <div class="field-group" style="margin-top:8px;">
+            <label class="field-label" for="dmNpcNotes">Descrição / notas</label>
+            <textarea id="dmNpcNotes" class="field-input" rows="2" placeholder="Resistências, comportamento, gancho de história..."></textarea>
+          </div>
+          <label style="display:flex; align-items:center; gap:6px; margin-top:8px; font-size:0.85rem; color:var(--text-secondary); cursor:pointer;">
+            <input type="checkbox" id="dmNpcHostile" checked> Hostil
+          </label>
+          <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+            <button class="btn btn-primary" id="btnSaveNpc">Salvar</button>
+            <button class="btn" id="btnNewNpc">Novo</button>
+            <button class="btn btn-accent" id="btnDeleteNpc">Excluir</button>
+            <button class="btn" id="btnNpcToToken" title="Requer um mapa selecionado na aba Mapa">Converter em token</button>
+          </div>
+        </div>
+
         <!-- Gerador de Tesouro Individual -->
         <div class="side-panel-card">
           <div class="card-header-title">
