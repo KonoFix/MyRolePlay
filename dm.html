@@ -50,7 +50,10 @@
     <main id="dm-tab-live" class="tab-content active">
       <div class="dm-live-head">
         <h2>Jogadores conectados</h2>
-        <small id="dmPresenceSummary">— Aguardando campanha —</small>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <small id="dmPresenceSummary">— Aguardando campanha —</small>
+          <button class="btn" id="btnOpenHandout" style="padding:4px 10px; font-size:0.75rem;"><svg class="icon icon-scroll" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 4h11v15a2 2 0 1 1-4 0V9H7"/><path d="M7 4a2 2 0 1 0 0 4h1"/><path d="M7 15a2 2 0 1 0 0 4h5"/></svg> Enviar Handout</button>
+        </div>
       </div>
       <div id="dmPlayersGrid" class="dm-players-grid">
         <div class="dm-empty-state">
@@ -346,6 +349,39 @@
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:14px;">
         <button class="btn" onclick="document.getElementById('newCampaignModal').classList.remove('open')">Cancelar</button>
         <button class="btn btn-primary" id="btnCreateCampaignConfirm">Criar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Enviar Handout -->
+  <div id="handoutModal" class="modal-overlay">
+    <div class="modal-content" style="max-width:480px;">
+      <div class="modal-header">
+        <h2 class="modal-title">Enviar Handout</h2>
+        <button class="close-modal-btn" onclick="document.getElementById('handoutModal').classList.remove('open')">&times;</button>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="handoutTitle">Título (opcional)</label>
+        <input id="handoutTitle" class="field-input" placeholder="Ex: A carta encontrada na taverna">
+      </div>
+      <div class="field-group" style="margin-top:12px;">
+        <label class="field-label" for="handoutBody">Texto</label>
+        <textarea id="handoutBody" class="rp-textarea" style="min-height:110px;" placeholder="Conteúdo do handout..."></textarea>
+      </div>
+      <div class="field-group" style="margin-top:12px;">
+        <label class="field-label">Imagem (opcional)</label>
+        <label class="btn" style="margin:0;"><svg class="icon icon-folder-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 8h5l2 2h6l2 3-1.5 7H5L3 8Z"/><path d="M3 8V6a1 1 0 0 1 1-1h4l2 2"/></svg> <span id="handoutImageLabel">Escolher imagem</span><input id="handoutImage" type="file" accept="image/*" hidden></label>
+      </div>
+      <div class="field-group" style="margin-top:12px;">
+        <label class="field-label">Destinatários</label>
+        <label style="display:flex; align-items:center; gap:6px; margin:6px 0; font-size:0.85rem; cursor:pointer;">
+          <input type="checkbox" id="handoutRecipientAll" checked> Todos os jogadores da campanha
+        </label>
+        <div id="handoutRecipientList" style="display:flex; flex-direction:column; gap:4px; margin-top:4px;"></div>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:14px;">
+        <button class="btn" onclick="document.getElementById('handoutModal').classList.remove('open')">Cancelar</button>
+        <button class="btn btn-primary" id="btnSendHandoutConfirm">Enviar</button>
       </div>
     </div>
   </div>

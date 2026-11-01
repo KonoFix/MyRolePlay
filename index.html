@@ -185,6 +185,7 @@
       <button class="tab-btn" data-tab="tab-inventory"><svg class="icon icon-backpack" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 8V6a4 4 0 1 1 8 0v2"/><path d="M6 8h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2Z"/><path d="M9 13h6M9 17h6"/></svg> Inventário &amp; Equipamento</button>
       <button class="tab-btn" data-tab="tab-bio"><svg class="icon icon-scroll" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 4h11v15a2 2 0 1 1-4 0V9H7"/><path d="M7 4a2 2 0 1 0 0 4h1"/><path d="M7 15a2 2 0 1 0 0 4h5"/></svg> Biografia &amp; Interpretação</button>
       <button class="tab-btn" data-tab="tab-rules"><svg class="icon icon-book-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 6c-2-1.5-5-2-9-1v13c4-1 7-.5 9 1 2-1.5 5-2 9-1V5c-4-1-7-.5-9 1Z"/><path d="M12 6v13"/></svg> Consulta Rápida de Regras</button>
+      <button class="tab-btn" data-tab="tab-map" id="playerMapTabBtn" hidden><svg class="icon icon-map" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4 4 6v14l5-2 6 2 5-2V4l-5 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg> Mapa</button>
     </nav>
 
     <!-- ====================================================================
@@ -669,6 +670,18 @@
             <li><strong>Cobertura Total:</strong> Não pode ser alvejado diretamente por ataques ou magias.</li>
           </ul>
         </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         CONTEÚDO ABA: MAPA DA MESA (só aparece se estiver numa campanha com
+         mapa ativo — ver shared/player-map-widget.js)
+         ==================================================================== -->
+    <section id="tab-map" class="tab-content">
+      <div class="side-panel-card" style="margin:0;">
+        <h3 class="card-header-title">Mapa da Mesa</h3>
+        <small style="color:var(--text-muted); display:block; margin-bottom:10px;">Arraste seu token pra mover. A névoa é controlada pelo mestre.</small>
+        <div id="playerBoardHost" style="display:inline-block; background:var(--bg-primary); border:1px solid var(--border-color); border-radius:var(--radius-md); overflow:auto; max-width:100%;"></div>
       </div>
     </section>
 
