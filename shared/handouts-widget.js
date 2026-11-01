@@ -52,6 +52,7 @@ export function mountHandoutsWidget({ supabase, campaignId }) {
   let open = false;
   let unseen = 0;
   let handouts = [];
+  let mounted = false;
 
   function setOpen(next) {
     open = next;
@@ -86,8 +87,11 @@ export function mountHandoutsWidget({ supabase, campaignId }) {
       .order('created_at', { ascending: false })
       .limit(50);
     if (error) { console.warn('[handouts-widget]', error); return; }
-    const isNew = handouts.length > 0 && data?.length > handouts.length;
+    // Só conta como "novo" (badge) depois da primeira carga — o fetch inicial
+    // reflete o histórico que já existia, não é algo que o jogador "perdeu".
+    const isNew = mounted && (data?.length || 0) > handouts.length;
     handouts = data || [];
+    mounted = true;
     render();
     if (isNew && !open) {
       unseen += 1;
