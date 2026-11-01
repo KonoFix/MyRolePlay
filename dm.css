@@ -280,6 +280,36 @@
   border: 1px solid var(--accent-red);
   color: #fca5a5;
   border-radius: 4px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.dm-condition-pill:hover {
+  background: rgba(220,38,38,0.3);
+}
+
+.dm-condition-pill.dm-condition-add {
+  background: rgba(255,255,255,0.05);
+  border: 1px dashed var(--border-color);
+  color: var(--text-muted);
+}
+
+.dm-condition-pill.dm-condition-add:hover {
+  border-color: var(--text-gold);
+  color: var(--text-gold);
+}
+
+.dm-condition-picker {
+  z-index: 200;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 280px;
+  padding: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg, 0 8px 24px rgba(0,0,0,0.4));
 }
 
 /* ------------------- Narrativa ------------------- */

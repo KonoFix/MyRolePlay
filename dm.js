@@ -178,6 +178,78 @@ function renderPlayers() {
   grid.querySelectorAll('.dm-player-card[data-uid]').forEach(card => {
     card.addEventListener('click', () => openPlayerDetail(card.dataset.uid));
   });
+
+  // Clique num chip de condição ativa remove; clique em "+ Condição" abre o seletor
+  grid.querySelectorAll('.dm-condition-pill[data-cond]').forEach(pill => {
+    pill.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const uid = pill.closest('.dm-player-card')?.dataset.uid;
+      if (uid) dmToggleCondition(uid, pill.dataset.cond);
+    });
+  });
+  grid.querySelectorAll('[data-add-cond]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const uid = btn.closest('.dm-player-card')?.dataset.uid;
+      if (uid) openConditionPicker(uid, btn);
+    });
+  });
+}
+
+let conditionPickerEl = null;
+
+function closeConditionPicker() {
+  if (conditionPickerEl) { conditionPickerEl.remove(); conditionPickerEl = null; }
+  document.removeEventListener('click', closeConditionPicker, true);
+}
+
+function openConditionPicker(userId, anchorEl) {
+  closeConditionPicker();
+  const p = state.players.find(x => x.user_id === userId);
+  const active = p?.character?.sheet_json?.activeConditions || [];
+  const list = window.DND_DATA?.conditions || [];
+
+  const picker = document.createElement('div');
+  picker.className = 'dm-condition-picker';
+  picker.innerHTML = list.map(c => `
+    <span class="condition-chip ${active.includes(c.id) ? 'active' : ''}" data-cond="${escapeAttr(c.id)}">${escapeHtml(c.name)}</span>
+  `).join('');
+
+  const rect = anchorEl.getBoundingClientRect();
+  picker.style.position = 'fixed';
+  picker.style.top = `${rect.bottom + 6}px`;
+  picker.style.left = `${Math.min(rect.left, window.innerWidth - 280)}px`;
+
+  picker.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const chip = e.target.closest('[data-cond]');
+    if (!chip) return;
+    dmToggleCondition(userId, chip.dataset.cond);
+    chip.classList.toggle('active');
+  });
+
+  document.body.appendChild(picker);
+  conditionPickerEl = picker;
+  setTimeout(() => document.addEventListener('click', closeConditionPicker, true), 0);
+}
+
+async function dmToggleCondition(userId, condId) {
+  const p = state.players.find(x => x.user_id === userId);
+  if (!p?.character) return;
+  const sheet = { ...(p.character.sheet_json || {}) };
+  const conds = Array.isArray(sheet.activeConditions) ? [...sheet.activeConditions] : [];
+  const idx = conds.indexOf(condId);
+  if (idx > -1) conds.splice(idx, 1); else conds.push(condId);
+  sheet.activeConditions = conds;
+
+  const { error } = await supabase.from('characters').update({ sheet_json: sheet }).eq('id', p.character.id);
+  if (error) { alert('Erro ao atualizar condição: ' + error.message); return; }
+
+  p.character.sheet_json = sheet;
+  renderPlayers();
+  if (document.getElementById('playerDetailModal')?.classList.contains('open')) {
+    openPlayerDetail(userId);
+  }
 }
 
 function renderPlayerCard(p) {
@@ -230,8 +302,15 @@ function renderPlayerCard(p) {
         <div class="dm-player-stat"><span class="lbl">Vel</span><span class="val">${sheet.speed ?? '—'}m</span></div>
         <div class="dm-player-stat"><span class="lbl">Insp</span><span class="val">${sheet.inspiration ? window.svgIcon('sparkles') : '—'}</span></div>
       </div>
-      ${conds.length ? `<div class="dm-player-conditions">${conds.map(c => `<span class="dm-condition-pill">${escapeHtml(c)}</span>`).join('')}</div>` : ''}
+      <div class="dm-player-conditions">
+        ${conds.map(c => `<span class="dm-condition-pill" data-cond="${escapeAttr(c)}" title="Clique para remover">${escapeHtml(conditionName(c))}</span>`).join('')}
+        <span class="dm-condition-pill dm-condition-add" data-add-cond title="Marcar condição">+ Condição</span>
+      </div>
     </div>`;
+}
+
+function conditionName(condId) {
+  return window.DND_DATA?.conditions?.find(c => c.id === condId)?.name || condId;
 }
 
 // =============================================================================
@@ -376,7 +455,12 @@ function openPlayerDetail(userId) {
         <span>${window.svgIcon('boots')} Velocidade: <strong>${sheet.speed ?? '—'}m</strong></span>
         <span>${window.svgIcon('medal')} Bônus Prof.: <strong>${pdmFmtMod(prof)}</strong></span>
       </div>
-      ${conds.length ? `<div class="dm-player-conditions" style="margin-top:8px;">${conds.map(c => `<span class="dm-condition-pill">${escapeHtml(c)}</span>`).join('')}</div>` : ''}
+      <div class="pdm-section-title" style="margin-top:14px;">Condições</div>
+      <div class="conditions-chips">
+        ${(window.DND_DATA?.conditions || []).map(c => `
+          <span class="condition-chip ${conds.includes(c.id) ? 'active' : ''}" data-cond="${escapeAttr(c.id)}" title="${escapeAttr(c.desc)}">${escapeHtml(c.name)}</span>
+        `).join('')}
+      </div>
     </div>
 
     <div class="pdm-section">
@@ -424,6 +508,10 @@ function openPlayerDetail(userId) {
       ${bioHtml}
     </div>
   `;
+
+  body.querySelectorAll('.conditions-chips [data-cond]').forEach(chip => {
+    chip.addEventListener('click', () => dmToggleCondition(userId, chip.dataset.cond));
+  });
 
   modal.classList.add('open');
 }
