@@ -582,6 +582,7 @@
 .dm-roll-log li.dm-activity-cond { border-left-color: var(--accent-gold); }
 .dm-roll-log li.dm-activity-roll { border-left-color: var(--accent-blue); }
 .dm-roll-log li.dm-activity-move { border-left-color: var(--accent-green); }
+.dm-roll-log li.dm-activity-handout { border-left-color: var(--accent-purple); }
 
 .dm-activity-time {
   color: var(--text-muted);

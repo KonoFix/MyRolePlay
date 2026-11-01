@@ -8,6 +8,7 @@ import { requireAuth, signOut, getProfile, updateRole } from './auth.js';
 import { loadCharacters, scheduleSave, flushAllSaves, deleteCharacter, getCharacterStorageKeys } from './character-store.js';
 import { mountChatWidget } from './chat-widget.js';
 import { mountInitiativeWidget } from './initiative-widget.js';
+import { mountHandoutsWidget } from './handouts-widget.js';
 
 const authed = await requireAuth();
 if (!authed) {
@@ -145,6 +146,7 @@ if (!authed) {
               campaignLabel: titleById[campaign_id] || 'Mesa',
             });
             mountInitiativeWidget({ supabase, channel: chan, campaignId: campaign_id });
+            mountHandoutsWidget({ supabase, campaignId: campaign_id });
           }
 
           // O mestre pode marcar/desmarcar condições remotamente

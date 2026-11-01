@@ -860,6 +860,61 @@ async function convertNpcToToken() {
 }
 
 // =============================================================================
+// Handouts (texto/imagem pro(s) jogador(es) selecionado(s))
+// =============================================================================
+function openHandoutModal() {
+  if (!state.activeCampaignId) return alert('Selecione uma campanha.');
+  document.getElementById('handoutTitle').value = '';
+  document.getElementById('handoutBody').value = '';
+  document.getElementById('handoutImage').value = '';
+  document.getElementById('handoutImageLabel').textContent = 'Escolher imagem';
+  document.getElementById('handoutRecipientAll').checked = true;
+
+  const list = document.getElementById('handoutRecipientList');
+  list.innerHTML = state.players.map(p => `
+    <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; cursor:pointer;">
+      <input type="checkbox" class="handout-recipient-cb" value="${escapeAttr(p.user_id)}"> ${escapeHtml(p.display_name)}
+    </label>`).join('') || '<small style="color:var(--text-muted);">Nenhum jogador na campanha ainda.</small>';
+  list.hidden = true;
+  document.getElementById('handoutRecipientAll').onchange = (e) => { list.hidden = e.target.checked; };
+
+  document.getElementById('handoutModal').classList.add('open');
+}
+
+async function sendHandout() {
+  const title = document.getElementById('handoutTitle').value.trim();
+  const body = document.getElementById('handoutBody').value.trim();
+  const file = document.getElementById('handoutImage').files?.[0];
+  const sendToAll = document.getElementById('handoutRecipientAll').checked;
+  const recipient_ids = sendToAll
+    ? []
+    : Array.from(document.querySelectorAll('.handout-recipient-cb:checked')).map(cb => cb.value);
+
+  if (!title && !body && !file) return alert('Escreva um texto ou anexe uma imagem.');
+  if (!sendToAll && recipient_ids.length === 0) return alert('Selecione ao menos um jogador, ou marque "Todos".');
+
+  let image_url = null;
+  if (file) {
+    const path = `${state.activeCampaignId}/${Date.now()}-${file.name}`;
+    const { error: upErr } = await supabase.storage.from('handouts').upload(path, file, { upsert: true });
+    if (upErr) return alert('Falha no upload da imagem: ' + upErr.message);
+    image_url = supabase.storage.from('handouts').getPublicUrl(path).data.publicUrl;
+  }
+
+  const { error } = await supabase.from('handouts').insert({
+    campaign_id: state.activeCampaignId,
+    title: title || null,
+    body: body || null,
+    image_url,
+    recipient_ids,
+  });
+  if (error) return alert('Erro ao enviar: ' + error.message);
+
+  document.getElementById('handoutModal').classList.remove('open');
+  pushActivity('handout', `${window.svgIcon('scroll')} <strong>Mestre</strong> enviou um handout${sendToAll ? ' pra todos' : ` pra ${recipient_ids.length} jogador(es)`}`);
+}
+
+// =============================================================================
 // Log de rolagens
 // =============================================================================
 async function loadRolls(campaignId) {
@@ -1512,6 +1567,13 @@ function setupUI() {
     document.getElementById('dmNpcName').focus();
   });
   document.getElementById('btnNpcToToken')?.addEventListener('click', convertNpcToToken);
+
+  // Handouts
+  document.getElementById('btnOpenHandout')?.addEventListener('click', openHandoutModal);
+  document.getElementById('btnSendHandoutConfirm')?.addEventListener('click', sendHandout);
+  document.getElementById('handoutImage')?.addEventListener('change', (e) => {
+    document.getElementById('handoutImageLabel').textContent = e.target.files?.[0]?.name || 'Escolher imagem';
+  });
 
   // Compêndio GdM: Tesouros + Encontros
   document.getElementById('btnRollTreasure')?.addEventListener('click', () => {
