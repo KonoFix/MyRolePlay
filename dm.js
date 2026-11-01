@@ -252,6 +252,7 @@ async function dmToggleCondition(userId, condId) {
   const sheet = { ...(p.character.sheet_json || {}) };
   const conds = Array.isArray(sheet.activeConditions) ? [...sheet.activeConditions] : [];
   const idx = conds.indexOf(condId);
+  const gained = idx === -1;
   if (idx > -1) conds.splice(idx, 1); else conds.push(condId);
   sheet.activeConditions = conds;
 
@@ -263,6 +264,11 @@ async function dmToggleCondition(userId, condId) {
   if (document.getElementById('playerDetailModal')?.classList.contains('open')) {
     openPlayerDetail(userId);
   }
+  // Loga na timeline diretamente aqui — a essa altura já atualizamos
+  // state.players acima, então pelo eco do realtime (handleCharacterActivity)
+  // chegar, "antes" e "depois" já são iguais e o diff não acusa nada.
+  const name = p.display_name || p.character.name || 'Jogador';
+  pushActivity('cond', `<strong>${escapeHtml(name)}</strong> ${gained ? 'ganhou' : 'removeu'} a condição <em>${escapeHtml(condId)}</em>`);
 }
 
 function renderPlayerCard(p) {
