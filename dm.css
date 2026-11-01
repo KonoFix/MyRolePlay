@@ -576,6 +576,19 @@
   color: var(--text-gold);
 }
 
+/* ------------------- Timeline de Atividade ------------------- */
+.dm-roll-log li[class*="dm-activity-"] { align-items: center; }
+.dm-roll-log li.dm-activity-hp   { border-left-color: var(--accent-red); }
+.dm-roll-log li.dm-activity-cond { border-left-color: var(--accent-gold); }
+.dm-roll-log li.dm-activity-roll { border-left-color: var(--accent-blue); }
+.dm-roll-log li.dm-activity-move { border-left-color: var(--accent-green); }
+
+.dm-activity-time {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
 .dm-compendium-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
