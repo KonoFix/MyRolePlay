@@ -31,7 +31,7 @@ export function mountHandoutsWidget({ supabase, campaignId }) {
   wrap.innerHTML = `
     <div class="mrp-handouts-panel" id="${id}Panel">
       <div class="mrp-handouts-header">
-        <span>${window.svgIcon ? window.svgIcon('scroll', { size: 16 }) : '📜'} Handouts</span>
+        <span>${window.svgIcon ? window.svgIcon('book-open', { size: 16 }) : '📖'} Handouts</span>
         <button type="button" class="mrp-handouts-close" aria-label="Fechar">&times;</button>
       </div>
       <div class="mrp-handouts-list" id="${id}List">
@@ -39,7 +39,7 @@ export function mountHandoutsWidget({ supabase, campaignId }) {
       </div>
     </div>
     <button type="button" class="mrp-handouts-fab" id="${id}Fab" title="Handouts do mestre">
-      ${window.svgIcon ? window.svgIcon('scroll', { size: 24 }) : '📜'}<span class="mrp-handouts-badge" id="${id}Badge" hidden></span>
+      ${window.svgIcon ? window.svgIcon('book-open', { size: 24 }) : '📖'}<span class="mrp-handouts-badge" id="${id}Badge" hidden></span>
     </button>`;
   document.body.appendChild(wrap);
 
