@@ -576,6 +576,39 @@
   color: var(--text-gold);
 }
 
+/* ------------------- Linha do Tempo de Atividade ------------------- */
+.dm-activity-log {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.dm-activity-log li {
+  padding: 8px 12px;
+  background: rgba(0,0,0,0.25);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 0.82rem;
+}
+.dm-activity-log li.hp        { border-left-color: var(--accent-red); }
+.dm-activity-log li.condition { border-left-color: var(--accent-gold); }
+.dm-activity-log li.roll      { border-left-color: var(--accent-green); }
+.dm-activity-log li.move      { border-left-color: var(--border-accent); }
+
+.dm-activity-log .activity-time {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-family: var(--font-title);
+}
+
 .dm-compendium-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));

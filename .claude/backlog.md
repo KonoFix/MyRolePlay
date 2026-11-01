@@ -41,7 +41,7 @@ Prioridade: **A** = alta, **B** = média, **C** = baixa.
 - [x] (B) ~~Importar/Exportar campanha JSON~~ — feito (botões no header do DM)
 - [x] (B) ~~Avatar do mestre~~ — feito (bucket avatars + círculo clicável no header)
 - [x] (B) ~~Botão "Visualizar como jogador"~~ — feito: botão na aba Mapa (`dm.html`/`dm.js`) alterna `createBoard({ isDM: false })`, mostrando a névoa exatamente como o jogador vê (opaca, sem pincel) e desabilitando os controles exclusivos do mestre (novo mapa, upload de imagem, token NPC) enquanto o modo está ativo. Banner de aviso com botão "Voltar ao modo Mestre".
-- [ ] (B) **Timeline de atividade no DM** — feed cronológico das mudanças (PV, condição, rolagem, movimento no mapa) usando realtime do canal.
+- [x] (B) ~~Timeline de atividade no DM~~ — feed cronológico das mudanças (PV, condição, rolagem, movimento no mapa) usando realtime do canal. Feito: card "Linha do Tempo" na aba Painel Ao Vivo (`dm.html`/`dm.js`), em memória (sem tabela nova) — compara snapshot de `state.players` antes/depois de `characters` UPDATE pra detectar diff de PV e condições, usa o próprio payload de INSERT em `dice_rolls`, e compara posição anterior do token em `state.tokens` antes de sobrescrever no UPDATE de `tokens`.
 - [ ] (B) **Botão "Enviar handout"** — DM anexa texto/imagem no modal, aparece pra jogadores selecionados.
 - [x] (B) ~~CRUD completo de NPCs~~ — feito: card "NPCs da Campanha" na aba NPCs (dm.html/dm.js) com formulário (nome, PV, CA, ataques, notas, hostil), lista clicável reaproveitando `.dm-arcs-list`, e botão "Converter em token" que insere na tabela `tokens` (sem migration nova — `npcs`/`tokens` já existiam no schema; mesclado de `routine/20261027-0914`).
 

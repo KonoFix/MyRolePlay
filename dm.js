@@ -38,6 +38,7 @@ const state = {
   chatWidget: null,
   initiative: [],
   playerViewActive: false,
+  activityLog: [],
 };
 
 // ---------- Boot ----------
@@ -100,6 +101,9 @@ async function setActiveCampaign(id) {
   document.getElementById('dmCampaignTitle').textContent = camp.title;
   document.getElementById('dmCampaignSubtitle').textContent =
     `Código de convite: ${camp.join_code} • Mestre: ${dmProfile?.display_name || 'Você'}`;
+
+  state.activityLog = [];
+  renderActivity();
 
   await Promise.all([
     loadPlayers(id),
@@ -892,6 +896,64 @@ function renderRolls() {
 }
 
 // =============================================================================
+// Linha do Tempo de Atividade (feed em memória, alimentado pelo realtime)
+// =============================================================================
+function pushActivity(type, text) {
+  state.activityLog.unshift({ type, text, ts: Date.now() });
+  if (state.activityLog.length > 100) state.activityLog.length = 100;
+  renderActivity();
+}
+
+function renderActivity() {
+  const ol = document.getElementById('dmActivityLog');
+  if (!ol) return;
+  if (!state.activityLog.length) {
+    ol.innerHTML = `<li style="cursor:default;color:var(--text-muted);">Nenhuma atividade ainda nesta sessão.</li>`;
+    return;
+  }
+  ol.innerHTML = state.activityLog.map(a => {
+    const time = new Date(a.ts).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    return `<li class="${a.type}"><span>${escapeHtml(a.text)}</span><span class="activity-time">${time}</span></li>`;
+  }).join('');
+}
+
+function logRollActivity(roll) {
+  const who = state.players.find(p => p.user_id === roll.user_id)?.display_name
+    || (roll.user_id === dmUserId ? (dmProfile?.display_name || 'Mestre') : 'Alguém');
+  const nat = roll.result_detail?.nat20 ? ' — Nat 20!' : roll.result_detail?.nat1 ? ' — Nat 1' : '';
+  pushActivity('roll', `${who} rolou ${roll.label} (${roll.formula}): ${roll.result_total}${nat}`);
+}
+
+async function handleCharacterRealtimeChange(campaignId, payload) {
+  if (payload.eventType !== 'UPDATE') { await loadPlayers(campaignId); return; }
+
+  const before = state.players.find(p => p.character?.id === payload.new.id);
+  const beforeSheet = before?.character?.sheet_json || {};
+  const beforeHp = beforeSheet.hp;
+  const beforeConds = Array.isArray(beforeSheet.activeConditions) ? beforeSheet.activeConditions : [];
+
+  await loadPlayers(campaignId);
+  if (!before) return; // personagem não pertence a nenhum jogador desta campanha
+
+  const after = state.players.find(p => p.character?.id === payload.new.id);
+  if (!after) return;
+  const afterSheet = after.character?.sheet_json || {};
+  const name = afterSheet.name || after.character?.name || 'Personagem';
+
+  const afterHp = afterSheet.hp;
+  if (beforeHp && afterHp && beforeHp.current !== afterHp.current) {
+    const diff = afterHp.current - beforeHp.current;
+    pushActivity('hp', `${name} ${diff > 0 ? 'recuperou' : 'perdeu'} ${Math.abs(diff)} PV (${afterHp.current}/${afterHp.max})`);
+  }
+
+  const afterConds = Array.isArray(afterSheet.activeConditions) ? afterSheet.activeConditions : [];
+  afterConds.filter(c => !beforeConds.includes(c)).forEach(c =>
+    pushActivity('condition', `${name} ganhou a condição ${conditionName(c)}`));
+  beforeConds.filter(c => !afterConds.includes(c)).forEach(c =>
+    pushActivity('condition', `${name} perdeu a condição ${conditionName(c)}`));
+}
+
+// =============================================================================
 // Mapas & tokens
 // =============================================================================
 async function loadMaps(campaignId) {
@@ -1211,13 +1273,13 @@ function subscribeRealtime(campaignId) {
     })
     .on('postgres_changes',
         { event: '*', schema: 'public', table: 'characters' },
-        () => loadPlayers(campaignId))
+        (payload) => handleCharacterRealtimeChange(campaignId, payload))
     .on('postgres_changes',
         { event: '*', schema: 'public', table: 'campaign_members', filter: `campaign_id=eq.${campaignId}` },
         () => loadPlayers(campaignId))
     .on('postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'dice_rolls', filter: `campaign_id=eq.${campaignId}` },
-        () => loadRolls(campaignId))
+        (payload) => { loadRolls(campaignId); logRollActivity(payload.new); })
     .on('postgres_changes',
         { event: '*', schema: 'public', table: 'arcs', filter: `campaign_id=eq.${campaignId}` },
         () => loadArcs(campaignId))
@@ -1234,8 +1296,12 @@ function subscribeRealtime(campaignId) {
           const t = payload.new;
           if (t.map_id !== state.activeMapId) return;
           const idx = state.tokens.findIndex(x => x.id === t.id);
+          const prev = idx >= 0 ? state.tokens[idx] : null;
           if (idx >= 0) state.tokens[idx] = t;
           state.board?.updateToken(t.id, { x: t.x, y: t.y });
+          if (prev && (prev.x !== t.x || prev.y !== t.y)) {
+            pushActivity('move', `${t.label || 'Token'} moveu-se no mapa`);
+          }
         });
 
   state.liveChannel = channel;
@@ -1278,6 +1344,11 @@ function setupUI() {
 
   document.getElementById('dmCampaignSelect').addEventListener('change', e => {
     setActiveCampaign(e.target.value);
+  });
+
+  document.getElementById('btnClearActivity')?.addEventListener('click', () => {
+    state.activityLog = [];
+    renderActivity();
   });
 
   document.getElementById('initiativeSourceSelect')?.addEventListener('change', toggleInitiativeNpcName);
