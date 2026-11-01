@@ -9,6 +9,7 @@ import { loadCharacters, scheduleSave, flushAllSaves, deleteCharacter, getCharac
 import { mountChatWidget } from './chat-widget.js';
 import { mountInitiativeWidget } from './initiative-widget.js';
 import { mountHandoutsWidget } from './handouts-widget.js';
+import { mountPlayerMapWidget } from './player-map-widget.js';
 
 const authed = await requireAuth();
 if (!authed) {
@@ -147,6 +148,14 @@ if (!authed) {
             });
             mountInitiativeWidget({ supabase, channel: chan, campaignId: campaign_id });
             mountHandoutsWidget({ supabase, campaignId: campaign_id });
+            const mapTabBtn = document.getElementById('playerMapTabBtn');
+            const boardHostEl = document.getElementById('playerBoardHost');
+            if (mapTabBtn && boardHostEl) {
+              mountPlayerMapWidget({
+                supabase, channel: chan, campaignId: campaign_id,
+                characterId: character_id, tabBtnEl: mapTabBtn, boardHostEl,
+              });
+            }
           }
 
           // O mestre pode marcar/desmarcar condições remotamente
