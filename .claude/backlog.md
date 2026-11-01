@@ -32,7 +32,7 @@ Prioridade: **A** = alta, **B** = média, **C** = baixa.
 - [x] (A) ~~Calculadora de dificuldade de encontro por XP budget~~ — feito em `dm-data.js` + aba NPCs
 - [ ] (A) **Importar monstros padrão (CR 0 a 5) do PDF do GdM** para `dm-data.js`. Precisa `brew install poppler` primeiro (`pdftotext` convert). PDF em `~/Downloads/dd-5e-guia-do-mestre-biblioteca-elfica.pdf`. Formato: `{ nome, cr, hp, ca, ataques, resistências, descrição }`.
 - [x] (A) ~~Tesouro de Dragão (Hoard)~~ — feito: `DM_DATA.treasureHoard` em `dm-data.js` (moedas fixas por faixa de CR + d100 extra de objetos de arte/gemas/item mágico com tabela A–I), novo card "Tesouro de Covil" na aba NPCs (`dm.html`/`dm.js`).
-- [?] (A) ~~Gerador de nomes de NPC~~ (humano, elfo, anão, orc) — **já implementado** em `routine/20261026-0915` (não mesclado). Não reimplementar — mesclar em `main`.
+- [x] (A) ~~Gerador de nomes de NPC~~ — feito: tabelas humano/elfo/anão/orc (masc/fem + sobrenome) em `dm-data.js`, card na aba NPCs (mesclado de `routine/20261026-0915`).
 
 ## Prioridade B — Qualidade de vida
 
@@ -43,7 +43,7 @@ Prioridade: **A** = alta, **B** = média, **C** = baixa.
 - [ ] (B) **Botão "Visualizar como jogador"** — mestre vê o mapa com fog ativo + só suas fichas públicas (preview do que o player vê).
 - [ ] (B) **Timeline de atividade no DM** — feed cronológico das mudanças (PV, condição, rolagem, movimento no mapa) usando realtime do canal.
 - [ ] (B) **Botão "Enviar handout"** — DM anexa texto/imagem no modal, aparece pra jogadores selecionados.
-- [?] (B) ~~CRUD completo de NPCs~~ — **já implementado** em `routine/20261027-0914` (não mesclado). Não reimplementar — mesclar em `main`.
+- [ ] (B) **CRUD completo de NPCs** — já implementado em `routine/20261027-0914` (não mesclado ainda). Não reimplementar — próximo da fila de merge.
 
 ## Prioridade C — Refinamento futuro
 
@@ -56,9 +56,7 @@ Prioridade: **A** = alta, **B** = média, **C** = baixa.
 
 ## Precisa de clarificação
 
-- **[2026-11-01] Resolvido parcialmente: condição-remota e iniciativa consolidadas; nomes-de-NPC e CRUD-NPCs ainda pendentes.** A nota de 2026-10-28 abaixo identificou que `main` nunca recebia merge dos branches `routine/*`, causando reimplementação duplicada. "Mestre pode marcar condição em jogador remotamente" e "Tracker de iniciativa compartilhado" foram consolidados no branch `consolidate/condicoes-e-iniciativa` (uma implementação por feature, escolhendo a versão mais segura/com melhor modelo de dados de cada grupo) e marcados `[x]` acima; os 5 branches duplicados de origem podem ser apagados após o merge. "Gerador de nomes de NPC" (`routine/20261026-0915`) e "CRUD completo de NPCs" (`routine/20261027-0914`) continuam implementados só em branches não mesclados — ainda não têm duplicata, então não há o que consolidar, só mesclar. **Ação recomendada:** mesclar `consolidate/condicoes-e-iniciativa` em `main`, apagar os branches `routine/20261022-2236`, `routine/20261024-0915`, `routine/20261025-1513`, `routine/20261023-0915` e `routine/20261024-1404`, e em seguida mesclar `routine/20261026-0915` e `routine/20261027-0914` (sem necessidade de consolidação) para que esses itens também possam virar `[x]` em `main`.
-
-- **[2026-10-28] `main` continua sem receber merge de nenhum branch `routine/*` — isso causa reimplementação duplicada.** Cada rotina começa com `git checkout main`, e como nenhum branch de rotina anterior foi mesclado nessa linha, o `backlog.md` em `main` nunca reflete o que já foi feito nos branches. Hoje eu ia implementar "Mestre pode marcar condição em jogador remotamente" (o item `[next]` abaixo) e só não criei uma **4ª** cópia porque consultei `.claude/routine.log` (arquivo local, não versionado, mas que sobrevive entre checkouts nesse clone) e vi que já existe em `routine/20261022-2236`, `routine/20261024-0915` e `routine/20261025-1513`. Pelo mesmo motivo, "Tracker de iniciativa compartilhado" já existe em `routine/20261023-0915` e `routine/20261024-1404`; "Gerador de nomes de NPC" (ainda listado como `[ ]` abaixo) já existe em `routine/20261026-0915`; e "CRUD completo de NPCs" (seção B, ainda `[ ]` abaixo) já existe em `routine/20261027-0914`. Troquei para "Tesouro de Dragão (Hoard)" porque é o único item de prioridade A sem nenhuma implementação prévia em qualquer branch. **Ação recomendada:** revisar e mesclar manualmente a melhor versão de cada feature duplicada em `main`, apagar os branches redundantes, e só então marcar os itens correspondentes como `[x]` aqui — isso evita que essa nota (e a duplicação) se repita a cada rotina. Até isso acontecer, a próxima rotina deve tratar `[next]` condição-remota, iniciativa, nomes-de-NPC e CRUD-NPCs como **já feitos** (conferir `.claude/routine.log` ou os branches citados) e pular para o próximo item realmente pendente.
+- **[2026-11-02] Mesclando os branches `routine/*` restantes um a um (sessão interativa).** "Condição remota" e "iniciativa" já tinham sido consolidadas e mescladas em `8b34612`. Dos 5 branches `routine/*` ainda soltos, 2 eram ruído (`routine/20261022-1259` chat e `routine/20261028-0914` modal — zero diff contra `main`, já cobertos por outro caminho, apagados sem merge) e 3 traziam feature real: "Gerador de nomes de NPC" (`routine/20261026-0915`) sendo mesclado agora; "CRUD completo de NPCs" (`routine/20261027-0914`) e "Visualizar como jogador" (`routine/20261029-0915`) na fila logo em seguida. Conflito de merge esperado só em `.claude/backlog.md` (texto, não lógica) — arquivos de código mesclam limpo porque cada branch toca região isolada de `dm.js`.
 
 ---
 
