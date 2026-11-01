@@ -327,7 +327,7 @@ function calculateArmorClass() {
   if (armor.dexMod === 'full') {
     ac = armor.acBase + dexMod + shieldBonus;
   } else if (armor.dexMod === 'max2') {
-    ac = armor.acBase + Math.min(2, Math.max(0, dexMod)) + shieldBonus;
+    ac = armor.acBase + Math.min(2, dexMod) + shieldBonus;
   } else {
     ac = armor.acBase + shieldBonus;
   }
