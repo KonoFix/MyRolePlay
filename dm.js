@@ -1334,6 +1334,16 @@ function setupUI() {
       </div>`;
   });
 
+  document.getElementById('btnRollNpcName')?.addEventListener('click', () => {
+    const race = document.getElementById('npcNameRace').value;
+    const gender = document.getElementById('npcNameGender').value;
+    const names = Array.from({ length: 5 }, () => window.rollNpcName(race, gender));
+    document.getElementById('npcNameResult').innerHTML = `
+      <ul style="margin:0; padding:10px 12px 10px 28px; background:rgba(0,0,0,0.25); border-radius:6px;">
+        ${names.map(n => `<li>${escapeHtml(n)}</li>`).join('')}
+      </ul>`;
+  });
+
   // Mapa
   document.getElementById('dmMapSelect')?.addEventListener('change', e => selectMap(e.target.value));
   document.getElementById('btnNewMap')?.addEventListener('click', createMap);
