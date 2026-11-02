@@ -102,7 +102,8 @@ function createDefaultCharacter() {
       bonds: 'Reivindicar sua terra natal, o Salão de Mitral, expulso pelo dragão das sombras.',
       flaws: 'Tem fraqueza e compaixão extrema por órfãos e almas desvalidas.',
       backstory: 'Cresceu como ferreiro nas aldeias remotas do Vale do Vento Gélido após seu clã ser expulso do Salão de Mitral.',
-      appearance: 'Anão de cabelos e barba vermelha volumosa, 1,40m, 80kg, olhar altivo e cicatrizes de forja.'
+      appearance: 'Anão de cabelos e barba vermelha volumosa, 1,40m, 80kg, olhar altivo e cicatrizes de forja.',
+      languages: 'Comum, Anão'
     }
   };
 }
@@ -1087,6 +1088,23 @@ function renderBioTab() {
   document.getElementById('bioAppearance').value = currentCharacter.bio?.appearance || '';
   document.getElementById('bioHeight').value = currentCharacter.bio?.height || '';
   document.getElementById('bioWeight').value = currentCharacter.bio?.weight || '';
+  document.getElementById('bioLanguages').value = currentCharacter.bio?.languages || '';
+  document.getElementById('raceLanguagesHint').textContent = raceLanguagesHint();
+}
+
+// Idiomas concedidos pela raça (fixos) + quantos o antecedente dá à escolha
+// — só um lembrete pro jogador preencher o campo de texto logo abaixo, já
+// que "N idiomas à escolha" não tem como ser resolvido automaticamente.
+function raceLanguagesHint() {
+  const raceData = DND_DATA.races[currentCharacter.race];
+  const fixed = raceData?.languages?.filter(l => !/à escolha/i.test(l)) || [];
+  const bgData = DND_DATA.backgrounds[currentCharacter.background];
+  const bonusCount = typeof bgData?.languages === 'number' ? bgData.languages : 0;
+
+  const parts = [];
+  if (fixed.length) parts.push(`Sua raça concede: ${fixed.join(', ')}.`);
+  if (bonusCount > 0) parts.push(`Seu antecedente concede +${bonusCount} idioma${bonusCount > 1 ? 's' : ''} à escolha.`);
+  return parts.join(' ') || 'Preencha os idiomas que seu personagem fala.';
 }
 
 // --------------------------------------------------------------------------
@@ -1561,6 +1579,7 @@ function setupUIEventListeners() {
   bindBioField('bioAppearance', 'appearance');
   bindBioField('bioHeight', 'height');
   bindBioField('bioWeight', 'weight');
+  bindBioField('bioLanguages', 'languages');
 
   // Modais
   document.getElementById('btnOpenWizard').addEventListener('click', openWizardModal);
@@ -2292,7 +2311,8 @@ function finishWizardCreation() {
       bonds: '',
       flaws: '',
       backstory: '',
-      appearance: ''
+      appearance: '',
+      languages: ''
     }
   };
 
